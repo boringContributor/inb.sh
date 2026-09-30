@@ -39,7 +39,7 @@ export class EndpointHub extends DurableObject<Env> {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
     this.sql = ctx.storage.sql;
-    ctx.blockConcurrencyWhile(async () => {
+    void ctx.blockConcurrencyWhile(async () => {
       this.sql.exec(`CREATE TABLE IF NOT EXISTS requests (
         id TEXT PRIMARY KEY,
         endpoint_id TEXT NOT NULL,

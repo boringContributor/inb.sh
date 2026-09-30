@@ -83,10 +83,10 @@ const origin = values.url.replace(/\/$/, "");
 const auth = { authorization: `Bearer ${values.token}` };
 
 async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${origin}/api${path}`, {
-    ...init,
-    headers: { ...auth, "content-type": "application/json", ...init.headers },
-  });
+  const headers = new Headers(init.headers);
+  headers.set("authorization", auth.authorization);
+  if (!headers.has("content-type")) headers.set("content-type", "application/json");
+  const res = await fetch(`${origin}/api${path}`, { ...init, headers });
   if (!res.ok) throw new Error(`${init.method ?? "GET"} ${path} → ${res.status}`);
   return (await res.json()) as T;
 }

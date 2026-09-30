@@ -19,14 +19,14 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ["react", "react-dom"],
-          heroui: ["@heroui/react", "react-aria-components"],
-          codemirror: [
-            "@uiw/react-codemirror",
-            "@codemirror/lang-json",
-            "@codemirror/lang-javascript",
-          ],
+        // Rolldown takes the function form only
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/@codemirror|@uiw|@lezer/.test(id)) return "codemirror";
+          if (/@heroui|react-aria|@react-aria|@react-stately|@internationalized/.test(id))
+            return "heroui";
+          if (/[\\/](react|react-dom|scheduler)[\\/]/.test(id)) return "react";
+          return undefined;
         },
       },
     },
