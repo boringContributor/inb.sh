@@ -26,7 +26,7 @@ export default $config({
       // single stage; never delete data on `sst remove`
       removal: "retain",
       protect: input?.stage === "production",
-      providers: { cloudflare: true },
+      providers: { cloudflare: "6.15.0" },
     };
   },
   async run() {
