@@ -3,7 +3,7 @@
 /**
  * Inbound on Cloudflare.
  *
- *   App worker  — dashboard (static assets), REST API, capture endpoint,
+ *   Inbound     — dashboard (static assets), REST API, capture endpoint,
  *                 queue consumer and cron, all in one script so every part
  *                 can reach the EndpointHub Durable Objects directly.
  *   D1          — endpoints, rules, integrations, delivery log, archive
@@ -41,7 +41,7 @@ export default $config({
     const deadLetters = new sst.cloudflare.Queue("DeliveriesDlq");
     const deliveries = new sst.cloudflare.Queue("Deliveries");
 
-    const app = new sst.cloudflare.Worker("App", {
+    const app = new sst.cloudflare.Worker("Inbound", {
       handler: "apps/worker/src/index.ts",
       url: true,
       domain: appHost ? { name: appHost, aliases: [domain!] } : undefined,
