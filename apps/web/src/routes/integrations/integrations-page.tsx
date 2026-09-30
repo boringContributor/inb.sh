@@ -210,7 +210,7 @@ export function IntegrationsPage() {
     },
   });
 
-  const repo = config?.githubRepo ?? "inb-sh/inbound";
+  const repo = config?.githubRepo ?? "boringContributor/inb.sh";
   const connectedCount = integrations?.length ?? 0;
 
   return (
@@ -248,7 +248,7 @@ export function IntegrationsPage() {
         <section className="flex flex-col gap-3" aria-label="Connected integrations">
           <SectionHead
             title="Connected"
-            subtitle="Everything Inbound is forwarding to right now"
+            subtitle="Everything inb.sh is forwarding to right now"
             action={
               <button type="button" className={linkClass} onClick={() => setLogOpen(true)}>
                 Delivery log

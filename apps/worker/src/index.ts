@@ -34,13 +34,18 @@ app.use(async (c, next) => {
 });
 
 // Dashboard host: `/h/<slug>/*` captures too, so a single workers.dev URL works.
-app.all("/h/*", (c) => {
+app.all("/h/*", async (c) => {
   const parsed = splitCapturePath(new URL(c.req.url).pathname.slice(2));
   if (!parsed) return c.json({ error: "unknown endpoint" }, 404);
   return handleCapture(c.env, c.executionCtx, c.req.raw, parsed.slug, parsed.path);
 });
 
-app.use("/api/*", secureHeaders({ crossOriginResourcePolicy: "same-origin" }));
+const apiSecurityHeaders = secureHeaders({ crossOriginResourcePolicy: "same-origin" });
+// A WebSocket 101 comes back from the Durable Object with immutable headers;
+// letting secureHeaders touch it throws and turns every upgrade into a 500.
+app.use("/api/*", (c, next) =>
+  c.req.header("upgrade")?.toLowerCase() === "websocket" ? next() : apiSecurityHeaders(c, next),
+);
 app.route("/", api);
 
 // SPA: static assets with index.html fallback (configured in sst.config.ts).

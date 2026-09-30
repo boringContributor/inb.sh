@@ -77,7 +77,7 @@ function isText(contentType: string | null, bytes: Uint8Array): boolean {
   if (/json|text|xml|x-www-form-urlencoded|javascript|graphql|yaml|csv/.test(ct)) return true;
   if (ct && !ct.startsWith("application/octet-stream")) return false;
   try {
-    new TextDecoder("utf-8", { fatal: true }).decode(bytes.subarray(0, 4096));
+    new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(bytes.subarray(0, 4096));
     return true;
   } catch {
     return false;

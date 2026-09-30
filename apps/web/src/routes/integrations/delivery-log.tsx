@@ -25,14 +25,15 @@ export function DeliveryLog({
 
   return (
     <Drawer.Backdrop isOpen={isOpen} onOpenChange={onOpenChange}>
-      <Drawer.Content placement="right" className="w-full max-w-[520px]">
-        <Drawer.Dialog className="flex h-full flex-col">
+      {/* Content is HeroUI's full-screen positioning layer — size the Dialog, not it */}
+      <Drawer.Content placement="right">
+        <Drawer.Dialog className="w-[520px] max-w-[92vw] gap-0 p-0">
           <Drawer.CloseTrigger />
-          <Drawer.Header>
+          <Drawer.Header className="gap-1 border-b border-separator px-5 pt-5 pb-4">
             <Drawer.Heading>Delivery log</Drawer.Heading>
             <p className="text-sm text-muted">The last 100 deliveries across all integrations.</p>
           </Drawer.Header>
-          <Drawer.Body className="min-h-0 flex-1 overflow-y-auto p-0">
+          <Drawer.Body className="m-0 p-0">
             {isPending && (
               <div className="flex flex-col gap-2 p-4">
                 {Array.from({ length: 6 }, (_, i) => (

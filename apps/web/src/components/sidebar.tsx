@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Button, Dropdown, Label, Skeleton } from "@heroui/react";
-import { Archive, ChevronsUpDown, Inbox, LogOut, Plug, Plus, Settings, SlidersHorizontal } from "lucide-react";
+import { Archive, ChevronsUpDown, LogOut, Plug, Plus, Settings, SlidersHorizontal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { cn } from "../lib/cn.ts";
 import { useConfig, useEndpoints } from "../lib/queries.ts";
 import { ENDPOINT_ICON } from "./icons.tsx";
 import { GithubIcon } from "./brand-icons.tsx";
+import { BrandMark, Wordmark } from "./brand.tsx";
 import { NewEndpointModal } from "./new-endpoint-modal.tsx";
 
 function NavItem({
@@ -71,11 +72,9 @@ export function Sidebar() {
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col gap-1 border-r border-separator bg-surface px-3 py-4">
       <Link to="/" className="flex h-10 w-full items-center gap-2.5 rounded-xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-focus">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-          <Inbox className="size-4" />
-        </span>
+        <BrandMark size={28} />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="text-[15px] font-semibold leading-tight text-foreground">{config?.workspaceName ?? "Inbound"}</span>
+          <Wordmark className="text-[15px] leading-tight" />
           <span className="text-[11px] leading-tight text-tertiary">inbox for HTTP</span>
         </span>
       </Link>

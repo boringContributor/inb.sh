@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, FieldError, Input, Label, TextField } from "@heroui/react";
-import { Inbox } from "lucide-react";
 import { ApiError, api } from "../lib/api.ts";
 import { keys } from "../lib/queries.ts";
+import { BrandMark, Wordmark } from "../components/brand.tsx";
 
 export function LoginPage() {
   const [password, setPassword] = useState("");
@@ -34,11 +34,11 @@ export function LoginPage() {
     <div className="flex h-full items-center justify-center bg-background px-4">
       <form onSubmit={submit} className="flex w-full max-w-sm flex-col gap-6">
         <div className="flex flex-col items-center gap-3 text-center">
-          <span className="flex size-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-            <Inbox className="size-5" />
-          </span>
+          <BrandMark size={44} />
           <div>
-            <h1 className="text-xl font-semibold">Sign in to Inbound</h1>
+            <h1 className="text-xl font-semibold">
+              Sign in to <Wordmark />
+            </h1>
             <p className="mt-1 text-sm text-muted">This instance is self-hosted. Use the admin password you set with SST.</p>
           </div>
         </div>

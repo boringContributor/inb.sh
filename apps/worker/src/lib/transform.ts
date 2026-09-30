@@ -52,13 +52,13 @@ function compile(source: string): jsonata.Expression {
  */
 export async function runTransform(source: string, input: TransformInput): Promise<TransformOutput> {
   const expr = compile(source);
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   const result = (await Promise.race([
     expr.evaluate(input),
     new Promise((_, reject) => {
       timer = setTimeout(() => reject(new Error(`transform exceeded ${TIMEOUT_MS} ms`)), TIMEOUT_MS);
     }),
-  ]).finally(() => clearTimeout(timer))) as unknown;
+  ]).finally(() => timer !== null && clearTimeout(timer))) as unknown;
 
   if (result && typeof result === "object" && !Array.isArray(result)) {
     const r = result as Partial<TransformOutput>;

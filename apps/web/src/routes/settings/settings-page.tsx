@@ -48,7 +48,7 @@ function WorkspacePanel() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TextField value={workspaceName} onChange={setWorkspaceName} isRequired>
               <Label>Workspace name</Label>
-              <Input placeholder="Inbound" />
+              <Input placeholder="inb.sh" />
             </TextField>
             <TextField value={userName} onChange={setUserName} isRequired>
               <Label>Your display name</Label>

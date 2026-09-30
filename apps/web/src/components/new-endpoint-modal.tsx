@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Description, FieldError, Input, Label, Modal, TextField } from "@heroui/react";
-import { Inbox } from "lucide-react";
 import { ENDPOINT_ICONS, type Endpoint, type EndpointIcon, slugSchema } from "@inb/shared";
 import { ApiError, api } from "../lib/api.ts";
 import { cn } from "../lib/cn.ts";
 import { keys, useConfig } from "../lib/queries.ts";
 import { ENDPOINT_ICON } from "./icons.tsx";
+import { InbGlyph } from "./brand.tsx";
 
 export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; onOpenChange: (open: boolean) => void }) {
   const [name, setName] = useState("");
@@ -54,7 +54,7 @@ export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; on
           <Modal.CloseTrigger />
           <Modal.Header>
             <Modal.Icon className="bg-accent-soft text-accent">
-              <Inbox className="size-5" />
+              <InbGlyph mono className="size-5" />
             </Modal.Icon>
             <Modal.Heading>New endpoint</Modal.Heading>
           </Modal.Header>

@@ -257,7 +257,7 @@ export function DefinitionPanel({
           <div className="flex items-start gap-2.5 rounded-xl border border-border bg-background px-3.5 py-3 text-[12.5px] leading-5 text-muted">
             <Code className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden />
             <p>
-              In proxy mode only the upstream URL and delay are used. Inbound forwards the request as received and relays the
+              In proxy mode only the upstream URL and delay are used. inb.sh forwards the request as received and relays the
               upstream's status, headers and body — a <span className="font-mono text-foreground">502</span> is returned if
               the upstream can't be reached within 25 s. Switch to Static or Template to define the reply yourself.
             </p>

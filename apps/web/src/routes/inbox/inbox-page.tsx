@@ -86,6 +86,8 @@ export function InboxPage() {
     queryFn: ({ pageParam }) => api.requests(endpointId, { filter, q, order, cursor: pageParam, limit: PAGE_SIZE }),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor,
+    // the socket pushes new requests; poll only while it's down
+    refetchInterval: live.status === "live" || paused ? false : 5_000,
   });
 
   const items = useMemo(() => requests.data?.pages.flatMap((p) => p.items) ?? [], [requests.data]);

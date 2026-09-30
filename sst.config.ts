@@ -48,7 +48,7 @@ export default $config({
       link: [database, archive, deliveries, adminPassword, sessionSecret],
       environment: {
         ...(domain && { CAPTURE_HOST: domain, APP_ORIGIN: `https://${appHost}` }),
-        GITHUB_REPO: process.env.INBOUND_GITHUB_REPO ?? "inb-sh/inbound",
+        GITHUB_REPO: process.env.INBOUND_GITHUB_REPO ?? "boringContributor/inb.sh",
         DEV: "false",
       },
       compatibility: { date: "2026-09-01", flags: ["nodejs_compat"] },

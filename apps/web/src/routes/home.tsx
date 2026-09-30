@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Navigate } from "@tanstack/react-router";
 import { Button, Spinner } from "@heroui/react";
-import { Inbox, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { InbGlyph } from "../components/brand.tsx";
 import { useEndpoints } from "../lib/queries.ts";
 import { NewEndpointModal } from "../components/new-endpoint-modal.tsx";
 
@@ -26,7 +27,7 @@ export function HomePage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-5 px-6 text-center">
       <span className="flex size-14 items-center justify-center rounded-full bg-accent-soft text-accent">
-        <Inbox className="size-6" />
+        <InbGlyph mono className="size-6" />
       </span>
       <div className="max-w-md">
         <h1 className="text-2xl font-semibold">Create your first endpoint</h1>

@@ -38,7 +38,7 @@ import {
 } from "./db/repo.ts";
 import { checkPassword, clearSession, isAuthenticated, issueSession, requireAuth } from "./lib/auth.ts";
 import { deliveryId, endpointId, endpointSlug, integrationId, ruleId } from "./lib/ids.ts";
-import { runTransform, validateTransform } from "./lib/transform.ts";
+import { type TransformOutput, runTransform, validateTransform } from "./lib/transform.ts";
 import { forward, send } from "./deliver/send.ts";
 import { isPrivateUrl } from "./ingest.ts";
 
@@ -83,10 +83,10 @@ api.get("/config", async (c) => {
   const authed = await isAuthenticated(c);
   const [workspaceName, userName] = await Promise.all([getSetting(db, "workspaceName"), getSetting(db, "userName")]);
   const name = userName ?? "Admin";
-  const repo = c.env.GITHUB_REPO ?? "inb-sh/inbound";
+  const repo = c.env.GITHUB_REPO ?? "boringContributor/inb.sh";
   const config: AppConfig = {
     captureBaseUrl: captureBaseUrl(c.env, c.req.url),
-    workspaceName: workspaceName ?? "Inbound",
+    workspaceName: workspaceName ?? "inb.sh",
     user: authed
       ? {
           name,
@@ -126,6 +126,9 @@ api.post("/auth/logout", (c) => {
 api.use("*", requireAuth);
 
 const hub = (env: Env, id: string) => env.Hub.get(env.Hub.idFromName(id));
+
+/** RPC serialization widens tuples (`[string, string][]` → `string[][]`); the shape is unchanged. */
+const asCaptured = (req: unknown) => req as CapturedRequest | null;
 
 async function requireEndpoint(db: DB, id: string) {
   const row = await findEndpoint(db, id);
@@ -214,7 +217,7 @@ api.delete("/endpoints/:id/requests", async (c) => {
 });
 
 async function requireRequest(env: Env, endpointId: string, requestId: string): Promise<CapturedRequest> {
-  const req = await hub(env, endpointId).get(requestId);
+  const req = asCaptured(await hub(env, endpointId).get(requestId));
   if (!req) throw notFound("request");
   return req;
 }
@@ -243,7 +246,7 @@ api.post("/endpoints/:id/requests/:rid/replay", async (c) => {
     return c.json({ error: "private_url", message: "Private addresses are replayed from your browser or a CLI tunnel." }, 400);
   }
   const ctx = contextFromCaptured(original, endpoint);
-  let payload = {
+  let payload: TransformOutput = {
     method: original.method,
     path: original.path,
     headers: Object.fromEntries(replayableHeaders(original.headers)),
@@ -380,11 +383,11 @@ api.post("/rules/dry-run", async (c) => {
   const endpoint =
     endpoints.find((e) => e.id === (input.endpointId ?? input.rule.endpointId)) ??
     [...endpoints].sort((a, b) => (b.lastRequestAt?.getTime() ?? 0) - (a.lastRequestAt?.getTime() ?? 0))[0];
-  const request = endpoint
+  const request = asCaptured(endpoint
     ? input.requestId
       ? await hub(c.env, endpoint.id).get(input.requestId)
       : await hub(c.env, endpoint.id).latest()
-    : null;
+    : null);
 
   const result: DryRunResult = {
     requestId: request?.id ?? null,
@@ -575,7 +578,7 @@ api.delete("/archive/:rid", async (c) => {
 api.get("/settings", async (c) => {
   const db = c.get("db");
   return c.json({
-    workspaceName: (await getSetting(db, "workspaceName")) ?? "Inbound",
+    workspaceName: (await getSetting(db, "workspaceName")) ?? "inb.sh",
     userName: (await getSetting(db, "userName")) ?? "Admin",
   });
 });

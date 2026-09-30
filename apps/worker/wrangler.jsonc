@@ -9,7 +9,7 @@
   "vars": {
     // no AdminPassword locally → login is skipped
     "DEV": "true",
-    "GITHUB_REPO": "inb-sh/inbound"
+    "GITHUB_REPO": "boringContributor/inb.sh"
   },
   "d1_databases": [{ "binding": "Database", "database_name": "inbound", "database_id": "local" }],
   "r2_buckets": [{ "binding": "Archive", "bucket_name": "inbound-archive" }],
