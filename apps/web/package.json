@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vp dev",
     "build": "tsc --noEmit && vp build",
-    "preview": "vp preview",
-    "test": "vp test"
+    "preview": "vp preview"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.4",
