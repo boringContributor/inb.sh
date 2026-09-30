@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button, Input, Label, ListBox, Select, Switch, TextField } from "@heroui/react";
-import { Archive, Ban, ChevronRight, type LucideIcon, Reply, RotateCcw, Send, Trash } from "lucide-react";
+import {
+  Archive,
+  Ban,
+  ChevronRight,
+  type LucideIcon,
+  Reply,
+  RotateCcw,
+  Send,
+  Trash,
+} from "lucide-react";
 import type { Integration, RuleAction } from "@inb/shared";
 import { CodeEditor } from "../../components/code-editor.tsx";
 import { cn } from "../../lib/cn.ts";
@@ -58,7 +67,13 @@ export function ActionRow({
           <span className="truncate text-[12.5px] font-medium text-foreground">{title}</span>
           <span className="truncate text-[11px] text-tertiary">{subtitle}</span>
         </span>
-        <ChevronRight className={cn("size-3.5 shrink-0 text-tertiary transition-transform", open && "rotate-90")} aria-hidden />
+        <ChevronRight
+          className={cn(
+            "size-3.5 shrink-0 text-tertiary transition-transform",
+            open && "rotate-90",
+          )}
+          aria-hidden
+        />
       </button>
 
       {open && (
@@ -94,7 +109,9 @@ function ActionFields({
           placeholder="Choose an integration"
         >
           <Label className="text-xs text-muted">Integration</Label>
-          <Select.Trigger className={cn(compactField, "flex w-full items-center justify-between font-sans")}>
+          <Select.Trigger
+            className={cn(compactField, "flex w-full items-center justify-between font-sans")}
+          >
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>
@@ -137,7 +154,11 @@ function ActionFields({
               <Label className="text-xs text-muted">Status</Label>
               <Input className={compactField} />
             </TextField>
-            <TextField className="flex-1" value={action.contentType} onChange={(v) => onChange({ ...action, contentType: v })}>
+            <TextField
+              className="flex-1"
+              value={action.contentType}
+              onChange={(v) => onChange({ ...action, contentType: v })}
+            >
               <Label className="text-xs text-muted">Content-Type</Label>
               <Input className={compactField} />
             </TextField>
@@ -182,13 +203,18 @@ function ActionFields({
             </Switch.Content>
           </Switch>
           <p className="text-[11px] leading-relaxed text-tertiary">
-            Localhost and private addresses are delivered through <code className="font-mono">inbound tail</code>; public
-            URLs are replayed from the edge with retries.
+            Localhost and private addresses are delivered through{" "}
+            <code className="font-mono">inbound tail</code>; public URLs are replayed from the edge
+            with retries.
           </p>
         </div>
       );
     case "archive":
-      return <p className="text-xs text-muted">Matching requests are copied to the Archive and kept past the endpoint’s retention.</p>;
+      return (
+        <p className="text-xs text-muted">
+          Matching requests are copied to the Archive and kept past the endpoint’s retention.
+        </p>
+      );
     case "drop":
       return (
         <p className="text-xs text-muted">

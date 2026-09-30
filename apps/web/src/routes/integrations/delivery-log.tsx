@@ -49,7 +49,9 @@ export function DeliveryLog({
             <ul className="divide-y divide-separator">
               {data?.map((d) => {
                 const integration = byId.get(d.integrationId);
-                const Icon = integration ? iconByName(integrationDefinition(integration.kind).icon) : null;
+                const Icon = integration
+                  ? iconByName(integrationDefinition(integration.kind).icon)
+                  : null;
                 return (
                   <li key={d.id} className="flex items-start gap-3 px-5 py-3">
                     <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-background-secondary text-muted">
@@ -57,21 +59,27 @@ export function DeliveryLog({
                     </span>
                     <div className="flex min-w-0 flex-1 flex-col gap-1">
                       <div className="flex items-center gap-2">
-                        <span className="truncate text-[13px] font-medium">{integration?.name ?? "Removed integration"}</span>
+                        <span className="truncate text-[13px] font-medium">
+                          {integration?.name ?? "Removed integration"}
+                        </span>
                         {d.status !== null ? (
                           <StatusCode status={d.status} />
                         ) : (
                           <span className="font-mono text-xs font-semibold text-danger">ERR</span>
                         )}
                         <span className="flex-1" />
-                        <span className="text-[11px] text-tertiary">{formatRelative(d.createdAt)}</span>
+                        <span className="text-[11px] text-tertiary">
+                          {formatRelative(d.createdAt)}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1.5 font-mono text-[11px] text-tertiary">
                         <span className="truncate">{d.requestId}</span>
                         {d.durationMs !== null && <span>· {d.durationMs} ms</span>}
                         {d.attempts > 1 && <span>· {d.attempts} attempts</span>}
                       </div>
-                      {d.error && <p className="break-words text-[11.5px] text-danger">{d.error}</p>}
+                      {d.error && (
+                        <p className="break-words text-[11.5px] text-danger">{d.error}</p>
+                      )}
                     </div>
                   </li>
                 );

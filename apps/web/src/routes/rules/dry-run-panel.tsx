@@ -32,9 +32,18 @@ export function DryRunPanel({
             {result.requestId ? (result.matched ? "Matches" : "No match") : "No requests yet"}
           </TonePill>
         )}
-        {result?.requestId && <span className="truncate font-mono text-[11px] text-tertiary">{result.requestId}</span>}
+        {result?.requestId && (
+          <span className="truncate font-mono text-[11px] text-tertiary">{result.requestId}</span>
+        )}
         <span className="flex-1" />
-        <Button isIconOnly variant="ghost" size="sm" aria-label="Close dry run" onPress={onClose} className="size-6 min-w-6 text-tertiary">
+        <Button
+          isIconOnly
+          variant="ghost"
+          size="sm"
+          aria-label="Close dry run"
+          onPress={onClose}
+          className="size-6 min-w-6 text-tertiary"
+        >
           <X className="size-3.5" />
         </Button>
       </div>
@@ -47,7 +56,9 @@ export function DryRunPanel({
       {error && !pending && <p className="text-xs text-danger">{error}</p>}
 
       {result && !pending && !result.requestId && (
-        <p className="text-xs text-muted">Send a request to any endpoint first — dry runs replay the most recent one.</p>
+        <p className="text-xs text-muted">
+          Send a request to any endpoint first — dry runs replay the most recent one.
+        </p>
       )}
 
       {result && !pending && result.requestId && (
@@ -57,7 +68,10 @@ export function DryRunPanel({
               {result.conditions.map((c, i) => (
                 <li key={i} className="flex items-start gap-2 font-mono text-[11px]">
                   {c.passed ? (
-                    <CircleCheck className="mt-px size-3.5 shrink-0 text-success" aria-label="passed" />
+                    <CircleCheck
+                      className="mt-px size-3.5 shrink-0 text-success"
+                      aria-label="passed"
+                    />
                   ) : (
                     <CircleX className="mt-px size-3.5 shrink-0 text-danger" aria-label="failed" />
                   )}
@@ -72,7 +86,9 @@ export function DryRunPanel({
             </ul>
           )}
           {result.transformError && (
-            <p className="rounded-lg bg-danger-soft px-2.5 py-2 font-mono text-[11px] text-danger">{result.transformError}</p>
+            <p className="rounded-lg bg-danger-soft px-2.5 py-2 font-mono text-[11px] text-danger">
+              {result.transformError}
+            </p>
           )}
           {result.transformed && (
             <div className="overflow-hidden rounded-lg border border-border bg-background">

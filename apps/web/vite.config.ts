@@ -22,7 +22,11 @@ export default defineConfig({
         manualChunks: {
           react: ["react", "react-dom"],
           heroui: ["@heroui/react", "react-aria-components"],
-          codemirror: ["@uiw/react-codemirror", "@codemirror/lang-json", "@codemirror/lang-javascript"],
+          codemirror: [
+            "@uiw/react-codemirror",
+            "@codemirror/lang-json",
+            "@codemirror/lang-javascript",
+          ],
         },
       },
     },

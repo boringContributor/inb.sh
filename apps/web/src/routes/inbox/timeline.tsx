@@ -11,7 +11,13 @@ import {
   Send,
   SlidersHorizontal,
 } from "lucide-react";
-import { type CapturedRequest, type RequestEvent, type RequestEventType, formatClock, formatRelative } from "@inb/shared";
+import {
+  type CapturedRequest,
+  type RequestEvent,
+  type RequestEventType,
+  formatClock,
+  formatRelative,
+} from "@inb/shared";
 import { api } from "../../lib/api.ts";
 import { keys, useIntegrations } from "../../lib/queries.ts";
 import { cn } from "../../lib/cn.ts";
@@ -40,7 +46,8 @@ function stepSub(e: RequestEvent) {
  * most recent event of each kind (a later failure or replay wins).
  */
 export function PipelineStrip({ events }: { events: RequestEvent[] }) {
-  const latest = (types: RequestEventType[]) => [...events].reverse().find((e) => types.includes(e.type));
+  const latest = (types: RequestEventType[]) =>
+    [...events].reverse().find((e) => types.includes(e.type));
   const steps = [
     latest(["received"]),
     latest(["matched"]),
@@ -61,7 +68,12 @@ export function PipelineStrip({ events }: { events: RequestEvent[] }) {
           <Fragment key={`${e.type}-${e.at}`}>
             {i > 0 && <ChevronRight aria-hidden className="size-3.5 shrink-0 text-tertiary" />}
             <li className="flex min-w-0 flex-1 flex-col gap-[3px]">
-              <span className={cn("flex items-center gap-1.5 text-xs font-medium", EVENT_TONE[e.type] ?? "text-muted")}>
+              <span
+                className={cn(
+                  "flex items-center gap-1.5 text-xs font-medium",
+                  EVENT_TONE[e.type] ?? "text-muted",
+                )}
+              >
                 <Icon className="size-[13px] shrink-0" />
                 <span className="truncate">{e.label}</span>
               </span>
@@ -77,7 +89,13 @@ export function PipelineStrip({ events }: { events: RequestEvent[] }) {
 }
 
 /** Full event history plus the delivery log for this request (Timeline tab). */
-export function TimelineTab({ endpointId, request }: { endpointId: string; request: CapturedRequest }) {
+export function TimelineTab({
+  endpointId,
+  request,
+}: {
+  endpointId: string;
+  request: CapturedRequest;
+}) {
   const deliveries = useQuery({
     queryKey: keys.requestDeliveries(endpointId, request.id),
     queryFn: () => api.requestDeliveries(endpointId, request.id),
@@ -95,7 +113,12 @@ export function TimelineTab({ endpointId, request }: { endpointId: string; reque
             const last = i === request.events.length - 1;
             return (
               <li key={`${e.type}-${e.at}-${i}`} className="relative flex gap-3 pb-4 last:pb-0">
-                {!last && <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%-20px)] w-px bg-separator-secondary" />}
+                {!last && (
+                  <span
+                    aria-hidden
+                    className="absolute left-[11px] top-6 h-[calc(100%-20px)] w-px bg-separator-secondary"
+                  />
+                )}
                 <span
                   className={cn(
                     "flex size-6 shrink-0 items-center justify-center rounded-full bg-default",
@@ -106,7 +129,14 @@ export function TimelineTab({ endpointId, request }: { endpointId: string; reque
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
                   <div className="flex items-baseline gap-2">
-                    <span className={cn("text-[13px] font-medium", EVENT_TONE[e.type] ?? "text-foreground")}>{e.label}</span>
+                    <span
+                      className={cn(
+                        "text-[13px] font-medium",
+                        EVENT_TONE[e.type] ?? "text-foreground",
+                      )}
+                    >
+                      {e.label}
+                    </span>
                     <span className="font-mono text-[11px] text-tertiary">{formatClock(e.at)}</span>
                   </div>
                   <span className="break-words text-xs text-muted">{e.detail}</span>
@@ -126,7 +156,9 @@ export function TimelineTab({ endpointId, request }: { endpointId: string; reque
               <Skeleton className="h-4 w-1/2 rounded" />
             </div>
           ) : !deliveries.data?.length ? (
-            <p className="px-3.5 py-4 text-xs text-tertiary">No integration deliveries for this request.</p>
+            <p className="px-3.5 py-4 text-xs text-tertiary">
+              No integration deliveries for this request.
+            </p>
           ) : (
             <table className="w-full text-left text-xs">
               <thead className="text-tertiary">
@@ -143,11 +175,21 @@ export function TimelineTab({ endpointId, request }: { endpointId: string; reque
                   <tr key={d.id} className="border-t border-separator">
                     <td className="px-3.5 py-2 text-foreground">{nameOf(d.integrationId)}</td>
                     <td className="px-3.5 py-2">
-                      {d.status ? <StatusCode status={d.status} /> : <span className="text-danger">error</span>}
-                      {d.error && <span className="ml-2 text-danger" title={d.error}>{d.error.slice(0, 60)}</span>}
+                      {d.status ? (
+                        <StatusCode status={d.status} />
+                      ) : (
+                        <span className="text-danger">error</span>
+                      )}
+                      {d.error && (
+                        <span className="ml-2 text-danger" title={d.error}>
+                          {d.error.slice(0, 60)}
+                        </span>
+                      )}
                     </td>
                     <td className="px-3.5 py-2 font-mono text-muted">{d.attempts}</td>
-                    <td className="px-3.5 py-2 font-mono text-muted">{d.durationMs !== null ? `${d.durationMs} ms` : "—"}</td>
+                    <td className="px-3.5 py-2 font-mono text-muted">
+                      {d.durationMs !== null ? `${d.durationMs} ms` : "—"}
+                    </td>
                     <td className="px-3.5 py-2 text-muted">{formatRelative(d.createdAt)}</td>
                   </tr>
                 ))}

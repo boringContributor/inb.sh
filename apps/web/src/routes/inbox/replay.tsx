@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button, Description, FieldError, Input, Label, Modal, TextField, toast } from "@heroui/react";
+import {
+  Button,
+  Description,
+  FieldError,
+  Input,
+  Label,
+  Modal,
+  TextField,
+  toast,
+} from "@heroui/react";
 import { RotateCcw, Sparkles } from "lucide-react";
 import { type CapturedRequest, replayableHeaders } from "@inb/shared";
 import { ApiError, api } from "../../lib/api.ts";
@@ -20,7 +29,10 @@ export const DEFAULT_REPLAY_TRANSFORM = `$merge([$, {
  * targets the worker can't reach. Headers the browser refuses to set
  * (host, content-length, …) are dropped silently by fetch.
  */
-async function replayFromBrowser(request: CapturedRequest, url: string): Promise<{ status: number | null; error: string | null }> {
+async function replayFromBrowser(
+  request: CapturedRequest,
+  url: string,
+): Promise<{ status: number | null; error: string | null }> {
   const method = request.method.toUpperCase();
   const body =
     method === "GET" || method === "HEAD"
@@ -38,7 +50,14 @@ async function replayFromBrowser(request: CapturedRequest, url: string): Promise
   }
   headers.set("x-inbound-replay", request.id);
   try {
-    const res = await fetch(url, { method, headers, body, mode: "cors", credentials: "omit", redirect: "manual" });
+    const res = await fetch(url, {
+      method,
+      headers,
+      body,
+      mode: "cors",
+      credentials: "omit",
+      redirect: "manual",
+    });
     return { status: res.status || null, error: null };
   } catch {
     return {
@@ -88,7 +107,15 @@ function useReplay(endpointId: string, request: CapturedRequest) {
   return { run, pending };
 }
 
-function TargetField({ url, onChange, error }: { url: string; onChange: (v: string) => void; error: string | null }) {
+function TargetField({
+  url,
+  onChange,
+  error,
+}: {
+  url: string;
+  onChange: (v: string) => void;
+  error: string | null;
+}) {
   return (
     <TextField value={url} onChange={onChange} isInvalid={!!error} isRequired autoFocus>
       <Label>Target URL</Label>
@@ -182,7 +209,9 @@ export function TransformReplayModal({
   onOpenChange: (open: boolean) => void;
 }) {
   const [url, setUrl] = useState(() => readLocal(urlKey(endpointId)) ?? "");
-  const [transform, setTransform] = useState(() => readLocal(transformKey(endpointId)) ?? DEFAULT_REPLAY_TRANSFORM);
+  const [transform, setTransform] = useState(
+    () => readLocal(transformKey(endpointId)) ?? DEFAULT_REPLAY_TRANSFORM,
+  );
   const [error, setError] = useState<string | null>(null);
   const { run, pending } = useReplay(endpointId, request);
   const privateTarget = !!url.trim() && isPrivateUrl(url.trim());
@@ -235,9 +264,13 @@ export function TransformReplayModal({
                   />
                 </div>
                 <p className="text-xs text-tertiary">
-                  Evaluated against <code className="font-mono text-muted">{"{ method, path, query, headers, body }"}</code>.
-                  Return an object with any of those keys to override them, or anything else to replace the body.
-                  Helpers: <code className="font-mono text-muted">$pick(obj, "a", "b")</code>,{" "}
+                  Evaluated against{" "}
+                  <code className="font-mono text-muted">
+                    {"{ method, path, query, headers, body }"}
+                  </code>
+                  . Return an object with any of those keys to override them, or anything else to
+                  replace the body. Helpers:{" "}
+                  <code className="font-mono text-muted">$pick(obj, "a", "b")</code>,{" "}
                   <code className="font-mono text-muted">$mask(str)</code>.
                 </p>
               </div>
@@ -247,14 +280,23 @@ export function TransformReplayModal({
                   setUrl(v);
                   setError(null);
                 }}
-                error={error ?? (privateTarget ? "Transforms run at the edge, so the target must be publicly reachable." : null)}
+                error={
+                  error ??
+                  (privateTarget
+                    ? "Transforms run at the edge, so the target must be publicly reachable."
+                    : null)
+                }
               />
             </Modal.Body>
             <Modal.Footer>
               <Button slot="close" variant="secondary">
                 Cancel
               </Button>
-              <Button type="submit" isPending={pending} isDisabled={!url.trim() || privateTarget || !transform.trim()}>
+              <Button
+                type="submit"
+                isPending={pending}
+                isDisabled={!url.trim() || privateTarget || !transform.trim()}
+              >
                 <Sparkles className="size-4" />
                 Transform &amp; replay
               </Button>

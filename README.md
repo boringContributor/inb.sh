@@ -30,14 +30,14 @@ and [HeroUI v3](https://heroui.com).
 
 ## Repository
 
-| Path              | What                                                                  |
-| ----------------- | --------------------------------------------------------------------- |
-| `apps/web`        | Dashboard — React 19, HeroUI v3, TanStack Router + Query, CodeMirror  |
+| Path              | What                                                                   |
+| ----------------- | ---------------------------------------------------------------------- |
+| `apps/web`        | Dashboard — React 19, HeroUI v3, TanStack Router + Query, CodeMirror   |
 | `apps/worker`     | Cloudflare Worker — capture, API, Durable Object, queue consumer, cron |
-| `packages/shared` | Types, zod schemas, rule conditions, templates, integration catalog   |
-| `packages/cli`    | `inbound listen` — tail an endpoint and forward to localhost          |
-| `sst.config.ts`   | Infrastructure                                                        |
-| `inb-sh.pen`      | The design (open with [pen.dev](https://pen.dev))                     |
+| `packages/shared` | Types, zod schemas, rule conditions, templates, integration catalog    |
+| `packages/cli`    | `inbound listen` — tail an endpoint and forward to localhost           |
+| `sst.config.ts`   | Infrastructure                                                         |
+| `inb-sh.pen`      | The design (open with [pen.dev](https://pen.dev))                      |
 
 ## Getting started
 
@@ -87,17 +87,17 @@ endpoint. The result is shown on each request and usable in rules (`request.sign
 
 ### Templates
 
-Custom responses in *Template* mode interpolate `{{ path }}` tokens:
+Custom responses in _Template_ mode interpolate `{{ path }}` tokens:
 
-| Token                    | Value                                   |
-| ------------------------ | --------------------------------------- |
-| `{{ request.id }}`       | Unique id of the incoming request       |
-| `{{ request.body.* }}`   | Any path in the parsed JSON body        |
-| `{{ request.headers.* }}`| Header lookup, case-insensitive         |
-| `{{ request.query.* }}`  | Query string parameter                  |
-| `{{ now.iso8601 }}`      | Server time when the reply is sent      |
+| Token                     | Value                              |
+| ------------------------- | ---------------------------------- |
+| `{{ request.id }}`        | Unique id of the incoming request  |
+| `{{ request.body.* }}`    | Any path in the parsed JSON body   |
+| `{{ request.headers.* }}` | Header lookup, case-insensitive    |
+| `{{ request.query.* }}`   | Query string parameter             |
+| `{{ now.iso8601 }}`       | Server time when the reply is sent |
 
-Inside JSON bodies, `"{{ request.body.data }}"` inlines objects and escapes strings. *Proxy* mode
+Inside JSON bodies, `"{{ request.body.data }}"` inlines objects and escapes strings. _Proxy_ mode
 forwards to an upstream and relays the real response.
 
 ### Rules

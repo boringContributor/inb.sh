@@ -31,7 +31,10 @@ export function renderConfiguredReply(cfg: ResponseConfig, ctx: RequestContext):
       ["content-type", cfg.contentType],
       ...cfg.headers
         .filter((h) => h.key.trim())
-        .map(({ key, value }) => [key, template ? renderTemplate(value, ctx) : value] as [string, string]),
+        .map(
+          ({ key, value }) =>
+            [key, template ? renderTemplate(value, ctx) : value] as [string, string],
+        ),
     ],
     body: template ? renderTemplate(cfg.body, ctx, json) : cfg.body,
   };

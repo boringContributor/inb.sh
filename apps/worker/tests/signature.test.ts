@@ -10,13 +10,21 @@ describe("verifySignature", () => {
     const t = 1_727_712_043;
     const sig = toHex(await hmac(secret, `${t}.{"id":"evt_1"}`));
     const headers = new Headers({ "stripe-signature": `t=${t},v1=${sig}` });
-    expect(await verifySignature({ provider: "stripe", secret }, headers, body, t * 1000)).toBe(true);
-    expect(await verifySignature({ provider: "stripe", secret }, headers, body, (t + 3600) * 1000)).toBe(false);
-    expect(await verifySignature({ provider: "stripe", secret: "other" }, headers, body, t * 1000)).toBe(false);
+    expect(await verifySignature({ provider: "stripe", secret }, headers, body, t * 1000)).toBe(
+      true,
+    );
+    expect(
+      await verifySignature({ provider: "stripe", secret }, headers, body, (t + 3600) * 1000),
+    ).toBe(false);
+    expect(
+      await verifySignature({ provider: "stripe", secret: "other" }, headers, body, t * 1000),
+    ).toBe(false);
   });
 
   test("github: sha256 hex", async () => {
-    const headers = new Headers({ "x-hub-signature-256": `sha256=${toHex(await hmac(secret, body))}` });
+    const headers = new Headers({
+      "x-hub-signature-256": `sha256=${toHex(await hmac(secret, body))}`,
+    });
     expect(await verifySignature({ provider: "github", secret }, headers, body)).toBe(true);
     expect(await verifySignature({ provider: "github", secret }, new Headers(), body)).toBe(false);
   });
@@ -30,7 +38,11 @@ describe("verifySignature", () => {
     const digest = await hmac(secret, body);
     const hex = new Headers({ "x-sig": `sha256=${toHex(digest)}` });
     const b64 = new Headers({ "x-sig": toBase64(digest) });
-    expect(await verifySignature({ provider: "hmac-sha256", secret, header: "x-sig" }, hex, body)).toBe(true);
-    expect(await verifySignature({ provider: "hmac-sha256", secret, header: "x-sig" }, b64, body)).toBe(true);
+    expect(
+      await verifySignature({ provider: "hmac-sha256", secret, header: "x-sig" }, hex, body),
+    ).toBe(true);
+    expect(
+      await verifySignature({ provider: "hmac-sha256", secret, header: "x-sig" }, b64, body),
+    ).toBe(true);
   });
 });

@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { Button, Chip, Input, Label, ListBox, NumberField, Select, TextField, Tooltip, Description } from "@heroui/react";
+import {
+  Button,
+  Chip,
+  Input,
+  Label,
+  ListBox,
+  NumberField,
+  Select,
+  TextField,
+  Tooltip,
+  Description,
+} from "@heroui/react";
 import { Code, Plus, Trash, TriangleAlert } from "lucide-react";
 import type { HeaderPair, ResponseConfig } from "@inb/shared";
 import { STATUS_TEXT } from "@inb/shared";
@@ -38,7 +49,11 @@ function StatusField({ status, onChange }: { status: number; onChange: (s: numbe
           <Select.Popover>
             <ListBox>
               {COMMON_STATUSES.map((code) => (
-                <ListBox.Item key={code} id={String(code)} textValue={`${code} ${STATUS_TEXT[code] ?? ""}`}>
+                <ListBox.Item
+                  key={code}
+                  id={String(code)}
+                  textValue={`${code} ${STATUS_TEXT[code] ?? ""}`}
+                >
                   <span className="font-mono text-[13px]">
                     {code} {STATUS_TEXT[code]}
                   </span>
@@ -75,7 +90,11 @@ function StatusField({ status, onChange }: { status: number; onChange: (s: numbe
 function ContentTypeField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const options = CONTENT_TYPES.includes(value) ? CONTENT_TYPES : [value, ...CONTENT_TYPES];
   return (
-    <Select className="min-w-0 flex-1" value={value} onChange={(key) => key !== null && onChange(String(key))}>
+    <Select
+      className="min-w-0 flex-1"
+      value={value}
+      onChange={(key) => key !== null && onChange(String(key))}
+    >
       <Label className={FIELD_LABEL}>Content-Type</Label>
       <Select.Trigger className={CONTROL}>
         <Select.Value />
@@ -236,7 +255,10 @@ export function DefinitionPanel({
               type="url"
             >
               <Label className={FIELD_LABEL}>Upstream URL</Label>
-              <Input placeholder="https://api.example.com/webhooks" className={cn(CONTROL, "px-3")} />
+              <Input
+                placeholder="https://api.example.com/webhooks"
+                className={cn(CONTROL, "px-3")}
+              />
               <Description className="text-[11.5px] text-tertiary">
                 {proxyInvalid
                   ? "Enter a full http(s) URL."
@@ -248,7 +270,10 @@ export function DefinitionPanel({
         ) : (
           <div className="flex w-full gap-3 max-[900px]:flex-col">
             <StatusField status={draft.status} onChange={(status) => onChange({ status })} />
-            <ContentTypeField value={draft.contentType} onChange={(contentType) => onChange({ contentType })} />
+            <ContentTypeField
+              value={draft.contentType}
+              onChange={(contentType) => onChange({ contentType })}
+            />
             <DelayField value={draft.delayMs} onChange={(delayMs) => onChange({ delayMs })} />
           </div>
         )}
@@ -257,21 +282,30 @@ export function DefinitionPanel({
           <div className="flex items-start gap-2.5 rounded-xl border border-border bg-background px-3.5 py-3 text-[12.5px] leading-5 text-muted">
             <Code className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden />
             <p>
-              In proxy mode only the upstream URL and delay are used. inb.sh forwards the request as received and relays the
-              upstream's status, headers and body — a <span className="font-mono text-foreground">502</span> is returned if
-              the upstream can't be reached within 25 s. Switch to Static or Template to define the reply yourself.
+              In proxy mode only the upstream URL and delay are used. inb.sh forwards the request as
+              received and relays the upstream's status, headers and body — a{" "}
+              <span className="font-mono text-foreground">502</span> is returned if the upstream
+              can't be reached within 25 s. Switch to Static or Template to define the reply
+              yourself.
             </p>
           </div>
         ) : (
           <>
-            <HeadersEditor headers={draft.headers} onChange={(headers) => onChange({ headers })} template={template} />
+            <HeadersEditor
+              headers={draft.headers}
+              onChange={(headers) => onChange({ headers })}
+              template={template}
+            />
 
             <div className="flex min-h-[220px] w-full flex-1 flex-col gap-2">
               <div className="flex w-full items-center gap-2">
                 <span className={cn(FIELD_LABEL, "flex-1")} id="response-body-label">
                   Response body
                 </span>
-                <Chip size="sm" className="bg-default font-mono text-[11px] font-medium text-foreground">
+                <Chip
+                  size="sm"
+                  className="bg-default font-mono text-[11px] font-medium text-foreground"
+                >
                   {bodyLanguageLabel(draft.contentType)}
                 </Chip>
               </div>

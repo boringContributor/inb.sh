@@ -44,7 +44,15 @@ function LogoTile({ icon, size = "md" }: { icon: string; size?: "md" | "sm" }) {
   );
 }
 
-function SectionHead({ title, subtitle, action }: { title: string; subtitle: string; action?: React.ReactNode }) {
+function SectionHead({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle: string;
+  action?: React.ReactNode;
+}) {
   return (
     <div className="flex w-full items-center gap-2">
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
@@ -61,11 +69,18 @@ const linkClass =
 function Sparkline({ series }: { series: number[] }) {
   const max = Math.max(1, ...series);
   return (
-    <div className="flex h-11 w-full items-end gap-[3px]" role="img" aria-label="Deliveries per hour, last 24 hours">
+    <div
+      className="flex h-11 w-full items-end gap-[3px]"
+      role="img"
+      aria-label="Deliveries per hour, last 24 hours"
+    >
       {series.map((v, i) => (
         <div
           key={i}
-          className={cn("flex-1 rounded-[2px]", i >= series.length - 4 ? "bg-accent" : "bg-accent-soft")}
+          className={cn(
+            "flex-1 rounded-[2px]",
+            i >= series.length - 4 ? "bg-accent" : "bg-accent-soft",
+          )}
           style={{ height: `${Math.max(4, Math.round((v / max) * 44))}px` }}
           title={`${v} deliveries`}
         />
@@ -85,7 +100,9 @@ function ConnectedCard({
 }) {
   const qc = useQueryClient();
   const def = integrationDefinition(integration.kind);
-  const dot = integration.enabled ? HEALTH_DOT[integration.health] : { cls: "bg-tertiary", label: "Disabled" };
+  const dot = integration.enabled
+    ? HEALTH_DOT[integration.health]
+    : { cls: "bg-tertiary", label: "Disabled" };
 
   const toggle = useMutation({
     mutationFn: () => api.updateIntegration(integration.id, { enabled: !integration.enabled }),
@@ -110,17 +127,33 @@ function ConnectedCard({
       <div className="flex w-full items-center gap-2.5">
         <LogoTile icon={def.icon} />
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <h3 className="truncate text-[13.5px] font-semibold text-foreground">{integration.name}</h3>
-          <p className="truncate font-mono text-[11px] text-tertiary">{integration.target || def.name}</p>
+          <h3 className="truncate text-[13.5px] font-semibold text-foreground">
+            {integration.name}
+          </h3>
+          <p className="truncate font-mono text-[11px] text-tertiary">
+            {integration.target || def.name}
+          </p>
         </div>
         <Tooltip delay={300}>
-          <Button isIconOnly variant="ghost" size="sm" aria-label={dot.label} className="size-6 min-w-6">
+          <Button
+            isIconOnly
+            variant="ghost"
+            size="sm"
+            aria-label={dot.label}
+            className="size-6 min-w-6"
+          >
             <span className={cn("size-[7px] rounded-full", dot.cls)} />
           </Button>
           <Tooltip.Content>{dot.label}</Tooltip.Content>
         </Tooltip>
         <Dropdown>
-          <Button isIconOnly variant="ghost" size="sm" aria-label={`${integration.name} actions`} className="size-[26px] min-w-[26px] text-muted">
+          <Button
+            isIconOnly
+            variant="ghost"
+            size="sm"
+            aria-label={`${integration.name} actions`}
+            className="size-[26px] min-w-[26px] text-muted"
+          >
             <Ellipsis className="size-3.5" />
           </Button>
           <Dropdown.Popover placement="bottom end">
@@ -150,11 +183,17 @@ function ConnectedCard({
       </div>
       <Sparkline series={integration.series} />
       <div className="flex w-full items-center gap-2 text-[11.5px]">
-        <span className="whitespace-nowrap font-medium text-muted">{formatCount(integration.stats.delivered)} delivered</span>
+        <span className="whitespace-nowrap font-medium text-muted">
+          {formatCount(integration.stats.delivered)} delivered
+        </span>
         <span className="text-[11px] text-tertiary">·</span>
-        <span className="min-w-0 flex-1 truncate text-tertiary">{formatPercent(integration.stats.okRate)} ok</span>
+        <span className="min-w-0 flex-1 truncate text-tertiary">
+          {formatPercent(integration.stats.okRate)} ok
+        </span>
         <span className="whitespace-nowrap text-[11px] text-tertiary">
-          {integration.stats.lastDeliveryAt ? formatRelative(integration.stats.lastDeliveryAt) : "no deliveries"}
+          {integration.stats.lastDeliveryAt
+            ? formatRelative(integration.stats.lastDeliveryAt)
+            : "no deliveries"}
         </span>
       </div>
     </article>
@@ -269,7 +308,8 @@ export function IntegrationsPage() {
               <div>
                 <p className="text-sm font-medium">Nothing connected yet</p>
                 <p className="mt-1 text-xs text-muted">
-                  Connect a destination below, then add a rule with a “Forward” action to start shipping requests.
+                  Connect a destination below, then add a rule with a “Forward” action to start
+                  shipping requests.
                 </p>
               </div>
             </div>
@@ -302,7 +342,11 @@ export function IntegrationsPage() {
               </a>
             }
           />
-          <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter by category">
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            role="group"
+            aria-label="Filter by category"
+          >
             {[null, ...INTEGRATION_CATEGORIES].map((c) => {
               const active = c === category;
               return (
@@ -314,7 +358,9 @@ export function IntegrationsPage() {
                   className={cn(
                     "flex h-[26px] items-center rounded-full px-[11px] text-[11.5px] font-medium outline-none transition-colors",
                     "focus-visible:ring-2 focus-visible:ring-focus",
-                    active ? "bg-default text-foreground" : "border border-border text-tertiary hover:text-foreground",
+                    active
+                      ? "bg-default text-foreground"
+                      : "border border-border text-tertiary hover:text-foreground",
                   )}
                 >
                   {c ?? `All ${INTEGRATIONS.length}`}
@@ -324,7 +370,11 @@ export function IntegrationsPage() {
           </div>
           <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
             {catalog.map((def) => (
-              <CatalogCard key={def.kind} def={def} onConnect={() => setTarget({ mode: "create", kind: def.kind })} />
+              <CatalogCard
+                key={def.kind}
+                def={def}
+                onConnect={() => setTarget({ mode: "create", kind: def.kind })}
+              />
             ))}
           </div>
         </section>
@@ -342,7 +392,8 @@ export function IntegrationsPage() {
             </AlertDialog.Header>
             <AlertDialog.Body>
               <p className="text-sm text-muted">
-                Rules that forward to this integration will skip it. Its delivery history stays in the log for 30 days.
+                Rules that forward to this integration will skip it. Its delivery history stays in
+                the log for 30 days.
               </p>
             </AlertDialog.Body>
             <AlertDialog.Footer>

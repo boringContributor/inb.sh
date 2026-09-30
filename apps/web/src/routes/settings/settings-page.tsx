@@ -23,14 +23,16 @@ function WorkspacePanel() {
   }, [data]);
 
   const save = useMutation({
-    mutationFn: () => api.updateSettings({ workspaceName: workspaceName.trim(), userName: userName.trim() }),
+    mutationFn: () =>
+      api.updateSettings({ workspaceName: workspaceName.trim(), userName: userName.trim() }),
     onSuccess: () => {
       toast.success("Settings saved");
       void qc.invalidateQueries({ queryKey: keys.settings });
       void qc.invalidateQueries({ queryKey: keys.config });
     },
   });
-  const dirty = !!data && (workspaceName.trim() !== data.workspaceName || userName.trim() !== data.userName);
+  const dirty =
+    !!data && (workspaceName.trim() !== data.workspaceName || userName.trim() !== data.userName);
 
   return (
     <Panel>
@@ -83,9 +85,14 @@ function DeploymentPanel() {
       <div className="flex flex-col gap-4 border-t border-separator p-4">
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">Capture base URL</span>
-          {config ? <Mono>{`${config.captureBaseUrl}/<slug>`}</Mono> : <Skeleton className="h-9 rounded-xl" />}
+          {config ? (
+            <Mono>{`${config.captureBaseUrl}/<slug>`}</Mono>
+          ) : (
+            <Skeleton className="h-9 rounded-xl" />
+          )}
           <p className="text-xs text-tertiary">
-            Set <code className="font-mono text-muted">INBOUND_DOMAIN</code> before deploying to capture on your own domain.
+            Set <code className="font-mono text-muted">INBOUND_DOMAIN</code> before deploying to
+            capture on your own domain.
           </p>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -96,7 +103,8 @@ function DeploymentPanel() {
           <Mono>sst secret set AdminPassword &lt;password&gt; --stage production</Mono>
           <Mono>sst secret set SessionSecret &lt;random-64-chars&gt; --stage production</Mono>
           <p className="text-xs text-tertiary">
-            Rotating SessionSecret signs everyone out. The admin password also works as a bearer token for the API.
+            Rotating SessionSecret signs everyone out. The admin password also works as a bearer
+            token for the API.
           </p>
         </div>
       </div>
@@ -112,7 +120,9 @@ function RetentionRow({ endpoint }: { endpoint: Endpoint }) {
     mutationFn: (retentionDays: number) => api.updateEndpoint(endpoint.id, { retentionDays }),
     onSuccess: (updated) => {
       toast.success(`${updated.name} keeps requests for ${updated.retentionDays} days`);
-      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) => list?.map((e) => (e.id === updated.id ? updated : e)));
+      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) =>
+        list?.map((e) => (e.id === updated.id ? updated : e)),
+      );
       qc.setQueryData(keys.endpoint(updated.id), updated);
     },
   });
@@ -157,11 +167,15 @@ function RetentionPanel() {
   return (
     <Panel>
       <PanelHeader icon={<Timer />} title="Retention">
-        <span className="text-xs text-tertiary">Requests older than this are deleted hourly. Archived copies stay.</span>
+        <span className="text-xs text-tertiary">
+          Requests older than this are deleted hourly. Archived copies stay.
+        </span>
       </PanelHeader>
       <div className="border-t border-separator">
         {isPending && <Skeleton className="m-4 h-12 rounded-xl" />}
-        {endpoints?.length === 0 && <p className="px-4 py-5 text-sm text-tertiary">No endpoints yet.</p>}
+        {endpoints?.length === 0 && (
+          <p className="px-4 py-5 text-sm text-tertiary">No endpoints yet.</p>
+        )}
         <ul className="divide-y divide-separator">
           {endpoints?.map((e) => (
             <RetentionRow key={e.id} endpoint={e} />

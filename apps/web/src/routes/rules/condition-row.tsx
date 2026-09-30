@@ -55,7 +55,9 @@ export function ConditionRow({
         onChange={(key) => key && onChange({ ...condition, op: key as ConditionOp })}
         className="w-[120px] shrink-0"
       >
-        <Select.Trigger className={cn(compactField, "flex w-full items-center justify-between text-muted")}>
+        <Select.Trigger
+          className={cn(compactField, "flex w-full items-center justify-between text-muted")}
+        >
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>
@@ -84,8 +86,15 @@ export function ConditionRow({
       )}
       {result && (
         <span
-          className={cn("size-1.5 shrink-0 rounded-full", result.passed ? "bg-success" : "bg-danger")}
-          title={result.passed ? "matched on the last request" : `no match — actual: ${JSON.stringify(result.actual) ?? "undefined"}`}
+          className={cn(
+            "size-1.5 shrink-0 rounded-full",
+            result.passed ? "bg-success" : "bg-danger",
+          )}
+          title={
+            result.passed
+              ? "matched on the last request"
+              : `no match — actual: ${JSON.stringify(result.actual) ?? "undefined"}`
+          }
           aria-label={result.passed ? "Condition passed" : "Condition failed"}
         />
       )}

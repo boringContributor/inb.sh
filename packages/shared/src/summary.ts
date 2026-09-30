@@ -9,7 +9,8 @@ export function summarizeRequest(input: {
   body: unknown;
 }): string {
   const h = input.headers;
-  const fromHeader = h["x-github-event"] ?? h["x-shopify-topic"] ?? h["x-event-type"] ?? h["x-webhook-event"];
+  const fromHeader =
+    h["x-github-event"] ?? h["x-shopify-topic"] ?? h["x-event-type"] ?? h["x-webhook-event"];
   if (input.body && typeof input.body === "object" && !Array.isArray(input.body)) {
     const b = input.body as Record<string, unknown>;
     for (const key of ["type", "event", "event_type", "eventType", "topic"]) {

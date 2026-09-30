@@ -54,7 +54,8 @@ app.get("*", async (c) => {
   const res = await c.env.ASSETS.fetch(c.req.raw);
   const headers = new Headers(res.headers);
   const path = new URL(c.req.url).pathname;
-  if (path.startsWith("/assets/")) headers.set("cache-control", "public, max-age=31536000, immutable");
+  if (path.startsWith("/assets/"))
+    headers.set("cache-control", "public, max-age=31536000, immutable");
   headers.set("x-content-type-options", "nosniff");
   headers.set("referrer-policy", "strict-origin-when-cross-origin");
   headers.set("x-frame-options", "DENY");

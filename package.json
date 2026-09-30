@@ -8,6 +8,7 @@
     "dev:reset": "rm -rf .wrangler/state",
     "build": "vp run -r build",
     "check": "vp check",
+    "check:fix": "vp check --fix",
     "test": "vp run -r test",
     "ready": "vp check && vp run -r test && vp run -r build",
     "deploy": "vp run ready && sst deploy --stage production"

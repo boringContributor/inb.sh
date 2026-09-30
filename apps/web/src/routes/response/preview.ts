@@ -28,7 +28,16 @@ export interface ProxyPreview {
 
 /** Stand-in for when the endpoint hasn't received anything yet. */
 export function sampleRequest(endpoint: Pick<Endpoint, "id">): CapturedRequest {
-  const body = JSON.stringify({ id: "evt_1QMxk2A9sT4bQzLp", object: "event", type: "invoice.payment_succeeded", data: { object: { id: "in_1QMxk0A9sT4bQzLp", amount_paid: 4900, currency: "eur" } } }, null, 2);
+  const body = JSON.stringify(
+    {
+      id: "evt_1QMxk2A9sT4bQzLp",
+      object: "event",
+      type: "invoice.payment_succeeded",
+      data: { object: { id: "in_1QMxk0A9sT4bQzLp", amount_paid: 4900, currency: "eur" } },
+    },
+    null,
+    2,
+  );
   const now = new Date().toISOString();
   return {
     id: "req_8f2a91c4e7",
@@ -45,7 +54,10 @@ export function sampleRequest(endpoint: Pick<Endpoint, "id">): CapturedRequest {
     headers: [
       ["content-type", "application/json"],
       ["user-agent", "Stripe/1.0 (+https://stripe.com/docs/webhooks)"],
-      ["stripe-signature", "t=1727712043,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd"],
+      [
+        "stripe-signature",
+        "t=1727712043,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd",
+      ],
     ],
     body,
     bodyEncoding: "utf8",
@@ -60,7 +72,11 @@ export function sampleRequest(endpoint: Pick<Endpoint, "id">): CapturedRequest {
   };
 }
 
-export function previewContext(request: CapturedRequest, endpoint: Pick<Endpoint, "id" | "slug" | "name">, captureBaseUrl: string): RequestContext {
+export function previewContext(
+  request: CapturedRequest,
+  endpoint: Pick<Endpoint, "id" | "slug" | "name">,
+  captureBaseUrl: string,
+): RequestContext {
   return contextFromCaptured(request, endpoint, captureBaseUrl);
 }
 
@@ -79,8 +95,12 @@ function parses(text: string): boolean {
  * Uses the same renderers as the worker (`@inb/shared` reply.ts), so the
  * preview is exactly what a sender receives.
  */
-export function buildPreview(cfg: ResponseConfig, ctx: RequestContext): PreviewResponse | ProxyPreview {
-  if (cfg.enabled && cfg.mode === "proxy") return { kind: "proxy", url: cfg.proxyUrl ?? "", delayMs: cfg.delayMs };
+export function buildPreview(
+  cfg: ResponseConfig,
+  ctx: RequestContext,
+): PreviewResponse | ProxyPreview {
+  if (cfg.enabled && cfg.mode === "proxy")
+    return { kind: "proxy", url: cfg.proxyUrl ?? "", delayMs: cfg.delayMs };
   const reply = cfg.enabled ? renderConfiguredReply(cfg, ctx) : defaultReply(ctx.request.id);
   const json = isJsonType(cfg.enabled ? cfg.contentType : "application/json");
   return {
@@ -95,10 +115,17 @@ export function buildPreview(cfg: ResponseConfig, ctx: RequestContext): PreviewR
 }
 
 export function previewToText(p: PreviewResponse): string {
-  return [`HTTP/1.1 ${p.status} ${p.statusText}`.trim(), ...p.headers.map(([k, v]) => `${k}: ${v}`), "", p.body].join("\n");
+  return [
+    `HTTP/1.1 ${p.status} ${p.statusText}`.trim(),
+    ...p.headers.map(([k, v]) => `${k}: ${v}`),
+    "",
+    p.body,
+  ].join("\n");
 }
 
-export const COMMON_STATUSES = [200, 201, 202, 204, 301, 302, 304, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503, 504];
+export const COMMON_STATUSES = [
+  200, 201, 202, 204, 301, 302, 304, 400, 401, 403, 404, 409, 410, 422, 429, 500, 502, 503, 504,
+];
 
 export const CONTENT_TYPES = [
   "application/json",

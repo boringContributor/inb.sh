@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, SearchField, Skeleton, Tooltip } from "@heroui/react";
 import { ArrowDownUp } from "lucide-react";
-import { type RequestFilter, type RequestPage, type RequestSummary, formatBytes, formatRelative } from "@inb/shared";
+import {
+  type RequestFilter,
+  type RequestPage,
+  type RequestSummary,
+  formatBytes,
+  formatRelative,
+} from "@inb/shared";
 import { MethodBadge, StatusCode } from "../../components/badges.tsx";
 import { cn } from "../../lib/cn.ts";
 import { useNow } from "./hooks.ts";
@@ -47,7 +53,11 @@ export function ListToolbar({
         <Button
           isIconOnly
           variant="ghost"
-          aria-label={order === "desc" ? "Newest first — show oldest first" : "Oldest first — show newest first"}
+          aria-label={
+            order === "desc"
+              ? "Newest first — show oldest first"
+              : "Oldest first — show newest first"
+          }
           isDisabled={disabled}
           onPress={onToggleOrder}
           className={cn("size-9 min-w-9 rounded-3xl text-muted", order === "asc" && "text-accent")}
@@ -70,10 +80,15 @@ function FilterPills({
   onChange: (f: RequestFilter) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label="Status filter" className="flex h-9 w-full shrink-0 items-center gap-1.5 overflow-x-auto px-3">
+    <div
+      role="radiogroup"
+      aria-label="Status filter"
+      className="flex h-9 w-full shrink-0 items-center gap-1.5 overflow-x-auto px-3"
+    >
       {FILTERS.map((f) => {
         const active = filter === f.id;
-        const label = f.id === "all" && counts ? `All ${counts.all.toLocaleString("en-US")}` : f.label;
+        const label =
+          f.id === "all" && counts ? `All ${counts.all.toLocaleString("en-US")}` : f.label;
         return (
           <button
             key={f.id}
@@ -85,7 +100,9 @@ function FilterPills({
             className={cn(
               "inline-flex h-6 shrink-0 items-center justify-center rounded-full px-2.5 text-[11.5px] font-medium outline-none transition-colors",
               "focus-visible:ring-2 focus-visible:ring-focus",
-              active ? "bg-default text-foreground" : "border border-border text-tertiary hover:text-muted",
+              active
+                ? "bg-default text-foreground"
+                : "border border-border text-tertiary hover:text-muted",
             )}
           >
             {label}
@@ -128,7 +145,10 @@ function RequestRow({
           isNew && !selected && "animate-flash",
         )}
       >
-        <span className={cn("h-full w-0.5 shrink-0", selected ? "bg-accent" : "bg-transparent")} aria-hidden />
+        <span
+          className={cn("h-full w-0.5 shrink-0", selected ? "bg-accent" : "bg-transparent")}
+          aria-hidden
+        />
         <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-3 pl-2.5 pr-3">
           <span className="flex w-full items-center gap-2">
             <MethodBadge method={request.method} />
@@ -172,7 +192,10 @@ export function RowSkeletons({ count = 6 }: { count?: number }) {
   return (
     <div aria-hidden className="flex flex-col">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="flex h-[68px] flex-col justify-center gap-2 border-b border-separator px-3.5">
+        <div
+          key={i}
+          className="flex h-[68px] flex-col justify-center gap-2 border-b border-separator px-3.5"
+        >
           <div className="flex items-center gap-2">
             <Skeleton className="h-3.5 w-10 rounded" />
             <div style={{ width: `${40 + ((i * 37) % 35)}%` }}>
@@ -250,14 +273,21 @@ export function RequestList({
       aria-label="Requests"
       className="flex h-full w-[320px] shrink-0 flex-col border-r border-separator bg-background-secondary xl:w-[380px]"
     >
-      <ListToolbar query={query} onQueryChange={onQueryChange} order={order} onToggleOrder={onToggleOrder} />
+      <ListToolbar
+        query={query}
+        onQueryChange={onQueryChange}
+        order={order}
+        onToggleOrder={onToggleOrder}
+      />
       <FilterPills filter={filter} counts={counts} onChange={onFilterChange} />
       <div className="h-px w-full shrink-0 bg-separator" />
       <div ref={setScrollRoot} className="min-h-0 flex-1 overflow-y-auto">
         {isPending ? (
           <RowSkeletons />
         ) : isError ? (
-          <p className="px-4 py-6 text-sm text-danger">Couldn't load requests. They'll reappear when the connection is back.</p>
+          <p className="px-4 py-6 text-sm text-danger">
+            Couldn't load requests. They'll reappear when the connection is back.
+          </p>
         ) : items.length === 0 ? (
           <div className="flex flex-col gap-1 px-4 py-8 text-center">
             <p className="text-sm font-medium text-foreground">No matching requests</p>

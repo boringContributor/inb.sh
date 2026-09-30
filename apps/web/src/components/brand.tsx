@@ -11,7 +11,14 @@ const BOX = "M4.5 14.5v8.5a4.5 4.5 0 0 0 4.5 4.5h14a4.5 4.5 0 0 0 4.5-4.5v-8.5";
  */
 export function InbGlyph({ mono, ...props }: SVGProps<SVGSVGElement> & { mono?: boolean }) {
   return (
-    <svg viewBox="0 0 32 32" fill="none" strokeWidth="2.9" strokeLinecap="round" aria-hidden {...props}>
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      strokeWidth="2.9"
+      strokeLinecap="round"
+      aria-hidden
+      {...props}
+    >
       <path d={BOX} stroke="currentColor" />
       <path d={SLASHES} stroke={mono ? "currentColor" : "var(--accent)"} />
     </svg>
@@ -20,7 +27,12 @@ export function InbGlyph({ mono, ...props }: SVGProps<SVGSVGElement> & { mono?: 
 
 /** Logo mark as used in the sidebar and on the login page — no tile. */
 export function BrandMark({ size = 28, className }: { size?: number; className?: string }) {
-  return <InbGlyph className={cn("shrink-0 text-foreground", className)} style={{ width: size, height: size }} />;
+  return (
+    <InbGlyph
+      className={cn("shrink-0 text-foreground", className)}
+      style={{ width: size, height: size }}
+    />
+  );
 }
 
 /** `inb.sh` — `.sh` in the accent, matching the `//` of the mark. */

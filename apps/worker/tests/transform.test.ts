@@ -6,7 +6,12 @@ const input = {
   path: "/hooks/stripe",
   query: {},
   headers: { "content-type": "application/json" },
-  body: { id: "evt_1", type: "invoice.paid", data: { amount: 4900 }, customer_email: "jane@example.com" },
+  body: {
+    id: "evt_1",
+    type: "invoice.paid",
+    data: { amount: 4900 },
+    customer_email: "jane@example.com",
+  },
 };
 
 describe("runTransform", () => {

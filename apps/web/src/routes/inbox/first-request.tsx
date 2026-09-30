@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@heroui/react";
-import { Antenna, ArrowRight, Code, Copy, type LucideIcon, Plug, SlidersHorizontal } from "lucide-react";
+import {
+  Antenna,
+  ArrowRight,
+  Code,
+  Copy,
+  type LucideIcon,
+  Plug,
+  SlidersHorizontal,
+} from "lucide-react";
 import { type SnippetLang, firstRequestSnippet } from "@inb/shared";
 import { CodeView, CopyButton, useCopy } from "../../components/code.tsx";
 import { PillTabs } from "../../components/pill-tabs.tsx";
@@ -18,18 +26,36 @@ const LANGS: { id: SnippetLang; label: string }[] = [
 ];
 
 /** List column while nothing has arrived: the stream is open, rows are ghosts. */
-export function WaitingList({ order, onToggleOrder }: { order: "asc" | "desc"; onToggleOrder: () => void }) {
+export function WaitingList({
+  order,
+  onToggleOrder,
+}: {
+  order: "asc" | "desc";
+  onToggleOrder: () => void;
+}) {
   return (
     <section
       aria-label="Requests"
       className="flex h-full w-[320px] shrink-0 flex-col border-r border-separator bg-background-secondary xl:w-[380px]"
     >
-      <ListToolbar query="" onQueryChange={() => {}} order={order} onToggleOrder={onToggleOrder} disabled />
+      <ListToolbar
+        query=""
+        onQueryChange={() => {}}
+        order={order}
+        onToggleOrder={onToggleOrder}
+        disabled
+      />
       <div className="h-px w-full shrink-0 bg-separator" />
-      <div className="flex h-24 w-full shrink-0 flex-col justify-center gap-1.5 px-4" role="status" aria-live="polite">
+      <div
+        className="flex h-24 w-full shrink-0 flex-col justify-center gap-1.5 px-4"
+        role="status"
+        aria-live="polite"
+      >
         <div className="flex items-center gap-2">
           <span className="size-2 shrink-0 rounded-full bg-accent animate-live" aria-hidden />
-          <span className="text-[13px] font-medium text-foreground">Waiting for the first request</span>
+          <span className="text-[13px] font-medium text-foreground">
+            Waiting for the first request
+          </span>
         </div>
         <p className="text-[11.5px] leading-[17px] text-tertiary">
           The stream is open. Anything that arrives shows up here the moment it lands.
@@ -84,8 +110,8 @@ export function FirstRequestStage({ endpointId, url }: { endpointId: string; url
         <div className="flex w-full flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-semibold text-foreground">Your endpoint is live</h1>
           <p className="max-w-[480px] text-[13.5px] leading-[21px] text-tertiary">
-            Point anything that speaks HTTP at this URL. The first request appears instantly — no refresh, no polling, no
-            signup.
+            Point anything that speaks HTTP at this URL. The first request appears instantly — no
+            refresh, no polling, no signup.
           </p>
         </div>
 
@@ -93,7 +119,10 @@ export function FirstRequestStage({ endpointId, url }: { endpointId: string; url
           <span className="min-w-0 flex-1 truncate font-mono text-sm text-foreground" title={url}>
             {url}
           </span>
-          <Button onPress={() => copy(url, "Endpoint URL copied")} className="h-9 shrink-0 rounded-3xl">
+          <Button
+            onPress={() => copy(url, "Endpoint URL copied")}
+            className="h-9 shrink-0 rounded-3xl"
+          >
             <Copy className="size-4" />
             Copy URL
           </Button>
@@ -101,7 +130,13 @@ export function FirstRequestStage({ endpointId, url }: { endpointId: string; url
 
         <section className="w-full overflow-hidden rounded-2xl border border-border bg-surface">
           <div className="flex h-[46px] w-full items-center gap-2 border-b border-separator px-2.5">
-            <PillTabs items={LANGS} selectedKey={lang} onSelectionChange={setLang} size="sm" ariaLabel="Snippet language" />
+            <PillTabs
+              items={LANGS}
+              selectedKey={lang}
+              onSelectionChange={setLang}
+              size="sm"
+              ariaLabel="Snippet language"
+            />
             <span className="flex-1" />
             <CopyButton text={snippet} label="Copy snippet" />
           </div>

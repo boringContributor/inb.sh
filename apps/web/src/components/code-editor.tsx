@@ -29,7 +29,11 @@ const theme = EditorView.theme(
   {
     "&": { color: "#fcfcfc", backgroundColor: "transparent" },
     ".cm-content": { caretColor: "#0485f7", padding: "12px 0" },
-    ".cm-gutterElement": { padding: "0 12px 0 8px !important", minWidth: "40px", textAlign: "right" },
+    ".cm-gutterElement": {
+      padding: "0 12px 0 8px !important",
+      minWidth: "40px",
+      textAlign: "right",
+    },
     ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
       backgroundColor: "rgba(4,133,247,0.28) !important",
     },

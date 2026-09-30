@@ -6,17 +6,25 @@ export async function hmac(
   hash: "SHA-256" | "SHA-1" = "SHA-256",
 ): Promise<Uint8Array> {
   const keyData = typeof secret === "string" ? encoder.encode(secret) : secret;
-  const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash }, false, ["sign"]);
-  const sig = await crypto.subtle.sign("HMAC", key, typeof data === "string" ? encoder.encode(data) : data);
+  const key = await crypto.subtle.importKey("raw", keyData, { name: "HMAC", hash }, false, [
+    "sign",
+  ]);
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    typeof data === "string" ? encoder.encode(data) : data,
+  );
   return new Uint8Array(sig);
 }
 
-export const toHex = (bytes: Uint8Array) => Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+export const toHex = (bytes: Uint8Array) =>
+  Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 
 export function toBase64(bytes: Uint8Array): string {
   let binary = "";
   const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  for (let i = 0; i < bytes.length; i += chunk)
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
   return btoa(binary);
 }
 
@@ -27,7 +35,8 @@ export function fromBase64(b64: string): Uint8Array {
   return out;
 }
 
-export const toBase64Url = (bytes: Uint8Array) => toBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+export const toBase64Url = (bytes: Uint8Array) =>
+  toBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
 /** Constant-time comparison for equal-length strings. */
 export function safeEqual(a: string, b: string): boolean {

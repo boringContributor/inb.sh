@@ -31,7 +31,13 @@ async function timedFetch(url: string, init: RequestInit): Promise<SendResult> {
       retryable: res.status >= 500 || res.status === 429,
     };
   } catch (err) {
-    return { ok: false, status: null, durationMs: Date.now() - started, error: String((err as Error).message ?? err), retryable: true };
+    return {
+      ok: false,
+      status: null,
+      durationMs: Date.now() - started,
+      error: String((err as Error).message ?? err),
+      retryable: true,
+    };
   }
 }
 
@@ -47,7 +53,11 @@ function preview(body: unknown, max = 2800): string {
 }
 
 /** Forward a request 1:1 (replay, HTTP forward, Zapier, n8n). */
-export function forward(url: string, payload: OutboundRequest, extraHeaders: Record<string, string> = {}) {
+export function forward(
+  url: string,
+  payload: OutboundRequest,
+  extraHeaders: Record<string, string> = {},
+) {
   const headers = { ...payload.headers, ...extraHeaders, "x-inbound-forwarded": "1" };
   const method = payload.method.toUpperCase();
   return timedFetch(url, {
@@ -75,7 +85,10 @@ export async function send(
           text: `${title} — ${meta}`,
           blocks: [
             { type: "section", text: { type: "mrkdwn", text: `*${title}*\n${meta}` } },
-            { type: "section", text: { type: "mrkdwn", text: "```" + preview(payload.body) + "```" } },
+            {
+              type: "section",
+              text: { type: "mrkdwn", text: "```" + preview(payload.body) + "```" },
+            },
           ],
         }),
       );
@@ -108,7 +121,12 @@ export async function send(
                 body: [
                   { type: "TextBlock", size: "Medium", weight: "Bolder", text: title },
                   { type: "TextBlock", isSubtle: true, text: meta, wrap: true },
-                  { type: "TextBlock", fontType: "Monospace", text: preview(payload.body, 2000), wrap: true },
+                  {
+                    type: "TextBlock",
+                    fontType: "Monospace",
+                    text: preview(payload.body, 2000),
+                    wrap: true,
+                  },
                 ],
               },
             },
@@ -116,7 +134,11 @@ export async function send(
         }),
       );
     case "http":
-      return forward(config.url!, payload, config.authorization ? { authorization: config.authorization } : {});
+      return forward(
+        config.url!,
+        payload,
+        config.authorization ? { authorization: config.authorization } : {},
+      );
     case "zapier":
     case "n8n":
       return timedFetch(config.url!, json({ ...ctx, request: payload }));
@@ -124,7 +146,10 @@ export async function send(
       return timedFetch(
         `https://api.github.com/repos/${config.repo}/dispatches`,
         json(
-          { event_type: config.eventType || "inbound", client_payload: { ...ctx, body: payload.body } },
+          {
+            event_type: config.eventType || "inbound",
+            client_payload: { ...ctx, body: payload.body },
+          },
           { authorization: `Bearer ${config.token}`, accept: "application/vnd.github+json" },
         ),
       );
@@ -139,7 +164,13 @@ export async function send(
               hostname: ctx.endpointSlug,
               status: ctx.status >= 500 ? "error" : ctx.status >= 400 ? "warn" : "info",
               message: title,
-              inbound: { ...ctx, method: payload.method, path: payload.path, headers: payload.headers, body: payload.body },
+              inbound: {
+                ...ctx,
+                method: payload.method,
+                path: payload.path,
+                headers: payload.headers,
+                body: payload.body,
+              },
             },
           ],
           { "dd-api-key": config.apiKey! },
@@ -153,7 +184,12 @@ export async function send(
             streams: [
               {
                 stream: { source: "inbound", endpoint: ctx.endpointSlug, method: payload.method },
-                values: [[`${Date.parse(ctx.receivedAt)}000000`, JSON.stringify({ ...ctx, body: payload.body })]],
+                values: [
+                  [
+                    `${Date.parse(ctx.receivedAt)}000000`,
+                    JSON.stringify({ ...ctx, body: payload.body }),
+                  ],
+                ],
               },
             ],
           },
@@ -188,7 +224,9 @@ export async function send(
             tags: { endpoint: ctx.endpointSlug, status: String(ctx.status) },
             extra: { ...ctx, headers: payload.headers, body: payload.body },
           },
-          { "x-sentry-auth": `Sentry sentry_version=7, sentry_key=${dsn.username}, sentry_client=inbound/1.0` },
+          {
+            "x-sentry-auth": `Sentry sentry_version=7, sentry_key=${dsn.username}, sentry_client=inbound/1.0`,
+          },
         ),
       );
     }
@@ -198,7 +236,9 @@ export async function send(
         {
           method: "POST",
           headers: { "content-type": "application/vnd.kafka.json.v2+json" },
-          body: JSON.stringify({ records: [{ key: ctx.requestId, value: { ...ctx, body: payload.body } }] }),
+          body: JSON.stringify({
+            records: [{ key: ctx.requestId, value: { ...ctx, body: payload.body } }],
+          }),
         },
       );
     case "r2": {
@@ -209,9 +249,21 @@ export async function send(
         await archive.put(key, JSON.stringify({ ...ctx, request: payload }), {
           httpMetadata: { contentType: "application/json" },
         });
-        return { ok: true, status: 200, durationMs: Date.now() - started, error: null, retryable: false };
+        return {
+          ok: true,
+          status: 200,
+          durationMs: Date.now() - started,
+          error: null,
+          retryable: false,
+        };
       } catch (err) {
-        return { ok: false, status: null, durationMs: Date.now() - started, error: String(err), retryable: true };
+        return {
+          ok: false,
+          status: null,
+          durationMs: Date.now() - started,
+          error: String(err),
+          retryable: true,
+        };
       }
     }
     case "cli":

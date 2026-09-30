@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "description": "Tail an Inbound endpoint and forward requests to localhost.",
   "license": "MIT",
-  "type": "module",
   "bin": {
     "inbound": "./dist/index.mjs"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
+  "type": "module",
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch"

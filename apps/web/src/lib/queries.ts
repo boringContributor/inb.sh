@@ -11,7 +11,8 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
     },
     mutations: {
-      onError: (err) => toast.danger(err instanceof ApiError ? err.message : "Something went wrong"),
+      onError: (err) =>
+        toast.danger(err instanceof ApiError ? err.message : "Something went wrong"),
     },
   },
 });
@@ -24,7 +25,8 @@ export const keys = {
     ["requests", id, { filter, q, order }] as const,
   requestsFor: (id: string) => ["requests", id] as const,
   request: (endpointId: string, requestId: string) => ["request", endpointId, requestId] as const,
-  requestDeliveries: (endpointId: string, requestId: string) => ["request", endpointId, requestId, "deliveries"] as const,
+  requestDeliveries: (endpointId: string, requestId: string) =>
+    ["request", endpointId, requestId, "deliveries"] as const,
   rules: ["rules"] as const,
   pipeline: ["pipeline"] as const,
   integrations: ["integrations"] as const,
@@ -34,7 +36,8 @@ export const keys = {
   settings: ["settings"] as const,
 };
 
-export const useConfig = () => useQuery({ queryKey: keys.config, queryFn: api.config, staleTime: 60_000 });
+export const useConfig = () =>
+  useQuery({ queryKey: keys.config, queryFn: api.config, staleTime: 60_000 });
 
 export const useEndpoints = () => useQuery({ queryKey: keys.endpoints, queryFn: api.endpoints });
 
@@ -53,7 +56,9 @@ export function useUpdateEndpoint(id: string) {
     mutationFn: (input: UpdateEndpointInput) => api.updateEndpoint(id, input),
     onSuccess: (endpoint) => {
       qc.setQueryData(keys.endpoint(id), endpoint);
-      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) => list?.map((e) => (e.id === id ? endpoint : e)));
+      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) =>
+        list?.map((e) => (e.id === id ? endpoint : e)),
+      );
     },
   });
 }
@@ -68,7 +73,8 @@ export function useRequest(endpointId: string, requestId: string | undefined) {
 }
 
 export const useRules = () => useQuery({ queryKey: keys.rules, queryFn: api.rules });
-export const usePipeline = () => useQuery({ queryKey: keys.pipeline, queryFn: api.pipeline, refetchInterval: 30_000 });
+export const usePipeline = () =>
+  useQuery({ queryKey: keys.pipeline, queryFn: api.pipeline, refetchInterval: 30_000 });
 
 export function useSaveRule() {
   const qc = useQueryClient();
@@ -78,7 +84,9 @@ export function useSaveRule() {
     onSuccess: (rule) => {
       qc.setQueryData<Rule[]>(keys.rules, (list) => {
         if (!list) return [rule];
-        return list.some((r) => r.id === rule.id) ? list.map((r) => (r.id === rule.id ? rule : r)) : [...list, rule];
+        return list.some((r) => r.id === rule.id)
+          ? list.map((r) => (r.id === rule.id ? rule : r))
+          : [...list, rule];
       });
       void qc.invalidateQueries({ queryKey: keys.pipeline });
     },

@@ -9,7 +9,7 @@
   "vars": {
     // no AdminPassword locally → login is skipped
     "DEV": "true",
-    "GITHUB_REPO": "boringContributor/inb.sh"
+    "GITHUB_REPO": "boringContributor/inb.sh",
   },
   "d1_databases": [{ "binding": "Database", "database_name": "inbound", "database_id": "local" }],
   "r2_buckets": [{ "binding": "Archive", "bucket_name": "inbound-archive" }],
@@ -17,7 +17,14 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["EndpointHub"] }],
   "queues": {
     "producers": [{ "binding": "Deliveries", "queue": "inbound-deliveries" }],
-    "consumers": [{ "queue": "inbound-deliveries", "max_batch_size": 10, "max_batch_timeout": 1, "max_retries": 5 }]
+    "consumers": [
+      {
+        "queue": "inbound-deliveries",
+        "max_batch_size": 10,
+        "max_batch_timeout": 1,
+        "max_retries": 5,
+      },
+    ],
   },
-  "triggers": { "crons": ["17 * * * *"] }
+  "triggers": { "crons": ["17 * * * *"] },
 }

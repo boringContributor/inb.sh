@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button, Description, FieldError, Input, Label, Modal, TextField, toast } from "@heroui/react";
+import {
+  Button,
+  Description,
+  FieldError,
+  Input,
+  Label,
+  Modal,
+  TextField,
+  toast,
+} from "@heroui/react";
 import {
   INTEGRATIONS,
   type Integration,
@@ -43,7 +52,9 @@ function KindPicker({ onPick }: { onPick: (kind: IntegrationKind) => void }) {
             </span>
             <span className="flex min-w-0 flex-col">
               <span className="truncate text-[13px] font-medium">{def.name}</span>
-              <span className="text-[11px] text-tertiary">{soon ? "Coming soon" : def.category}</span>
+              <span className="text-[11px] text-tertiary">
+                {soon ? "Coming soon" : def.category}
+              </span>
             </span>
           </button>
         );
@@ -114,8 +125,8 @@ function IntegrationForm({
       <Modal.Body className="flex flex-col gap-4">
         {created ? (
           <p className="text-sm text-muted">
-            <span className="font-medium text-foreground">{saved.name}</span> is connected. Add a rule with a
-            “Forward” action to start sending requests, or send a test delivery now.
+            <span className="font-medium text-foreground">{saved.name}</span> is connected. Add a
+            rule with a “Forward” action to start sending requests, or send a test delivery now.
           </p>
         ) : (
           <>
@@ -147,7 +158,9 @@ function IntegrationForm({
                   ) : field.description ? (
                     <Description>{field.description}</Description>
                   ) : field.secret && existing ? (
-                    <Description>Saved value hidden — leave it to keep it, or paste a new one.</Description>
+                    <Description>
+                      Saved value hidden — leave it to keep it, or paste a new one.
+                    </Description>
                   ) : null}
                 </TextField>
               );
@@ -181,10 +194,22 @@ function IntegrationForm({
   );
 }
 
-export function ConnectModal({ target, onClose }: { target: ConnectTarget | null; onClose: () => void }) {
+export function ConnectModal({
+  target,
+  onClose,
+}: {
+  target: ConnectTarget | null;
+  onClose: () => void;
+}) {
   const [kind, setKind] = useState<IntegrationKind | null>(null);
   useEffect(() => {
-    setKind(target?.mode === "create" ? target.kind : target?.mode === "edit" ? target.integration.kind : null);
+    setKind(
+      target?.mode === "create"
+        ? target.kind
+        : target?.mode === "edit"
+          ? target.integration.kind
+          : null,
+    );
   }, [target]);
 
   const def = kind ? integrationDefinition(kind) : null;
@@ -208,7 +233,12 @@ export function ConnectModal({ target, onClose }: { target: ConnectTarget | null
             {def && !existing && <p className="text-sm text-muted">{def.description}</p>}
           </Modal.Header>
           {def ? (
-            <IntegrationForm key={`${def.kind}-${existing?.id ?? "new"}`} def={def} existing={existing} onDone={onClose} />
+            <IntegrationForm
+              key={`${def.kind}-${existing?.id ?? "new"}`}
+              def={def}
+              existing={existing}
+              onDone={onClose}
+            />
           ) : (
             <Modal.Body>
               <KindPicker onPick={setKind} />

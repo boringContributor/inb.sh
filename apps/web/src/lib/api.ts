@@ -38,8 +38,14 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   const data = text ? (JSON.parse(text) as unknown) : null;
   if (!res.ok) {
     const err = (data ?? {}) as { error?: string; message?: string };
-    if (res.status === 401 && path !== "/auth/login") window.dispatchEvent(new Event("inb:unauthorized"));
-    throw new ApiError(res.status, err.error ?? "error", err.message ?? err.error ?? res.statusText, data);
+    if (res.status === 401 && path !== "/auth/login")
+      window.dispatchEvent(new Event("inb:unauthorized"));
+    throw new ApiError(
+      res.status,
+      err.error ?? "error",
+      err.message ?? err.error ?? res.statusText,
+      data,
+    );
   }
   return data as T;
 }
@@ -66,12 +72,19 @@ export const api = {
   endpoints: () => get<Endpoint[]>("/endpoints"),
   endpoint: (id: string) => get<Endpoint>(`/endpoints/${id}`),
   createEndpoint: (input: CreateEndpointInput) => post<Endpoint>("/endpoints", input),
-  updateEndpoint: (id: string, input: UpdateEndpointInput) => patch<Endpoint>(`/endpoints/${id}`, input),
+  updateEndpoint: (id: string, input: UpdateEndpointInput) =>
+    patch<Endpoint>(`/endpoints/${id}`, input),
   deleteEndpoint: (id: string) => del<{ ok: true }>(`/endpoints/${id}`),
 
   requests: (
     endpointId: string,
-    params: { filter?: RequestFilter; q?: string; cursor?: string | null; order?: "asc" | "desc"; limit?: number },
+    params: {
+      filter?: RequestFilter;
+      q?: string;
+      cursor?: string | null;
+      order?: "asc" | "desc";
+      limit?: number;
+    },
   ) => {
     const qs = new URLSearchParams();
     if (params.filter && params.filter !== "all") qs.set("filter", params.filter);
@@ -88,8 +101,11 @@ export const api = {
   clearRequests: (endpointId: string) => del<{ ok: true }>(`/endpoints/${endpointId}/requests`),
   replay: (endpointId: string, requestId: string, input: { url: string; transform?: string }) =>
     post<ReplayResult>(`/endpoints/${endpointId}/requests/${requestId}/replay`, input),
-  reportReplay: (endpointId: string, requestId: string, input: { url: string; status: number | null }) =>
-    post<RequestSummary>(`/endpoints/${endpointId}/requests/${requestId}/replayed`, input),
+  reportReplay: (
+    endpointId: string,
+    requestId: string,
+    input: { url: string; status: number | null },
+  ) => post<RequestSummary>(`/endpoints/${endpointId}/requests/${requestId}/replayed`, input),
   archiveRequest: (endpointId: string, requestId: string) =>
     post<{ ok: true }>(`/endpoints/${endpointId}/requests/${requestId}/archive`),
 
@@ -120,7 +136,8 @@ export const api = {
   deleteArchived: (id: string) => del<{ ok: true }>(`/archive/${id}`),
 
   settings: () => get<{ workspaceName: string; userName: string }>("/settings"),
-  updateSettings: (input: { workspaceName?: string; userName?: string }) => patch<{ ok: true }>("/settings", input),
+  updateSettings: (input: { workspaceName?: string; userName?: string }) =>
+    patch<{ ok: true }>("/settings", input),
 };
 
 export function liveSocketUrl(endpointId: string): string {

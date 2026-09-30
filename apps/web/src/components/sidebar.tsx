@@ -1,6 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Button, Dropdown, Label, Skeleton } from "@heroui/react";
-import { Archive, ChevronsUpDown, LogOut, Plug, Plus, Settings, SlidersHorizontal } from "lucide-react";
+import {
+  Archive,
+  ChevronsUpDown,
+  LogOut,
+  Plug,
+  Plus,
+  Settings,
+  SlidersHorizontal,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,7 +40,9 @@ function NavItem({
       className={cn(
         "flex h-9 w-full shrink-0 items-center gap-3 rounded-2xl px-2 py-1.5 text-sm outline-none transition-colors",
         "focus-visible:ring-2 focus-visible:ring-focus",
-        active ? "bg-default font-medium text-foreground" : "text-muted hover:bg-default/50 hover:text-foreground",
+        active
+          ? "bg-default font-medium text-foreground"
+          : "text-muted hover:bg-default/50 hover:text-foreground",
       )}
     >
       <Icon className="size-4 shrink-0" />
@@ -42,7 +52,9 @@ function NavItem({
 }
 
 const SectionTitle = ({ children }: { children: string }) => (
-  <div className="flex w-full items-center px-2 py-1.5 text-xs font-medium tracking-wide text-muted">{children}</div>
+  <div className="flex w-full items-center px-2 py-1.5 text-xs font-medium tracking-wide text-muted">
+    {children}
+  </div>
 );
 
 const Divider = () => (
@@ -71,7 +83,10 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col gap-1 border-r border-separator bg-surface px-3 py-4">
-      <Link to="/" className="flex h-10 w-full items-center gap-2.5 rounded-xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-focus">
+      <Link
+        to="/"
+        className="flex h-10 w-full items-center gap-2.5 rounded-xl px-1 outline-none focus-visible:ring-2 focus-visible:ring-focus"
+      >
         <BrandMark size={28} />
         <span className="flex min-w-0 flex-1 flex-col">
           <Wordmark className="text-[15px] leading-tight" />
@@ -80,7 +95,12 @@ export function Sidebar() {
       </Link>
 
       <div className="h-3 shrink-0" />
-      <Button variant="outline" fullWidth className="h-9 rounded-3xl" onPress={() => setCreating(true)}>
+      <Button
+        variant="outline"
+        fullWidth
+        className="h-9 rounded-3xl"
+        onPress={() => setCreating(true)}
+      >
         <Plus className="size-4" />
         New endpoint
       </Button>
@@ -90,7 +110,9 @@ export function Sidebar() {
         <SectionTitle>ENDPOINTS</SectionTitle>
         <div className="-mx-1 flex min-h-0 flex-col gap-1 overflow-y-auto px-1">
           {isPending &&
-            Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-9 w-full shrink-0 rounded-2xl" />)}
+            Array.from({ length: 3 }, (_, i) => (
+              <Skeleton key={i} className="h-9 w-full shrink-0 rounded-2xl" />
+            ))}
           {endpoints?.map((e) => (
             <NavItem
               key={e.id}
@@ -102,7 +124,9 @@ export function Sidebar() {
             />
           ))}
           {endpoints?.length === 0 && (
-            <p className="px-2 py-1.5 text-xs text-tertiary">No endpoints yet — create one to get a URL.</p>
+            <p className="px-2 py-1.5 text-xs text-tertiary">
+              No endpoints yet — create one to get a URL.
+            </p>
           )}
         </div>
       </nav>
@@ -110,10 +134,30 @@ export function Sidebar() {
       <Divider />
       <nav aria-label="Workspace" className="flex flex-col gap-1">
         <SectionTitle>WORKSPACE</SectionTitle>
-        <NavItem to="/rules" icon={SlidersHorizontal} label="Rules" active={pathname.startsWith("/rules")} />
-        <NavItem to="/integrations" icon={Plug} label="Integrations" active={pathname.startsWith("/integrations")} />
-        <NavItem to="/archive" icon={Archive} label="Archive" active={pathname.startsWith("/archive")} />
-        <NavItem to="/settings" icon={Settings} label="Settings" active={pathname.startsWith("/settings")} />
+        <NavItem
+          to="/rules"
+          icon={SlidersHorizontal}
+          label="Rules"
+          active={pathname.startsWith("/rules")}
+        />
+        <NavItem
+          to="/integrations"
+          icon={Plug}
+          label="Integrations"
+          active={pathname.startsWith("/integrations")}
+        />
+        <NavItem
+          to="/archive"
+          icon={Archive}
+          label="Archive"
+          active={pathname.startsWith("/archive")}
+        />
+        <NavItem
+          to="/settings"
+          icon={Settings}
+          label="Settings"
+          active={pathname.startsWith("/settings")}
+        />
       </nav>
 
       <div className="min-h-4 flex-1" />
@@ -128,7 +172,9 @@ export function Sidebar() {
           <GithubIcon className="size-4" />
           <span className="flex-1 text-xs font-medium">Star on GitHub</span>
           {config.githubStars !== null && (
-            <span className="font-mono text-[11px] text-tertiary">{formatStars(config.githubStars)}</span>
+            <span className="font-mono text-[11px] text-tertiary">
+              {formatStars(config.githubStars)}
+            </span>
           )}
         </a>
       )}
@@ -144,8 +190,12 @@ export function Sidebar() {
             {config?.user?.initials ?? "··"}
           </span>
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-[13px] font-medium text-foreground">{config?.user?.name ?? "—"}</span>
-            <span className="text-[11px] font-normal text-tertiary">{config?.user?.plan ?? "Self-hosted"}</span>
+            <span className="truncate text-[13px] font-medium text-foreground">
+              {config?.user?.name ?? "—"}
+            </span>
+            <span className="text-[11px] font-normal text-tertiary">
+              {config?.user?.plan ?? "Self-hosted"}
+            </span>
           </span>
           <ChevronsUpDown className="size-3.5 text-muted" />
         </Button>

@@ -110,19 +110,30 @@ export function TransformModal({
             </div>
             <div className="flex min-w-0 flex-col gap-2">
               <span className="flex items-center gap-2 text-xs font-medium text-muted">
-                Output on {preview?.requestId ? <span className="font-mono text-tertiary">{preview.requestId}</span> : "the last request"}
+                Output on{" "}
+                {preview?.requestId ? (
+                  <span className="font-mono text-tertiary">{preview.requestId}</span>
+                ) : (
+                  "the last request"
+                )}
                 {pending && <Spinner size="sm" />}
               </span>
               <div className="min-h-[340px] overflow-hidden rounded-xl border border-border bg-background">
                 {error && <p className="p-3 text-xs text-danger">{error}</p>}
                 {preview?.transformError && (
-                  <p className="p-3 font-mono text-[11.5px] leading-relaxed text-danger">{preview.transformError}</p>
+                  <p className="p-3 font-mono text-[11.5px] leading-relaxed text-danger">
+                    {preview.transformError}
+                  </p>
                 )}
                 {preview && !preview.requestId && (
-                  <p className="p-3 text-xs text-muted">No captured requests yet — send one to preview the output.</p>
+                  <p className="p-3 text-xs text-muted">
+                    No captured requests yet — send one to preview the output.
+                  </p>
                 )}
                 {!source.trim() && preview?.requestId && (
-                  <p className="p-3 text-xs text-muted">Without a transform, the request is forwarded unchanged.</p>
+                  <p className="p-3 text-xs text-muted">
+                    Without a transform, the request is forwarded unchanged.
+                  </p>
                 )}
                 {output && <CodeView code={output} className="max-h-[52vh]" wrap />}
               </div>

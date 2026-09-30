@@ -30,7 +30,13 @@ export async function consumeDeliveries(batch: MessageBatch<DeliveryJob>, env: E
           return;
         }
         label = integration.name;
-        result = await send(integration.kind, integration.config, job.context, job.payload, env.Archive);
+        result = await send(
+          integration.kind,
+          integration.config,
+          job.context,
+          job.payload,
+          env.Archive,
+        );
       } else {
         label = new URL(job.url).host;
         result = await forward(job.url, job.payload);
@@ -65,7 +71,11 @@ export async function consumeDeliveries(batch: MessageBatch<DeliveryJob>, env: E
         writes.push(
           db
             .update(schema.rules)
-            .set(result.ok ? { ok: sql`${schema.rules.ok} + 1` } : { failed: sql`${schema.rules.failed} + 1` })
+            .set(
+              result.ok
+                ? { ok: sql`${schema.rules.ok} + 1` }
+                : { failed: sql`${schema.rules.failed} + 1` },
+            )
             .where(eq(schema.rules.id, job.ruleId)),
         );
       }

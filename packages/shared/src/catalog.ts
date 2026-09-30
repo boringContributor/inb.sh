@@ -1,6 +1,12 @@
 import type { IntegrationKind } from "./types.ts";
 
-export type IntegrationCategory = "Chat" | "Observability" | "Storage" | "Databases" | "Automation" | "Developer";
+export type IntegrationCategory =
+  | "Chat"
+  | "Observability"
+  | "Storage"
+  | "Databases"
+  | "Automation"
+  | "Developer";
 
 export interface IntegrationField {
   key: string;
@@ -49,7 +55,10 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     category: "Chat",
     icon: "message-square",
     transport: "webhook",
-    fields: [webhookUrl, { key: "channel", label: "Channel label", placeholder: "#payments", optional: true }],
+    fields: [
+      webhookUrl,
+      { key: "channel", label: "Channel label", placeholder: "#payments", optional: true },
+    ],
     target: (c) => [c.channel, c.workspace || "slack.com"].filter(Boolean).join(" · "),
   },
   {
@@ -59,7 +68,10 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     category: "Chat",
     icon: "message-circle",
     transport: "webhook",
-    fields: [webhookUrl, { key: "channel", label: "Channel label", placeholder: "#alerts", optional: true }],
+    fields: [
+      webhookUrl,
+      { key: "channel", label: "Channel label", placeholder: "#alerts", optional: true },
+    ],
     target: (c) => [c.channel, "discord.com"].filter(Boolean).join(" · "),
   },
   {
@@ -79,7 +91,9 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     category: "Observability",
     icon: "bug",
     transport: "sentry",
-    fields: [{ key: "dsn", label: "DSN", placeholder: "https://key@o0.ingest.sentry.io/0", secret: true }],
+    fields: [
+      { key: "dsn", label: "DSN", placeholder: "https://key@o0.ingest.sentry.io/0", secret: true },
+    ],
     target: (c) => host(c.dsn),
   },
   {
@@ -90,8 +104,18 @@ export const INTEGRATIONS: IntegrationDefinition[] = [
     icon: "gauge",
     transport: "webhook",
     fields: [
-      { key: "url", label: "Loki push URL", placeholder: "https://logs-prod.grafana.net/loki/api/v1/push" },
-      { key: "authorization", label: "Authorization header", placeholder: "Basic …", secret: true, optional: true },
+      {
+        key: "url",
+        label: "Loki push URL",
+        placeholder: "https://logs-prod.grafana.net/loki/api/v1/push",
+      },
+      {
+        key: "authorization",
+        label: "Authorization header",
+        placeholder: "Basic …",
+        secret: true,
+        optional: true,
+      },
     ],
     target: (c) => host(c.url),
   },

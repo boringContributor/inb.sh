@@ -9,7 +9,13 @@ import { keys, useConfig } from "../lib/queries.ts";
 import { ENDPOINT_ICON } from "./icons.tsx";
 import { InbGlyph } from "./brand.tsx";
 
-export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; onOpenChange: (open: boolean) => void }) {
+export function NewEndpointModal({
+  isOpen,
+  onOpenChange,
+}: {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [icon, setIcon] = useState<EndpointIcon>("webhook");
@@ -19,7 +25,8 @@ export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; on
   const navigate = useNavigate();
 
   const create = useMutation({
-    mutationFn: () => api.createEndpoint({ name: name.trim(), icon, slug: slug.trim() || undefined }),
+    mutationFn: () =>
+      api.createEndpoint({ name: name.trim(), icon, slug: slug.trim() || undefined }),
     onSuccess: (endpoint) => {
       qc.setQueryData<Endpoint[]>(keys.endpoints, (list) => [...(list ?? []), endpoint]);
       onOpenChange(false);
@@ -29,7 +36,8 @@ export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; on
       void navigate({ to: "/e/$endpointId", params: { endpointId: endpoint.id } });
     },
     onError: (err) => {
-      if (err instanceof ApiError && err.code === "slug_taken") setSlugError("That path is already taken");
+      if (err instanceof ApiError && err.code === "slug_taken")
+        setSlugError("That path is already taken");
     },
   });
 
@@ -97,7 +105,9 @@ export function NewEndpointModal({ isOpen, onOpenChange }: { isOpen: boolean; on
                         onClick={() => setIcon(key)}
                         className={cn(
                           "flex size-9 items-center justify-center rounded-xl border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-focus",
-                          icon === key ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+                          icon === key
+                            ? "border-accent bg-accent-soft text-accent"
+                            : "border-border text-muted hover:text-foreground",
                         )}
                       >
                         <Icon className="size-4" />

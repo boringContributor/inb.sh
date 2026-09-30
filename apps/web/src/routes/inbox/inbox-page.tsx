@@ -21,15 +21,26 @@ const PAGE_SIZE = 50;
 
 function LiveChip({ status, waiting }: { status: LiveStatus; waiting: boolean }) {
   const view = {
-    live: { label: waiting ? "Listening" : "Live", cls: "bg-success-soft text-success", tone: "success" as const },
-    connecting: { label: "Connecting", cls: "bg-warning-soft text-warning", tone: "warning" as const },
+    live: {
+      label: waiting ? "Listening" : "Live",
+      cls: "bg-success-soft text-success",
+      tone: "success" as const,
+    },
+    connecting: {
+      label: "Connecting",
+      cls: "bg-warning-soft text-warning",
+      tone: "warning" as const,
+    },
     offline: { label: "Offline", cls: "bg-danger-soft text-danger", tone: "danger" as const },
   }[status];
   return (
     <span
       role="status"
       aria-live="polite"
-      className={cn("inline-flex h-7 items-center gap-[7px] rounded-full px-2.5 text-xs font-semibold", view.cls)}
+      className={cn(
+        "inline-flex h-7 items-center gap-[7px] rounded-full px-2.5 text-xs font-semibold",
+        view.cls,
+      )}
     >
       <LiveDot tone={view.tone} pulse={status !== "offline"} />
       {view.label}
@@ -72,7 +83,8 @@ export function InboxPage() {
   }, [endpointId]);
 
   useEffect(() => {
-    if ((search.q ?? "") !== q) void navigate({ search: (s) => ({ ...s, q: q || undefined }), replace: true });
+    if ((search.q ?? "") !== q)
+      void navigate({ search: (s) => ({ ...s, q: q || undefined }), replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
@@ -83,7 +95,8 @@ export function InboxPage() {
 
   const requests = useInfiniteQuery({
     queryKey: keys.requests(endpointId, filter, q, order),
-    queryFn: ({ pageParam }) => api.requests(endpointId, { filter, q, order, cursor: pageParam, limit: PAGE_SIZE }),
+    queryFn: ({ pageParam }) =>
+      api.requests(endpointId, { filter, q, order, cursor: pageParam, limit: PAGE_SIZE }),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor,
     // the socket pushes new requests; poll only while it's down
@@ -120,12 +133,18 @@ export function InboxPage() {
       const down = e.key === "j" || e.key === "ArrowDown";
       const up = e.key === "k" || e.key === "ArrowUp";
       if (!down && !up) return;
-      if ((e.target as HTMLElement | null)?.closest('[role="tablist"],[role="menu"],[role="listbox"],[role="dialog"]')) return;
+      if (
+        (e.target as HTMLElement | null)?.closest(
+          '[role="tablist"],[role="menu"],[role="listbox"],[role="dialog"]',
+        )
+      )
+        return;
       e.preventDefault();
       const idx = items.findIndex((i) => i.id === selectedId);
       const next = items[Math.max(0, Math.min(items.length - 1, idx + (down ? 1 : -1)))];
       if (next && next.id !== selectedId) select(next.id, true);
-      if (down && idx >= items.length - 3 && requests.hasNextPage && !requests.isFetchingNextPage) void requests.fetchNextPage();
+      if (down && idx >= items.length - 3 && requests.hasNextPage && !requests.isFetchingNextPage)
+        void requests.fetchNextPage();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -177,22 +196,34 @@ export function InboxPage() {
                   className={cn("h-9 min-w-9 rounded-3xl text-muted", paused && "text-warning")}
                 >
                   {paused ? <Play className="size-4" /> : <Pause className="size-4" />}
-                  {paused && live.buffered > 0 && <span className="text-xs font-medium">{live.buffered} new</span>}
+                  {paused && live.buffered > 0 && (
+                    <span className="text-xs font-medium">{live.buffered} new</span>
+                  )}
                 </Button>
-                <Tooltip.Content>{paused ? "Resume — show new requests" : "Pause the live list"}</Tooltip.Content>
+                <Tooltip.Content>
+                  {paused ? "Resume — show new requests" : "Pause the live list"}
+                </Tooltip.Content>
               </Tooltip>
             )}
             <Button
               variant="outline"
               className="h-9 rounded-3xl"
-              onPress={() => void navigate({ to: "/e/$endpointId/response", params: { endpointId } })}
+              onPress={() =>
+                void navigate({ to: "/e/$endpointId/response", params: { endpointId } })
+              }
             >
               <Code className="size-4" />
               Custom response
             </Button>
             {!waiting && (
               <Tooltip delay={400}>
-                <Button isIconOnly variant="ghost" aria-label="Copy link to this request" onPress={shareLink} className="size-9 min-w-9 rounded-3xl text-muted">
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  aria-label="Copy link to this request"
+                  onPress={shareLink}
+                  className="size-9 min-w-9 rounded-3xl text-muted"
+                >
                   <Share2 className="size-4" />
                 </Button>
                 <Tooltip.Content>Copy link</Tooltip.Content>
@@ -213,7 +244,10 @@ export function InboxPage() {
           </>
         ) : waiting ? (
           <>
-            <WaitingList order={order} onToggleOrder={() => setOrder((o) => (o === "desc" ? "asc" : "desc"))} />
+            <WaitingList
+              order={order}
+              onToggleOrder={() => setOrder((o) => (o === "desc" ? "asc" : "desc"))}
+            />
             <FirstRequestStage endpointId={endpointId} url={url} />
           </>
         ) : (
@@ -227,7 +261,10 @@ export function InboxPage() {
               newIds={newIds}
               filter={filter}
               onFilterChange={(f) =>
-                void navigate({ search: (s) => ({ ...s, filter: f === "all" ? undefined : f, r: undefined }), replace: true })
+                void navigate({
+                  search: (s) => ({ ...s, filter: f === "all" ? undefined : f, r: undefined }),
+                  replace: true,
+                })
               }
               query={queryInput}
               onQueryChange={setQueryInput}
@@ -240,7 +277,11 @@ export function InboxPage() {
               isFetchingNextPage={requests.isFetchingNextPage}
               onLoadMore={() => void requests.fetchNextPage()}
             />
-            <Inspector endpoint={endpoint} requestId={selectedId} captureBaseUrl={config?.captureBaseUrl ?? ""} />
+            <Inspector
+              endpoint={endpoint}
+              requestId={selectedId}
+              captureBaseUrl={config?.captureBaseUrl ?? ""}
+            />
           </>
         )}
       </div>

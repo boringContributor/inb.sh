@@ -18,7 +18,10 @@ export function RuleListSkeleton() {
   return (
     <div className="flex flex-col gap-2.5" aria-busy>
       {Array.from({ length: 4 }, (_, i) => (
-        <div key={i} className="flex h-[92px] items-center gap-3 rounded-2xl border border-border bg-surface px-3.5">
+        <div
+          key={i}
+          className="flex h-[92px] items-center gap-3 rounded-2xl border border-border bg-surface px-3.5"
+        >
           <Skeleton className="size-[26px] rounded-full" />
           <div className="flex flex-1 flex-col gap-2">
             <Skeleton className="h-3.5 w-40 rounded" />
@@ -73,7 +76,9 @@ export function RuleList({
     renderDropIndicator: (target) => (
       <DropIndicator
         target={target}
-        className={({ isDropTarget }) => cn("h-0.5 rounded-full", isDropTarget ? "bg-accent" : "bg-transparent")}
+        className={({ isDropTarget }) =>
+          cn("h-0.5 rounded-full", isDropTarget ? "bg-accent" : "bg-transparent")
+        }
       />
     ),
   });
@@ -116,26 +121,41 @@ export function RuleList({
                 {position}
               </span>
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <span className={cn("truncate text-[13.5px] font-semibold", rule.enabled ? "text-foreground" : "text-tertiary")}>
+                <span
+                  className={cn(
+                    "truncate text-[13.5px] font-semibold",
+                    rule.enabled ? "text-foreground" : "text-tertiary",
+                  )}
+                >
                   {rule.name}
                 </span>
-                <span className="truncate font-mono text-[11px] text-tertiary">{describeConditions(rule.conditions)}</span>
+                <span className="truncate font-mono text-[11px] text-tertiary">
+                  {describeConditions(rule.conditions)}
+                </span>
                 <div className="flex min-w-0 items-center gap-1.5">
                   <CornerDownRight className="size-[13px] shrink-0 text-tertiary" aria-hidden />
                   <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-                    {chips.length === 0 && <span className="text-[11px] text-tertiary">no actions</span>}
+                    {chips.length === 0 && (
+                      <span className="text-[11px] text-tertiary">no actions</span>
+                    )}
                     {chips.map((chip, i) => (
                       <TonePill
                         key={`${chip.label}-${i}`}
                         tone={chip.tone}
-                        className={cn("rounded-full", chip.tone === "default" && "text-muted", !rule.enabled && "opacity-70")}
+                        className={cn(
+                          "rounded-full",
+                          chip.tone === "default" && "text-muted",
+                          !rule.enabled && "opacity-70",
+                        )}
                       >
                         {chip.label}
                       </TonePill>
                     ))}
                   </div>
                   <span className="min-w-2 flex-1" />
-                  <span className="shrink-0 whitespace-nowrap text-[11px] text-tertiary">{ruleStat(rule)}</span>
+                  <span className="shrink-0 whitespace-nowrap text-[11px] text-tertiary">
+                    {ruleStat(rule)}
+                  </span>
                 </div>
               </div>
               <Switch
@@ -151,7 +171,13 @@ export function RuleList({
                 </Switch.Content>
               </Switch>
               <Dropdown>
-                <Button isIconOnly variant="ghost" size="sm" aria-label={`More actions for ${rule.name}`} className="size-7 min-w-7 text-muted">
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`More actions for ${rule.name}`}
+                  className="size-7 min-w-7 text-muted"
+                >
                   <Ellipsis className="size-[15px]" />
                 </Button>
                 <Dropdown.Popover placement="bottom end" className="min-w-44">

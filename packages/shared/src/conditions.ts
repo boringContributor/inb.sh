@@ -55,7 +55,10 @@ function statusClassMatch(actual: string, expected: string): boolean | null {
   return actual.length === 3 && actual[0] === m[1];
 }
 
-export function evaluateCondition(ctx: RequestContext, condition: Condition): { passed: boolean; actual: unknown } {
+export function evaluateCondition(
+  ctx: RequestContext,
+  condition: Condition,
+): { passed: boolean; actual: unknown } {
   const actual = resolvePath(ctx, condition.field);
   const text = asText(actual);
   const expected = literal(condition.value ?? "");

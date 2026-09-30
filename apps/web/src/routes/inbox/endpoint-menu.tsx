@@ -36,7 +36,11 @@ const PROVIDERS: { id: SigningProvider | "none"; label: string; hint?: string }[
   { id: "github", label: "GitHub", hint: "Verifies X-Hub-Signature-256" },
   { id: "shopify", label: "Shopify", hint: "Verifies X-Shopify-Hmac-Sha256" },
   { id: "slack", label: "Slack", hint: "Verifies X-Slack-Signature with the signing secret" },
-  { id: "hmac-sha256", label: "Generic HMAC-SHA256", hint: "Hex or base64 digest of the raw body in a header" },
+  {
+    id: "hmac-sha256",
+    label: "Generic HMAC-SHA256",
+    hint: "Hex or base64 digest of the raw body in a header",
+  },
 ];
 
 function EndpointSettingsModal({
@@ -51,14 +55,17 @@ function EndpointSettingsModal({
   const [name, setName] = useState(endpoint.name);
   const [icon, setIcon] = useState<EndpointIcon>(endpoint.icon);
   const [retention, setRetention] = useState(endpoint.retentionDays);
-  const [provider, setProvider] = useState<SigningProvider | "none">(endpoint.signing?.provider ?? "none");
+  const [provider, setProvider] = useState<SigningProvider | "none">(
+    endpoint.signing?.provider ?? "none",
+  );
   const [secret, setSecret] = useState("");
   const [header, setHeader] = useState(endpoint.signing?.header ?? "x-signature");
   const [error, setError] = useState<string | null>(null);
   const update = useUpdateEndpoint(endpoint.id);
 
   const providerChanged = provider !== (endpoint.signing?.provider ?? "none");
-  const headerChanged = provider === "hmac-sha256" && header !== (endpoint.signing?.header ?? "x-signature");
+  const headerChanged =
+    provider === "hmac-sha256" && header !== (endpoint.signing?.header ?? "x-signature");
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +81,11 @@ function EndpointSettingsModal({
         setError("Enter the signing secret to turn on verification");
         return;
       }
-      input.signing = { provider, ...(secret && { secret }), ...(provider === "hmac-sha256" && { header }) };
+      input.signing = {
+        provider,
+        ...(secret && { secret }),
+        ...(provider === "hmac-sha256" && { header }),
+      };
     }
     if (!Object.keys(input).length) {
       onOpenChange(false);
@@ -121,7 +132,9 @@ function EndpointSettingsModal({
                         onClick={() => setIcon(key)}
                         className={cn(
                           "flex size-9 items-center justify-center rounded-xl border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-focus",
-                          icon === key ? "border-accent bg-accent-soft text-accent" : "border-border text-muted hover:text-foreground",
+                          icon === key
+                            ? "border-accent bg-accent-soft text-accent"
+                            : "border-border text-muted hover:text-foreground",
                         )}
                       >
                         <Icon className="size-4" />
@@ -147,7 +160,9 @@ function EndpointSettingsModal({
                     ))}
                   </ListBox>
                 </Select.Popover>
-                <Description>Requests older than this are deleted automatically. Archived requests are kept.</Description>
+                <Description>
+                  Requests older than this are deleted automatically. Archived requests are kept.
+                </Description>
               </Select>
 
               <div className="flex flex-col gap-3 rounded-2xl border border-border p-3.5">
@@ -188,7 +203,9 @@ function EndpointSettingsModal({
                     >
                       <Label>Signing secret</Label>
                       <Input
-                        placeholder={endpoint.signing?.hasSecret ? "•••••••• (unchanged)" : "whsec_…"}
+                        placeholder={
+                          endpoint.signing?.hasSecret ? "•••••••• (unchanged)" : "whsec_…"
+                        }
                         className="font-mono"
                         autoComplete="off"
                       />
@@ -280,7 +297,9 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
   const remove = useMutation({
     mutationFn: () => api.deleteEndpoint(endpoint.id),
     onSuccess: () => {
-      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) => list?.filter((e) => e.id !== endpoint.id));
+      qc.setQueryData<Endpoint[]>(keys.endpoints, (list) =>
+        list?.filter((e) => e.id !== endpoint.id),
+      );
       qc.removeQueries({ queryKey: keys.requestsFor(endpoint.id) });
       toast.success(`Deleted ${endpoint.name}`);
       setDialog(null);
@@ -291,11 +310,18 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
   return (
     <>
       <Dropdown>
-        <Button isIconOnly variant="ghost" aria-label="Endpoint actions" className="size-9 min-w-9 rounded-3xl text-muted">
+        <Button
+          isIconOnly
+          variant="ghost"
+          aria-label="Endpoint actions"
+          className="size-9 min-w-9 rounded-3xl text-muted"
+        >
           <Ellipsis className="size-4" />
         </Button>
         <Dropdown.Popover placement="bottom end" className="min-w-52">
-          <Dropdown.Menu onAction={(key) => setDialog(String(key) as "settings" | "clear" | "delete")}>
+          <Dropdown.Menu
+            onAction={(key) => setDialog(String(key) as "settings" | "clear" | "delete")}
+          >
             <Dropdown.Item id="settings" textValue="Endpoint settings">
               <Settings2 className="size-4 text-muted" />
               <Label>Endpoint settings</Label>
@@ -313,7 +339,11 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
       </Dropdown>
 
       {dialog === "settings" && (
-        <EndpointSettingsModal endpoint={endpoint} isOpen onOpenChange={(o) => !o && setDialog(null)} />
+        <EndpointSettingsModal
+          endpoint={endpoint}
+          isOpen
+          onOpenChange={(o) => !o && setDialog(null)}
+        />
       )}
       <ConfirmDialog
         isOpen={dialog === "clear"}

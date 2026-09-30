@@ -24,7 +24,9 @@ export function RouteError({ error, reset }: ErrorComponentProps) {
       </span>
       <div>
         <h1 className="text-lg font-semibold">{notFound ? "Not found" : "Something went wrong"}</h1>
-        <p className="mt-1 max-w-md text-sm text-muted">{error instanceof Error ? error.message : String(error)}</p>
+        <p className="mt-1 max-w-md text-sm text-muted">
+          {error instanceof Error ? error.message : String(error)}
+        </p>
       </div>
       <Button variant="secondary" onPress={reset}>
         Try again

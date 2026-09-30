@@ -34,7 +34,10 @@ export function PillTabs<K extends string>({
       className={cn("w-fit", className)}
     >
       <Tabs.ListContainer className="w-fit">
-        <Tabs.List aria-label={ariaLabel} className={cn("w-fit min-w-0", size === "md" ? "h-9" : "h-8")}>
+        <Tabs.List
+          aria-label={ariaLabel}
+          className={cn("w-fit min-w-0", size === "md" ? "h-9" : "h-8")}
+        >
           {items.map((item) => (
             <Tabs.Tab
               key={item.id}

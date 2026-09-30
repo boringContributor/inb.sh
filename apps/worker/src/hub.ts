@@ -53,7 +53,9 @@ export class EndpointHub extends DurableObject<Env> {
         replay_count INTEGER NOT NULL DEFAULT 0,
         data TEXT NOT NULL
       )`);
-      this.sql.exec(`CREATE INDEX IF NOT EXISTS requests_received_idx ON requests (received_at DESC, id DESC)`);
+      this.sql.exec(
+        `CREATE INDEX IF NOT EXISTS requests_received_idx ON requests (received_at DESC, id DESC)`,
+      );
       this.sql.exec(`CREATE TABLE IF NOT EXISTS events (
         request_id TEXT NOT NULL,
         at INTEGER NOT NULL,
@@ -84,7 +86,8 @@ export class EndpointHub extends DurableObject<Env> {
     );
     for (const e of events) this.insertEvent(request.id, e);
     this.broadcast({ type: "request", request: toSummary(request) });
-    if ((await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(Date.now() + HOUR);
+    if ((await this.ctx.storage.getAlarm()) === null)
+      await this.ctx.storage.setAlarm(Date.now() + HOUR);
   }
 
   async addEvents(requestId: string, events: RequestEvent[]): Promise<void> {
@@ -153,7 +156,9 @@ export class EndpointHub extends DurableObject<Env> {
     }
     if (opts.q?.trim()) {
       const like = `%${opts.q.trim().replace(/[%_]/g, (m) => `\\${m}`)}%`;
-      where.push(`(summary LIKE ? ESCAPE '\\' OR path LIKE ? ESCAPE '\\' OR method LIKE ? ESCAPE '\\' OR id = ? OR data LIKE ? ESCAPE '\\')`);
+      where.push(
+        `(summary LIKE ? ESCAPE '\\' OR path LIKE ? ESCAPE '\\' OR method LIKE ? ESCAPE '\\' OR id = ? OR data LIKE ? ESCAPE '\\')`,
+      );
       params.push(like, like, like, opts.q.trim(), like);
     }
     const filterWhere = [...where];
@@ -206,11 +211,18 @@ export class EndpointHub extends DurableObject<Env> {
   }
 
   async latest(): Promise<CapturedRequest | null> {
-    const row = this.sql.exec<Row>(`SELECT * FROM requests ORDER BY received_at DESC LIMIT 1`).toArray()[0];
+    const row = this.sql
+      .exec<Row>(`SELECT * FROM requests ORDER BY received_at DESC LIMIT 1`)
+      .toArray()[0];
     return row ? this.hydrate(row) : null;
   }
 
-  async stats(): Promise<{ total: number; today: number; avgResponseMs: number | null; listeners: number }> {
+  async stats(): Promise<{
+    total: number;
+    today: number;
+    avgResponseMs: number | null;
+    listeners: number;
+  }> {
     const since = Date.now() - 24 * HOUR;
     const r = this.sql
       .exec<{ total: number; today: number }>(
@@ -223,7 +235,12 @@ export class EndpointHub extends DurableObject<Env> {
         `SELECT AVG(json_extract(data, '$.response.durationMs')) AS avg FROM (SELECT data FROM requests ORDER BY received_at DESC LIMIT 200)`,
       )
       .one().avg;
-    return { total: r.total, today: r.today, avgResponseMs: avg === null ? null : Math.round(avg), listeners: this.ctx.getWebSockets("ui").length };
+    return {
+      total: r.total,
+      today: r.today,
+      avgResponseMs: avg === null ? null : Math.round(avg),
+      listeners: this.ctx.getWebSockets("ui").length,
+    };
   }
 
   /* ------------------------------ realtime ------------------------------- */
@@ -236,7 +253,12 @@ export class EndpointHub extends DurableObject<Env> {
     const pair = new WebSocketPair();
     this.ctx.acceptWebSocket(pair[1], [role]);
     this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair("ping", "pong"));
-    pair[1].send(JSON.stringify({ type: "hello", listeners: this.ctx.getWebSockets(role).length } satisfies LiveMessage));
+    pair[1].send(
+      JSON.stringify({
+        type: "hello",
+        listeners: this.ctx.getWebSockets(role).length,
+      } satisfies LiveMessage),
+    );
     return new Response(null, { status: 101, webSocket: pair[0] });
   }
 
@@ -244,7 +266,14 @@ export class EndpointHub extends DurableObject<Env> {
     // tunnels report the local result of a forwarded request
     if (typeof message !== "string") return;
     try {
-      const msg = JSON.parse(message) as { type?: string; requestId?: string; status?: number; durationMs?: number; url?: string; error?: string };
+      const msg = JSON.parse(message) as {
+        type?: string;
+        requestId?: string;
+        status?: number;
+        durationMs?: number;
+        url?: string;
+        error?: string;
+      };
       if (msg.type === "forward_result" && msg.requestId) {
         const ok = !msg.error && (msg.status ?? 0) < 500;
         await this.addEvents(msg.requestId, [
@@ -268,9 +297,14 @@ export class EndpointHub extends DurableObject<Env> {
   override async alarm(): Promise<void> {
     const days = (await this.ctx.storage.get<number>("retentionDays")) ?? 7;
     const cutoff = Date.now() - days * 24 * HOUR;
-    const expired = this.sql.exec<{ id: string }>(`SELECT id FROM requests WHERE received_at < ?`, cutoff).toArray();
+    const expired = this.sql
+      .exec<{ id: string }>(`SELECT id FROM requests WHERE received_at < ?`, cutoff)
+      .toArray();
     if (expired.length) {
-      this.sql.exec(`DELETE FROM events WHERE request_id IN (SELECT id FROM requests WHERE received_at < ?)`, cutoff);
+      this.sql.exec(
+        `DELETE FROM events WHERE request_id IN (SELECT id FROM requests WHERE received_at < ?)`,
+        cutoff,
+      );
       this.sql.exec(`DELETE FROM requests WHERE received_at < ?`, cutoff);
     }
     const remaining = this.sql.exec<{ n: number }>(`SELECT COUNT(*) AS n FROM requests`).one().n;

@@ -19,7 +19,8 @@ export function useDebounced<T>(value: T, delayMs = 250): T {
   return debounced;
 }
 
-const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\]|.*\.local$)/;
+const PRIVATE_HOST =
+  /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\]|.*\.local$)/;
 
 /** Mirrors the worker's check: these targets are replayed from the browser. */
 export function isPrivateUrl(url: string): boolean {
@@ -55,7 +56,11 @@ export function writeLocal(key: string, value: string) {
   }
 }
 
-export function downloadFile(filename: string, content: string | Uint8Array, type = "application/json") {
+export function downloadFile(
+  filename: string,
+  content: string | Uint8Array,
+  type = "application/json",
+) {
   const blob = new Blob([content as BlobPart], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -75,5 +80,9 @@ export function base64ToBytes(b64: string): Uint8Array {
 /** True when focus is in a text field, so single-key shortcuts don't hijack typing. */
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  return target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || !!target.closest(".cm-editor");
+  return (
+    target.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+    !!target.closest(".cm-editor")
+  );
 }

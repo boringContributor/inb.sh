@@ -38,7 +38,8 @@ const loginRoute = createRoute({
 function AppLayout() {
   const navigate = useNavigate();
   useEffect(() => {
-    const onUnauthorized = () => void navigate({ to: "/login", search: { next: location.pathname } });
+    const onUnauthorized = () =>
+      void navigate({ to: "/login", search: { next: location.pathname } });
     window.addEventListener("inb:unauthorized", onUnauthorized);
     return () => window.removeEventListener("inb:unauthorized", onUnauthorized);
   }, [navigate]);
@@ -59,7 +60,10 @@ const appRoute = createRoute({
   component: AppLayout,
   errorComponent: RouteError,
   beforeLoad: async ({ context, location }) => {
-    const config = await context.queryClient.ensureQueryData({ queryKey: keys.config, queryFn: api.config });
+    const config = await context.queryClient.ensureQueryData({
+      queryKey: keys.config,
+      queryFn: api.config,
+    });
     if (!config.user) throw redirect({ to: "/login", search: { next: location.pathname } });
   },
 });
@@ -104,11 +108,23 @@ export const archiveRoute = createRoute({
   component: ArchivePage,
 });
 
-export const settingsRoute = createRoute({ getParentRoute: () => appRoute, path: "/settings", component: SettingsPage });
+export const settingsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: "/settings",
+  component: SettingsPage,
+});
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  appRoute.addChildren([homeRoute, inboxRoute, responseRoute, rulesRoute, integrationsRoute, archiveRoute, settingsRoute]),
+  appRoute.addChildren([
+    homeRoute,
+    inboxRoute,
+    responseRoute,
+    rulesRoute,
+    integrationsRoute,
+    archiveRoute,
+    settingsRoute,
+  ]),
 ]);
 
 export const router = createRouter({

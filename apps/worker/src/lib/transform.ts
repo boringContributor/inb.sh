@@ -50,13 +50,19 @@ function compile(source: string): jsonata.Expression {
  * If the result has any of `method/path/headers/body` it is merged over the
  * request; otherwise the result replaces the body.
  */
-export async function runTransform(source: string, input: TransformInput): Promise<TransformOutput> {
+export async function runTransform(
+  source: string,
+  input: TransformInput,
+): Promise<TransformOutput> {
   const expr = compile(source);
   let timer: ReturnType<typeof setTimeout> | null = null;
   const result = (await Promise.race([
     expr.evaluate(input),
     new Promise((_, reject) => {
-      timer = setTimeout(() => reject(new Error(`transform exceeded ${TIMEOUT_MS} ms`)), TIMEOUT_MS);
+      timer = setTimeout(
+        () => reject(new Error(`transform exceeded ${TIMEOUT_MS} ms`)),
+        TIMEOUT_MS,
+      );
     }),
   ]).finally(() => timer !== null && clearTimeout(timer))) as unknown;
 

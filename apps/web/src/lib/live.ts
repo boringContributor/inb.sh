@@ -14,7 +14,10 @@ export type LiveStatus = "connecting" | "live" | "offline";
  * `paused` keeps the socket open but buffers new requests, so the list
  * doesn't move while someone is reading it.
  */
-export function useLiveRequests(endpointId: string, opts: { paused: boolean; onRequest?: (r: RequestSummary) => void }) {
+export function useLiveRequests(
+  endpointId: string,
+  opts: { paused: boolean; onRequest?: (r: RequestSummary) => void },
+) {
   const qc = useQueryClient();
   const [status, setStatus] = useState<LiveStatus>("connecting");
   const [buffered, setBuffered] = useState<RequestSummary[]>([]);
@@ -26,26 +29,41 @@ export function useLiveRequests(endpointId: string, opts: { paused: boolean; onR
   const prepend = (items: RequestSummary[]) => {
     // newest-first lists get the item on top; oldest-first lists refetch
     // lazily since the new item belongs on their (possibly unloaded) last page
-    const isDesc = (key: readonly unknown[]) => (key[2] as { order?: string } | undefined)?.order !== "asc";
-    void qc.invalidateQueries({ queryKey: keys.requestsFor(endpointId), predicate: (q) => !isDesc(q.queryKey) });
-    qc.setQueriesData<InfiniteData<RequestPage>>({ queryKey: keys.requestsFor(endpointId), predicate: (q) => isDesc(q.queryKey) }, (data) => {
-      if (!data?.pages.length) return data;
-      const [first, ...rest] = data.pages;
-      const known = new Set(first!.items.map((i) => i.id));
-      const fresh = items.filter((i) => !known.has(i.id));
-      if (!fresh.length) return data;
-      const counts = { ...first!.counts };
-      for (const item of fresh) {
-        counts.all += 1;
-        if (item.status >= 200 && item.status < 300) counts["2xx"] += 1;
-        else if (item.status >= 400 && item.status < 500) counts["4xx"] += 1;
-        else if (item.status >= 500) counts["5xx"] += 1;
-      }
-      return {
-        ...data,
-        pages: [{ ...first!, items: [...fresh, ...first!.items], total: first!.total + fresh.length, counts }, ...rest],
-      };
+    const isDesc = (key: readonly unknown[]) =>
+      (key[2] as { order?: string } | undefined)?.order !== "asc";
+    void qc.invalidateQueries({
+      queryKey: keys.requestsFor(endpointId),
+      predicate: (q) => !isDesc(q.queryKey),
     });
+    qc.setQueriesData<InfiniteData<RequestPage>>(
+      { queryKey: keys.requestsFor(endpointId), predicate: (q) => isDesc(q.queryKey) },
+      (data) => {
+        if (!data?.pages.length) return data;
+        const [first, ...rest] = data.pages;
+        const known = new Set(first!.items.map((i) => i.id));
+        const fresh = items.filter((i) => !known.has(i.id));
+        if (!fresh.length) return data;
+        const counts = { ...first!.counts };
+        for (const item of fresh) {
+          counts.all += 1;
+          if (item.status >= 200 && item.status < 300) counts["2xx"] += 1;
+          else if (item.status >= 400 && item.status < 500) counts["4xx"] += 1;
+          else if (item.status >= 500) counts["5xx"] += 1;
+        }
+        return {
+          ...data,
+          pages: [
+            {
+              ...first!,
+              items: [...fresh, ...first!.items],
+              total: first!.total + fresh.length,
+              counts,
+            },
+            ...rest,
+          ],
+        };
+      },
+    );
   };
 
   useEffect(() => {
@@ -69,7 +87,10 @@ export function useLiveRequests(endpointId: string, opts: { paused: boolean; onR
       socket.onopen = () => {
         retry = 0;
         setStatus("live");
-        ping = setInterval(() => socket?.readyState === WebSocket.OPEN && socket.send("ping"), 25_000);
+        ping = setInterval(
+          () => socket?.readyState === WebSocket.OPEN && socket.send("ping"),
+          25_000,
+        );
         // anything that arrived while we were disconnected
         void qc.invalidateQueries({ queryKey: keys.requestsFor(endpointId) });
       };
@@ -84,23 +105,27 @@ export function useLiveRequests(endpointId: string, opts: { paused: boolean; onR
             void qc.invalidateQueries({ queryKey: keys.endpoints });
             break;
           case "request_updated":
-            qc.setQueriesData<InfiniteData<RequestPage>>({ queryKey: keys.requestsFor(endpointId) }, (data) =>
-              data
-                ? {
-                    ...data,
-                    pages: data.pages.map((p) => ({
-                      ...p,
-                      items: p.items.map((i) => (i.id === msg.request.id ? msg.request : i)),
-                    })),
-                  }
-                : data,
+            qc.setQueriesData<InfiniteData<RequestPage>>(
+              { queryKey: keys.requestsFor(endpointId) },
+              (data) =>
+                data
+                  ? {
+                      ...data,
+                      pages: data.pages.map((p) => ({
+                        ...p,
+                        items: p.items.map((i) => (i.id === msg.request.id ? msg.request : i)),
+                      })),
+                    }
+                  : data,
             );
             break;
           case "event":
             qc.setQueryData<CapturedRequest>(keys.request(endpointId, msg.requestId), (req) =>
               req ? { ...req, events: [...req.events, msg.event] } : req,
             );
-            void qc.invalidateQueries({ queryKey: keys.requestDeliveries(endpointId, msg.requestId) });
+            void qc.invalidateQueries({
+              queryKey: keys.requestDeliveries(endpointId, msg.requestId),
+            });
             break;
           case "cleared":
             void qc.invalidateQueries({ queryKey: keys.requestsFor(endpointId) });

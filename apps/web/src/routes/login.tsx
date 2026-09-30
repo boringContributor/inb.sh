@@ -21,10 +21,17 @@ export function LoginPage() {
     try {
       await api.login(password);
       await qc.invalidateQueries({ queryKey: keys.config });
-      const next = search.next && search.next.startsWith("/") && !search.next.startsWith("//") ? search.next : "/";
+      const next =
+        search.next && search.next.startsWith("/") && !search.next.startsWith("//")
+          ? search.next
+          : "/";
       await navigate({ to: next });
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 401 ? "That password didn't work" : "Couldn't sign in — try again");
+      setError(
+        err instanceof ApiError && err.status === 401
+          ? "That password didn't work"
+          : "Couldn't sign in — try again",
+      );
     } finally {
       setPending(false);
     }
@@ -39,10 +46,19 @@ export function LoginPage() {
             <h1 className="text-xl font-semibold">
               Sign in to <Wordmark />
             </h1>
-            <p className="mt-1 text-sm text-muted">This instance is self-hosted. Use the admin password you set with SST.</p>
+            <p className="mt-1 text-sm text-muted">
+              This instance is self-hosted. Use the admin password you set with SST.
+            </p>
           </div>
         </div>
-        <TextField value={password} onChange={setPassword} type="password" isInvalid={!!error} autoFocus isRequired>
+        <TextField
+          value={password}
+          onChange={setPassword}
+          type="password"
+          isInvalid={!!error}
+          autoFocus
+          isRequired
+        >
           <Label>Admin password</Label>
           <Input placeholder="••••••••" />
           <FieldError>{error}</FieldError>

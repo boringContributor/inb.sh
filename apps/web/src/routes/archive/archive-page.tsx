@@ -37,7 +37,12 @@ function ArchiveRow({
       <span className="flex min-w-0 flex-1 flex-col justify-center gap-1.5 py-3 pl-2.5 pr-3">
         <span className="flex w-full items-center gap-2">
           <MethodBadge method={item.method} />
-          <span className={cn("min-w-0 flex-1 truncate text-[13px]", selected ? "font-medium text-foreground" : "text-muted")}>
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate text-[13px]",
+              selected ? "font-medium text-foreground" : "text-muted",
+            )}
+          >
             {item.summary}
           </span>
           <StatusCode status={item.status} />
@@ -57,7 +62,10 @@ function ArchiveRow({
 }
 
 function ArchivedDetail({ id, onDeleted }: { id: string; onDeleted: () => void }) {
-  const { data: req, isPending } = useQuery({ queryKey: keys.archived(id), queryFn: () => api.archived(id) });
+  const { data: req, isPending } = useQuery({
+    queryKey: keys.archived(id),
+    queryFn: () => api.archived(id),
+  });
   const [tab, setTab] = useState("body");
   const [confirm, setConfirm] = useState(false);
   const qc = useQueryClient();
@@ -81,7 +89,8 @@ function ArchivedDetail({ id, onDeleted }: { id: string; onDeleted: () => void }
     );
   }
 
-  const body = req.bodyEncoding === "utf8" ? prettyJson(req.body) : { text: req.body, isJson: false };
+  const body =
+    req.bodyEncoding === "utf8" ? prettyJson(req.body) : { text: req.body, isJson: false };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -92,7 +101,13 @@ function ArchivedDetail({ id, onDeleted }: { id: string; onDeleted: () => void }
           <StatusPill status={req.status} />
           <span className="flex-1" />
           <Tooltip delay={400}>
-            <Button isIconOnly variant="ghost" aria-label="Delete from archive" onPress={() => setConfirm(true)} className="text-muted">
+            <Button
+              isIconOnly
+              variant="ghost"
+              aria-label="Delete from archive"
+              onPress={() => setConfirm(true)}
+              className="text-muted"
+            >
               <Trash className="size-4" />
             </Button>
             <Tooltip.Content>Delete from archive</Tooltip.Content>
@@ -113,7 +128,11 @@ function ArchivedDetail({ id, onDeleted }: { id: string; onDeleted: () => void }
         </div>
       </div>
 
-      <Tabs selectedKey={tab} onSelectionChange={(k) => setTab(String(k))} className="flex min-h-0 flex-1 flex-col">
+      <Tabs
+        selectedKey={tab}
+        onSelectionChange={(k) => setTab(String(k))}
+        className="flex min-h-0 flex-1 flex-col"
+      >
         <div className="px-5 py-3">
           <Tabs.ListContainer>
             <Tabs.List aria-label="Archived request">
@@ -210,7 +229,8 @@ export function ArchivePage() {
   const navigate = useNavigate();
   const names = new Map(endpoints?.map((e) => [e.id, e.name]));
   const selected = search.r ?? items?.[0]?.id;
-  const select = (r?: string) => void navigate({ to: "/archive", search: r ? { r } : {}, replace: true });
+  const select = (r?: string) =>
+    void navigate({ to: "/archive", search: r ? { r } : {}, replace: true });
 
   return (
     <>
@@ -230,8 +250,8 @@ export function ArchivePage() {
           <div className="max-w-md">
             <h2 className="text-xl font-semibold">Nothing archived yet</h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Requests expire with their endpoint's retention. Add a rule with an “Archive” action, or use
-              “Archive request” in the inspector, to keep a copy here for good.
+              Requests expire with their endpoint's retention. Add a rule with an “Archive” action,
+              or use “Archive request” in the inspector, to keep a copy here for good.
             </p>
           </div>
         </div>
@@ -241,7 +261,10 @@ export function ArchivePage() {
             <div className="min-h-0 flex-1 overflow-y-auto">
               {isPending &&
                 Array.from({ length: 6 }, (_, i) => (
-                  <div key={i} className="flex h-[68px] flex-col justify-center gap-2 border-b border-separator px-3">
+                  <div
+                    key={i}
+                    className="flex h-[68px] flex-col justify-center gap-2 border-b border-separator px-3"
+                  >
                     <Skeleton className="h-3.5 w-3/4 rounded" />
                     <Skeleton className="h-3 w-1/2 rounded" />
                   </div>
@@ -257,11 +280,15 @@ export function ArchivePage() {
               ))}
             </div>
             <div className="flex h-10 shrink-0 items-center border-t border-separator px-3 text-[11px] text-tertiary">
-              {items ? `${items.length} archived request${items.length === 1 ? "" : "s"}` : "Loading…"}
+              {items
+                ? `${items.length} archived request${items.length === 1 ? "" : "s"}`
+                : "Loading…"}
             </div>
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
-            {selected ? <ArchivedDetail key={selected} id={selected} onDeleted={() => select()} /> : null}
+            {selected ? (
+              <ArchivedDetail key={selected} id={selected} onDeleted={() => select()} />
+            ) : null}
           </div>
         </div>
       )}

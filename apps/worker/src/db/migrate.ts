@@ -93,14 +93,18 @@ export function ensureMigrated(db: D1Database): Promise<void> {
 }
 
 async function run(db: D1Database) {
-  await db.exec(`CREATE TABLE IF NOT EXISTS _migrations (id INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)`);
+  await db.exec(
+    `CREATE TABLE IF NOT EXISTS _migrations (id INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)`,
+  );
   const { results } = await db.prepare(`SELECT id FROM _migrations`).all<{ id: number }>();
   const done = new Set(results.map((r) => r.id));
   for (const migration of MIGRATIONS) {
     if (done.has(migration.id)) continue;
     await db.batch([
       ...migration.sql.map((sql) => db.prepare(sql)),
-      db.prepare(`INSERT OR IGNORE INTO _migrations (id, applied_at) VALUES (?, ?)`).bind(migration.id, Date.now()),
+      db
+        .prepare(`INSERT OR IGNORE INTO _migrations (id, applied_at) VALUES (?, ?)`)
+        .bind(migration.id, Date.now()),
     ]);
   }
 }

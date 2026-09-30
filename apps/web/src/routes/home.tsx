@@ -20,7 +20,8 @@ export function HomePage() {
   }
   if (endpoints?.length) {
     const target = [...endpoints].sort(
-      (a, b) => Date.parse(b.lastRequestAt ?? b.createdAt) - Date.parse(a.lastRequestAt ?? a.createdAt),
+      (a, b) =>
+        Date.parse(b.lastRequestAt ?? b.createdAt) - Date.parse(a.lastRequestAt ?? a.createdAt),
     )[0]!;
     return <Navigate to="/e/$endpointId" params={{ endpointId: target.id }} replace />;
   }
@@ -32,7 +33,8 @@ export function HomePage() {
       <div className="max-w-md">
         <h1 className="text-2xl font-semibold">Create your first endpoint</h1>
         <p className="mt-2 text-[15px] leading-relaxed text-muted">
-          Every endpoint gets its own URL. Point webhooks, cron jobs or your own services at it and watch requests land live.
+          Every endpoint gets its own URL. Point webhooks, cron jobs or your own services at it and
+          watch requests land live.
         </p>
       </div>
       <Button onPress={() => setCreating(true)}>

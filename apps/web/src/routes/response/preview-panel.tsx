@@ -30,13 +30,19 @@ export function PreviewPanel({
   const body = preview.kind === "http" ? preview.body : "";
 
   return (
-    <section aria-label="Live preview" className="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface">
+    <section
+      aria-label="Live preview"
+      className="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+    >
       <header className="flex h-[46px] w-full items-center gap-2 border-b border-separator pl-4 pr-2.5">
         <Eye className="size-[15px] text-muted" aria-hidden />
         <h2 className="flex-1 text-[13px] font-semibold text-foreground">Live preview</h2>
         {preview.kind === "http" && <CopyButton text={text} label="Copy response" />}
       </header>
-      <div className="flex max-h-[360px] flex-col overflow-auto bg-background px-3.5 py-3 font-mono text-xs leading-[19px]" aria-live="polite">
+      <div
+        className="flex max-h-[360px] flex-col overflow-auto bg-background px-3.5 py-3 font-mono text-xs leading-[19px]"
+        aria-live="polite"
+      >
         {loading ? (
           <div className="flex flex-col gap-2 py-1">
             {[60, 80, 70, 75, 50].map((w, i) => (
@@ -50,8 +56,8 @@ export function PreviewPanel({
               {preview.url || "no upstream URL yet"}
             </span>
             <p>
-              Requests are forwarded {preview.delayMs > 0 ? `after ${preview.delayMs} ms ` : ""}and the upstream's real
-              response is relayed, so there's nothing to render ahead of time.
+              Requests are forwarded {preview.delayMs > 0 ? `after ${preview.delayMs} ms ` : ""}and
+              the upstream's real response is relayed, so there's nothing to render ahead of time.
             </p>
           </div>
         ) : (
@@ -97,7 +103,13 @@ export function PreviewPanel({
   );
 }
 
-export function VariablesPanel({ docsHref, template }: { docsHref: string | null; template: boolean }) {
+export function VariablesPanel({
+  docsHref,
+  template,
+}: {
+  docsHref: string | null;
+  template: boolean;
+}) {
   const { copy } = useCopy();
   return (
     <section
@@ -108,7 +120,12 @@ export function VariablesPanel({ docsHref, template }: { docsHref: string | null
         <Braces className="size-[15px] text-muted" aria-hidden />
         <h2 className="flex-1 text-[13px] font-semibold text-foreground">Template variables</h2>
         {docsHref && (
-          <Link href={docsHref} target="_blank" rel="noreferrer" className="text-xs font-medium text-accent no-underline hover:underline">
+          <Link
+            href={docsHref}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs font-medium text-accent no-underline hover:underline"
+          >
             Docs
           </Link>
         )}
@@ -122,7 +139,9 @@ export function VariablesPanel({ docsHref, template }: { docsHref: string | null
                 onClick={() => void copy(v.token, `Copied ${v.token}`)}
                 className="flex w-full flex-col gap-0.5 rounded-xl px-1.5 py-1.5 text-left outline-none transition-colors hover:bg-default/50 focus-visible:ring-2 focus-visible:ring-focus"
               >
-                <span className="whitespace-nowrap font-mono text-xs text-code-keyword">{v.token}</span>
+                <span className="whitespace-nowrap font-mono text-xs text-code-keyword">
+                  {v.token}
+                </span>
                 <span className="text-[11.5px] text-tertiary">{v.description}</span>
               </button>
               <Tooltip.Content>Click to copy</Tooltip.Content>
@@ -131,7 +150,11 @@ export function VariablesPanel({ docsHref, template }: { docsHref: string | null
         ))}
       </ul>
       {!template && (
-        <p className={cn("mt-auto border-t border-separator px-4 py-2.5 text-[11px] leading-4 text-tertiary")}>
+        <p
+          className={cn(
+            "mt-auto border-t border-separator px-4 py-2.5 text-[11px] leading-4 text-tertiary",
+          )}
+        >
           Variables are only interpolated in <span className="text-muted">Template</span> mode.
         </p>
       )}

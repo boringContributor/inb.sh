@@ -13,7 +13,8 @@ import { DefinitionPanel } from "./definition-panel.tsx";
 import { PreviewPanel, VariablesPanel } from "./preview-panel.tsx";
 import { buildPreview, previewContext, sampleRequest } from "./preview.ts";
 
-const sameConfig = (a: ResponseConfig, b: ResponseConfig) => JSON.stringify(a) === JSON.stringify(b);
+const sameConfig = (a: ResponseConfig, b: ResponseConfig) =>
+  JSON.stringify(a) === JSON.stringify(b);
 
 function parsesAsJson(text: string) {
   try {
@@ -60,15 +61,23 @@ export function ResponsePage() {
   }, [draft, endpoint, latest.data, config?.captureBaseUrl]);
 
   const bodyWarning = useMemo(() => {
-    if (!draft || draft.mode === "proxy" || !/json/i.test(draft.contentType) || !draft.body.trim()) return null;
-    if (draft.mode === "static") return parsesAsJson(draft.body) ? null : "Body isn't valid JSON — it will be sent as written.";
-    if (preview?.kind === "http" && preview.invalidJson) return "Rendered body isn't valid JSON for the preview request.";
+    if (!draft || draft.mode === "proxy" || !/json/i.test(draft.contentType) || !draft.body.trim())
+      return null;
+    if (draft.mode === "static")
+      return parsesAsJson(draft.body)
+        ? null
+        : "Body isn't valid JSON — it will be sent as written.";
+    if (preview?.kind === "http" && preview.invalidJson)
+      return "Rendered body isn't valid JSON for the preview request.";
     return null;
   }, [draft, preview]);
 
   const save = useCallback(() => {
     if (!draft || !dirty || update.isPending) return;
-    const cleaned: ResponseConfig = { ...draft, headers: draft.headers.filter((h) => h.key.trim()) };
+    const cleaned: ResponseConfig = {
+      ...draft,
+      headers: draft.headers.filter((h) => h.key.trim()),
+    };
     const parsed = responseConfigSchema.safeParse(cleaned);
     if (!parsed.success) {
       toast.danger(parsed.error.issues[0]?.message ?? "Response settings are invalid");
@@ -83,7 +92,9 @@ export function ResponsePage() {
       {
         onSuccess: (ep) => {
           setDraft(structuredClone(ep.response));
-          toast.success(ep.response.enabled ? "Custom response is live" : "Saved — custom response is off");
+          toast.success(
+            ep.response.enabled ? "Custom response is live" : "Saved — custom response is off",
+          );
         },
       },
     );
@@ -101,11 +112,13 @@ export function ResponsePage() {
   }, [save]);
 
   useBlocker({
-    shouldBlockFn: () => dirty && !window.confirm("You have unsaved response changes. Leave without saving?"),
+    shouldBlockFn: () =>
+      dirty && !window.confirm("You have unsaved response changes. Leave without saving?"),
     enableBeforeUnload: () => dirty,
   });
 
-  if (endpointQuery.error) return <RouteError error={endpointQuery.error} reset={() => void endpointQuery.refetch()} />;
+  if (endpointQuery.error)
+    return <RouteError error={endpointQuery.error} reset={() => void endpointQuery.refetch()} />;
 
   const loading = !draft || !endpoint;
 
@@ -123,7 +136,11 @@ export function ResponsePage() {
               <ArrowLeft className="size-4" />
             </RouterLink>
             {endpoint ? (
-              <RouterLink to="/e/$endpointId" params={{ endpointId }} className="truncate text-tertiary hover:text-muted">
+              <RouterLink
+                to="/e/$endpointId"
+                params={{ endpointId }}
+                className="truncate text-tertiary hover:text-muted"
+              >
                 {endpoint.name}
               </RouterLink>
             ) : (
@@ -160,7 +177,13 @@ export function ResponsePage() {
             >
               Discard
             </Button>
-            <Button variant="primary" isDisabled={!dirty} isPending={update.isPending} onPress={save} aria-keyshortcuts="Meta+S">
+            <Button
+              variant="primary"
+              isDisabled={!dirty}
+              isPending={update.isPending}
+              onPress={save}
+              aria-keyshortcuts="Meta+S"
+            >
               <Check className="size-4" />
               Save &amp; apply
             </Button>
@@ -172,8 +195,8 @@ export function ResponsePage() {
         <div className="flex w-full flex-col gap-1">
           <h1 className="text-xl font-semibold text-foreground">Respond on your terms</h1>
           <p className="max-w-[720px] text-[13px] leading-5 text-tertiary">
-            Every request to this endpoint gets this reply — before it reaches anything else. Status, headers, latency and
-            body are yours.
+            Every request to this endpoint gets this reply — before it reaches anything else.
+            Status, headers, latency and body are yours.
           </p>
         </div>
 

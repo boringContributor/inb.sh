@@ -27,7 +27,8 @@ function tokenizeJsonLine(line: string): { kind: TokenKind; text: string }[] {
       } else if (/\{\{[^}]*\}\}/.test(m[1])) {
         // string containing template tokens: highlight the tokens inside
         const parts = m[1].split(/(\{\{[^}]*\}\})/);
-        for (const p of parts) if (p) out.push({ kind: p.startsWith("{{") ? "template" : "string", text: p });
+        for (const p of parts)
+          if (p) out.push({ kind: p.startsWith("{{") ? "template" : "string", text: p });
       } else out.push({ kind: "string", text: m[1] });
     } else if (m[3] !== undefined) out.push({ kind: "number", text: m[3] });
     else if (m[4] !== undefined) out.push({ kind: "keyword", text: m[4] });
@@ -74,7 +75,9 @@ export function CodeView({
     return (
       <>
         {text.slice(0, i)}
-        <mark className="rounded-sm bg-warning/30 text-inherit">{text.slice(i, i + highlight.length)}</mark>
+        <mark className="rounded-sm bg-warning/30 text-inherit">
+          {text.slice(i, i + highlight.length)}
+        </mark>
         {mark(text.slice(i + highlight.length))}
       </>
     );
@@ -86,18 +89,28 @@ export function CodeView({
           {lines.map((line, i) => (
             <tr key={i}>
               {lineNumbers && (
-                <td className="w-10 select-none pr-3.5 text-right align-top text-[11px] text-tertiary tabular-nums">{i + 1}</td>
+                <td className="w-10 select-none pr-3.5 text-right align-top text-[11px] text-tertiary tabular-nums">
+                  {i + 1}
+                </td>
               )}
-              <td className={cn("pr-4 align-top", wrap ? "whitespace-pre-wrap break-all" : "whitespace-pre", !lineNumbers && "pl-3.5")}>
-                {language === "json"
-                  ? tokenizeJsonLine(line).map((t, j) => (
-                      <span key={j} className={TOKEN_CLASS[t.kind]}>
-                        {mark(t.text)}
-                      </span>
-                    ))
-                  : language === "http" || language === "shell"
-                    ? highlightShellish(line, mark)
-                    : <span className="text-foreground">{mark(line)}</span>}
+              <td
+                className={cn(
+                  "pr-4 align-top",
+                  wrap ? "whitespace-pre-wrap break-all" : "whitespace-pre",
+                  !lineNumbers && "pl-3.5",
+                )}
+              >
+                {language === "json" ? (
+                  tokenizeJsonLine(line).map((t, j) => (
+                    <span key={j} className={TOKEN_CLASS[t.kind]}>
+                      {mark(t.text)}
+                    </span>
+                  ))
+                ) : language === "http" || language === "shell" ? (
+                  highlightShellish(line, mark)
+                ) : (
+                  <span className="text-foreground">{mark(line)}</span>
+                )}
                 {line === "" && "\u200b"}
               </td>
             </tr>

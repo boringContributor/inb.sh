@@ -18,7 +18,15 @@ const TEXT: Record<Tone, string> = {
 };
 
 /** `POST` pill: 10px mono in lists, 11px in the inspector header. */
-export function MethodBadge({ method, size = "sm", className }: { method: string; size?: "sm" | "md"; className?: string }) {
+export function MethodBadge({
+  method,
+  size = "sm",
+  className,
+}: {
+  method: string;
+  size?: "sm" | "md";
+  className?: string;
+}) {
   return (
     <span
       className={cn(
@@ -35,14 +43,30 @@ export function MethodBadge({ method, size = "sm", className }: { method: string
 
 /** Bare status number (list rows). */
 export function StatusCode({ status, className }: { status: number; className?: string }) {
-  return <span className={cn("font-mono text-xs font-semibold", TEXT[statusTone(status)], className)}>{status}</span>;
+  return (
+    <span className={cn("font-mono text-xs font-semibold", TEXT[statusTone(status)], className)}>
+      {status}
+    </span>
+  );
 }
 
 /** `200 OK` soft pill. */
-export function StatusPill({ status, label, className }: { status: number; label?: string; className?: string }) {
+export function StatusPill({
+  status,
+  label,
+  className,
+}: {
+  status: number;
+  label?: string;
+  className?: string;
+}) {
   return (
     <span
-      className={cn("inline-flex items-center rounded-2xl px-2 py-0.5 text-xs font-medium", SOFT[statusTone(status)], className)}
+      className={cn(
+        "inline-flex items-center rounded-2xl px-2 py-0.5 text-xs font-medium",
+        SOFT[statusTone(status)],
+        className,
+      )}
     >
       {label ?? statusLabel(status)}
     </span>
@@ -75,7 +99,23 @@ export function TonePill({
   );
 }
 
-export function LiveDot({ tone = "success", pulse = true }: { tone?: "success" | "accent" | "warning" | "danger"; pulse?: boolean }) {
-  const bg = { success: "bg-success", accent: "bg-accent", warning: "bg-warning", danger: "bg-danger" }[tone];
-  return <span className={cn("size-[7px] shrink-0 rounded-full", bg, pulse && "animate-live")} aria-hidden />;
+export function LiveDot({
+  tone = "success",
+  pulse = true,
+}: {
+  tone?: "success" | "accent" | "warning" | "danger";
+  pulse?: boolean;
+}) {
+  const bg = {
+    success: "bg-success",
+    accent: "bg-accent",
+    warning: "bg-warning",
+    danger: "bg-danger",
+  }[tone];
+  return (
+    <span
+      className={cn("size-[7px] shrink-0 rounded-full", bg, pulse && "animate-live")}
+      aria-hidden
+    />
+  );
 }

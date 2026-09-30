@@ -15,7 +15,15 @@ import {
 import { eq, sql } from "drizzle-orm";
 import type { BatchItem } from "drizzle-orm/batch";
 import type { Env, WaitUntil } from "./env.ts";
-import { type DB, type EndpointRow, type RuleRow, activeRules, findEndpointBySlug, getDb, schema } from "./db/repo.ts";
+import {
+  type DB,
+  type EndpointRow,
+  type RuleRow,
+  activeRules,
+  findEndpointBySlug,
+  getDb,
+  schema,
+} from "./db/repo.ts";
 import type { StoredRequest } from "./hub.ts";
 import { requestId as newRequestId } from "./lib/ids.ts";
 import { verifySignature } from "./lib/signature.ts";
@@ -28,7 +36,8 @@ import { encodeBody } from "./deliver/send.ts";
 const MAX_STORED_BODY = 1024 * 1024;
 const MAX_BODY = 10 * 1024 * 1024;
 
-const PRIVATE_HOST = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\])/;
+const PRIVATE_HOST =
+  /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\])/;
 
 export function isPrivateUrl(url: string): boolean {
   try {
@@ -102,7 +111,10 @@ export async function handleCapture(
   const db = await getDb(env.Database);
   const endpoint = await findEndpointBySlug(db, slug);
   if (!endpoint) {
-    return Response.json({ error: "unknown endpoint", slug }, { status: 404, headers: { "x-inbound": "unknown-endpoint" } });
+    return Response.json(
+      { error: "unknown endpoint", slug },
+      { status: 404, headers: { "x-inbound": "unknown-endpoint" } },
+    );
   }
 
   if (req.method === "OPTIONS" && req.headers.get("access-control-request-method")) {
@@ -121,7 +133,8 @@ export async function handleCapture(
   try {
     bytes = await readBody(req);
   } catch (err) {
-    if (err instanceof PayloadTooLarge) return Response.json({ error: "payload too large" }, { status: 413 });
+    if (err instanceof PayloadTooLarge)
+      return Response.json({ error: "payload too large" }, { status: 413 });
     throw err;
   }
 
@@ -138,7 +151,10 @@ export async function handleCapture(
   const ip = req.headers.get("cf-connecting-ip");
 
   const signature = endpoint.signing
-    ? { provider: endpoint.signing.provider, verified: await verifySignature(endpoint.signing, req.headers, bytes) }
+    ? {
+        provider: endpoint.signing.provider,
+        verified: await verifySignature(endpoint.signing, req.headers, bytes),
+      }
     : null;
 
   const ctx: RequestContext = {
@@ -182,7 +198,10 @@ export async function handleCapture(
     status: reply.status,
     size: bytes.byteLength,
     contentType,
-    summary: signature && !signature.verified && reply.status === 401 ? "signature verification failed" : summary,
+    summary:
+      signature && !signature.verified && reply.status === 401
+        ? "signature verification failed"
+        : summary,
     receivedAt: receivedAt.toISOString(),
     replayCount: 0,
     query,
@@ -200,12 +219,19 @@ export async function handleCapture(
 
   const iso = receivedAt.toISOString();
   const events: RequestEvent[] = [
-    { type: "received", at: iso, label: "Received", detail: new Date(iso).toISOString().slice(11, 23) },
+    {
+      type: "received",
+      at: iso,
+      label: "Received",
+      detail: new Date(iso).toISOString().slice(11, 23),
+    },
     {
       type: "matched",
       at: iso,
       label: "Matched rule",
-      detail: matched.length ? `${matched.length} of ${rules.length} rules` : `0 of ${rules.length} rules`,
+      detail: matched.length
+        ? `${matched.length} of ${rules.length} rules`
+        : `0 of ${rules.length} rules`,
     },
     {
       type: "responded",
@@ -221,7 +247,10 @@ export async function handleCapture(
     ),
   );
 
-  const res = new Response(req.method === "HEAD" ? null : reply.body, { status: reply.status, headers: reply.headers });
+  const res = new Response(req.method === "HEAD" ? null : reply.body, {
+    status: reply.status,
+    headers: reply.headers,
+  });
   res.headers.set("x-inbound-id", id);
   return res;
 }
@@ -265,7 +294,9 @@ async function buildReply(
         });
         return {
           status: upstream.status,
-          headers: [...upstream.headers.entries()].filter(([k]) => !["content-encoding", "content-length", "transfer-encoding"].includes(k)),
+          headers: [...upstream.headers.entries()].filter(
+            ([k]) => !["content-encoding", "content-length", "transfer-encoding"].includes(k),
+          ),
           body: await upstream.text(),
           source: "proxy",
         };
@@ -273,7 +304,10 @@ async function buildReply(
         return {
           status: 502,
           headers: [["content-type", "application/json"]],
-          body: JSON.stringify({ error: "upstream unreachable", detail: String((err as Error).message ?? err) }),
+          body: JSON.stringify({
+            error: "upstream unreachable",
+            detail: String((err as Error).message ?? err),
+          }),
           source: "proxy",
         };
       }
@@ -355,16 +389,35 @@ async function afterReply(
     );
     for (const action of rule.actions) {
       if (action.type === "forward") {
-        const integration = await db.query.integrations.findFirst({ where: eq(schema.integrations.id, action.integrationId) });
+        const integration = await db.query.integrations.findFirst({
+          where: eq(schema.integrations.id, action.integrationId),
+        });
         if (!integration?.enabled) continue;
         if (integration.kind === "cli") continue;
-        jobs.push({ type: "integration", integrationId: integration.id, kind: integration.kind, ruleId: rule.id, context, payload });
+        jobs.push({
+          type: "integration",
+          integrationId: integration.id,
+          kind: integration.kind,
+          ruleId: rule.id,
+          context,
+          payload,
+        });
       } else if (action.type === "replay") {
         if (isPrivateUrl(action.url)) {
-          const request = { ...stored, events: [], body: encodeBody(payload.body) ?? "", headers: Object.entries(payload.headers) };
+          const request = {
+            ...stored,
+            events: [],
+            body: encodeBody(payload.body) ?? "",
+            headers: Object.entries(payload.headers),
+          };
           const n = await hub.tunnel({ request, url: action.url });
           if (!n && !action.onlyWhileTunnel) {
-            extraEvents.push({ type: "delivery_failed", at: new Date().toISOString(), label: "Replay skipped", detail: `no tunnel open for ${action.url}` });
+            extraEvents.push({
+              type: "delivery_failed",
+              at: new Date().toISOString(),
+              label: "Replay skipped",
+              detail: `no tunnel open for ${action.url}`,
+            });
           }
         } else {
           jobs.push({ type: "replay", url: action.url, ruleId: rule.id, context, payload });
@@ -393,6 +446,7 @@ async function afterReply(
   }
 
   await db.batch([counters, ...statements]);
-  if (jobs.length) await env.Deliveries.sendBatch(jobs.map((body) => ({ body, contentType: "json" })));
+  if (jobs.length)
+    await env.Deliveries.sendBatch(jobs.map((body) => ({ body, contentType: "json" })));
   if (extraEvents.length) await hub.addEvents(stored.id, extraEvents);
 }

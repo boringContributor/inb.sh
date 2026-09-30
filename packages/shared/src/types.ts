@@ -34,7 +34,13 @@ export const DEFAULT_RESPONSE: ResponseConfig = {
   proxyUrl: "",
 };
 
-export const signingProviderSchema = z.enum(["stripe", "github", "shopify", "slack", "hmac-sha256"]);
+export const signingProviderSchema = z.enum([
+  "stripe",
+  "github",
+  "shopify",
+  "slack",
+  "hmac-sha256",
+]);
 export type SigningProvider = z.infer<typeof signingProviderSchema>;
 
 export const signingConfigSchema = z.object({
@@ -92,7 +98,10 @@ export const updateEndpointSchema = z.object({
   retentionDays: z.number().int().min(1).max(90).optional(),
   response: responseConfigSchema.optional(),
   /** omit `secret` to keep the stored one */
-  signing: signingConfigSchema.extend({ secret: z.string().min(1).max(512).optional() }).nullable().optional(),
+  signing: signingConfigSchema
+    .extend({ secret: z.string().min(1).max(512).optional() })
+    .nullable()
+    .optional(),
 });
 export type UpdateEndpointInput = z.infer<typeof updateEndpointSchema>;
 
@@ -187,7 +196,10 @@ export const actionSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("respond"),
     status: z.number().int().min(100).max(599),
-    body: z.string().max(64 * 1024).default(""),
+    body: z
+      .string()
+      .max(64 * 1024)
+      .default(""),
     contentType: z.string().max(256).default("application/json"),
   }),
   z.object({
@@ -205,7 +217,11 @@ export const ruleInputSchema = z.object({
   enabled: z.boolean().default(true),
   endpointId: z.string().nullable().default(null),
   conditions: z.array(conditionSchema).max(20).default([]),
-  transform: z.string().max(32 * 1024).nullable().default(null),
+  transform: z
+    .string()
+    .max(32 * 1024)
+    .nullable()
+    .default(null),
   actions: z.array(actionSchema).max(10).default([]),
 });
 export type RuleInput = z.input<typeof ruleInputSchema>;
@@ -217,7 +233,10 @@ export const ruleUpdateSchema = z
     enabled: z.boolean(),
     endpointId: z.string().nullable(),
     conditions: z.array(conditionSchema).max(20),
-    transform: z.string().max(32 * 1024).nullable(),
+    transform: z
+      .string()
+      .max(32 * 1024)
+      .nullable(),
     actions: z.array(actionSchema).max(10),
   })
   .partial();

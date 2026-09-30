@@ -24,15 +24,22 @@ export function replayableHeaders(headers: [string, string][]): [string, string]
 export function requestToCurl(req: CapturedRequest, baseUrl: string): string {
   const qs = req.query.length ? `?${new URLSearchParams(req.query).toString()}` : "";
   const lines = [`curl -X ${req.method} ${shellQuote(`${baseUrl}${req.path}${qs}`)}`];
-  for (const [k, v] of replayableHeaders(req.headers)) lines.push(`  -H ${shellQuote(`${k}: ${v}`)}`);
+  for (const [k, v] of replayableHeaders(req.headers))
+    lines.push(`  -H ${shellQuote(`${k}: ${v}`)}`);
   if (req.body && req.bodyEncoding === "utf8") lines.push(`  --data-raw ${shellQuote(req.body)}`);
   return lines.join(" \\\n");
 }
 
 export function requestToRaw(req: CapturedRequest): string {
   const qs = req.query.length ? `?${new URLSearchParams(req.query).toString()}` : "";
-  const head = [`${req.method} ${req.path}${qs} HTTP/1.1`, ...req.headers.map(([k, v]) => `${k}: ${v}`)];
-  const body = req.bodyEncoding === "utf8" ? req.body : `<${req.size} bytes binary, base64 encoded>\n${req.body}`;
+  const head = [
+    `${req.method} ${req.path}${qs} HTTP/1.1`,
+    ...req.headers.map(([k, v]) => `${k}: ${v}`),
+  ];
+  const body =
+    req.bodyEncoding === "utf8"
+      ? req.body
+      : `<${req.size} bytes binary, base64 encoded>\n${req.body}`;
   return `${head.join("\n")}\n\n${body}`;
 }
 

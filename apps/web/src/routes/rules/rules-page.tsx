@@ -29,7 +29,10 @@ export function RulesPage() {
   const [searching, setSearching] = useState(false);
   const [testSignal, setTestSignal] = useState(0);
 
-  const ordered = useMemo(() => [...(rules ?? [])].sort((a, b) => a.position - b.position), [rules]);
+  const ordered = useMemo(
+    () => [...(rules ?? [])].sort((a, b) => a.position - b.position),
+    [rules],
+  );
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return q ? ordered.filter((r) => r.name.toLowerCase().includes(q)) : ordered;
@@ -76,7 +79,9 @@ export function RulesPage() {
 
   const duplicate = async (rule: Rule) => {
     try {
-      const copy = await saveRule.mutateAsync({ input: { ...toDraft(rule), name: `${rule.name} copy`, enabled: false } });
+      const copy = await saveRule.mutateAsync({
+        input: { ...toDraft(rule), name: `${rule.name} copy`, enabled: false },
+      });
       toast.success(`Duplicated as “${copy.name}” (paused)`);
       select(copy.id);
     } catch {
@@ -99,7 +104,11 @@ export function RulesPage() {
   };
 
   const empty = !isPending && ordered.length === 0 && !draft;
-  const editorKey = draft ? `draft-${draft.key}` : selected ? `${selected.id}-${selected.updatedAt}` : "none";
+  const editorKey = draft
+    ? `draft-${draft.key}`
+    : selected
+      ? `${selected.id}-${selected.updatedAt}`
+      : "none";
 
   return (
     <>
@@ -134,7 +143,13 @@ export function RulesPage() {
               </SearchField>
             ) : (
               <Tooltip delay={400}>
-                <Button isIconOnly variant="ghost" aria-label="Filter rules" onPress={() => setSearching(true)} className="text-muted">
+                <Button
+                  isIconOnly
+                  variant="ghost"
+                  aria-label="Filter rules"
+                  onPress={() => setSearching(true)}
+                  className="text-muted"
+                >
                   <Search className="size-4" />
                 </Button>
                 <Tooltip.Content>Filter rules</Tooltip.Content>
@@ -169,7 +184,9 @@ export function RulesPage() {
               ) : (
                 <>
                   {query && visible.length === 0 && (
-                    <p className="px-1 py-6 text-center text-sm text-muted">No rules match “{query}”.</p>
+                    <p className="px-1 py-6 text-center text-sm text-muted">
+                      No rules match “{query}”.
+                    </p>
                   )}
                   <RuleList
                     rules={visible}
@@ -210,7 +227,13 @@ export function RulesPage() {
   );
 }
 
-function EmptyRules({ onTemplate, integrations }: { onTemplate: (draft: Draft) => void; integrations: Integration[] }) {
+function EmptyRules({
+  onTemplate,
+  integrations,
+}: {
+  onTemplate: (draft: Draft) => void;
+  integrations: Integration[];
+}) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
       <span className="flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
@@ -219,8 +242,9 @@ function EmptyRules({ onTemplate, integrations }: { onTemplate: (draft: Draft) =
       <div className="max-w-lg">
         <h2 className="text-lg font-semibold">Decide what happens to every request</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted">
-          Rules run top to bottom on each incoming request. Match on method, path, headers or body, reshape it with a
-          JSONata transform, then respond, forward to an integration, replay or archive it.
+          Rules run top to bottom on each incoming request. Match on method, path, headers or body,
+          reshape it with a JSONata transform, then respond, forward to an integration, replay or
+          archive it.
         </p>
       </div>
       <div className="grid w-full max-w-3xl grid-cols-1 gap-3 md:grid-cols-3">

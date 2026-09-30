@@ -39,7 +39,11 @@ export function emptyDraft(): Draft {
 
 /** Normalise before comparing / saving: an empty transform is no transform. */
 export function normaliseDraft(d: Draft): Draft {
-  return { ...d, name: d.name.trim() || "Untitled rule", transform: d.transform?.trim() ? d.transform : null };
+  return {
+    ...d,
+    name: d.name.trim() || "Untitled rule",
+    transform: d.transform?.trim() ? d.transform : null,
+  };
 }
 
 export function sameDraft(a: Draft, b: Draft): boolean {
@@ -98,7 +102,9 @@ export const RULE_TEMPLATES: RuleTemplate[] = [
     title: "Alert on 5xx",
     description: "Notify an integration whenever the reply was a server error.",
     build: (integrations) => {
-      const target = integrations.find((i) => ["discord", "slack", "pagerduty"].includes(i.kind)) ?? integrations[0];
+      const target =
+        integrations.find((i) => ["discord", "slack", "pagerduty"].includes(i.kind)) ??
+        integrations[0];
       return {
         name: "Alert on failures",
         enabled: true,
@@ -131,7 +137,10 @@ export function integrationLabel(integration: Integration | undefined): string {
   return channel ? `${integration.name} ${channel}` : integration.name;
 }
 
-export function ruleChips(rule: Pick<Rule, "transform" | "actions">, integrations: Integration[]): RuleChip[] {
+export function ruleChips(
+  rule: Pick<Rule, "transform" | "actions">,
+  integrations: Integration[],
+): RuleChip[] {
   const chips: RuleChip[] = [];
   if (rule.transform?.trim()) {
     chips.push({ label: "Transform", tone: "accent" });
@@ -146,10 +155,16 @@ export function ruleChips(rule: Pick<Rule, "transform" | "actions">, integration
         });
         break;
       case "respond":
-        chips.push({ label: `Respond ${action.status}`, tone: action.status >= 400 ? "danger" : "success" });
+        chips.push({
+          label: `Respond ${action.status}`,
+          tone: action.status >= 400 ? "danger" : "success",
+        });
         break;
       case "replay":
-        chips.push({ label: "Replay", tone: "accent" }, { label: host(action.url), tone: "default" });
+        chips.push(
+          { label: "Replay", tone: "accent" },
+          { label: host(action.url), tone: "default" },
+        );
         break;
       case "archive":
         chips.push({ label: "Archive", tone: "default" });

@@ -4,12 +4,33 @@ import type { ResponseMode } from "@inb/shared";
 import { cn } from "../../lib/cn.ts";
 
 const MODES: { mode: ResponseMode; title: string; description: string; icon: LucideIcon }[] = [
-  { mode: "static", title: "Static", description: "Always return the same body and status.", icon: FileText },
-  { mode: "template", title: "Template", description: "Interpolate request data with {{ variables }}.", icon: Code },
-  { mode: "proxy", title: "Proxy", description: "Forward upstream and relay the real response.", icon: ArrowRightLeft },
+  {
+    mode: "static",
+    title: "Static",
+    description: "Always return the same body and status.",
+    icon: FileText,
+  },
+  {
+    mode: "template",
+    title: "Template",
+    description: "Interpolate request data with {{ variables }}.",
+    icon: Code,
+  },
+  {
+    mode: "proxy",
+    title: "Proxy",
+    description: "Forward upstream and relay the real response.",
+    icon: ArrowRightLeft,
+  },
 ];
 
-export function ModeCards({ value, onChange }: { value: ResponseMode; onChange: (mode: ResponseMode) => void }) {
+export function ModeCards({
+  value,
+  onChange,
+}: {
+  value: ResponseMode;
+  onChange: (mode: ResponseMode) => void;
+}) {
   return (
     <RadioGroup
       aria-label="Response mode"
@@ -34,9 +55,14 @@ export function ModeCards({ value, onChange }: { value: ResponseMode; onChange: 
           {({ isSelected }) => (
             <>
               <span className="flex w-full items-center gap-2">
-                <Icon className={cn("size-[15px] shrink-0", isSelected ? "text-accent" : "text-muted")} aria-hidden />
+                <Icon
+                  className={cn("size-[15px] shrink-0", isSelected ? "text-accent" : "text-muted")}
+                  aria-hidden
+                />
                 <span className="flex-1 text-[13.5px] font-semibold text-foreground">{title}</span>
-                {isSelected && <CircleCheck className="size-[15px] shrink-0 text-accent" aria-hidden />}
+                {isSelected && (
+                  <CircleCheck className="size-[15px] shrink-0 text-accent" aria-hidden />
+                )}
               </span>
               <span className="text-[11.5px] leading-[17px] text-tertiary">{description}</span>
             </>

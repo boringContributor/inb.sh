@@ -1,11 +1,6 @@
 import { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
-import {
-  type Endpoint,
-  type Integration,
-  type Rule,
-  integrationDefinition,
-} from "@inb/shared";
+import { type Endpoint, type Integration, type Rule, integrationDefinition } from "@inb/shared";
 import * as schema from "./schema.ts";
 import { ensureMigrated } from "./migrate.ts";
 
@@ -29,7 +24,11 @@ export function toEndpoint(row: EndpointRow): Endpoint {
     retentionDays: row.retentionDays,
     response: row.response,
     signing: row.signing
-      ? { provider: row.signing.provider, header: row.signing.header, hasSecret: !!row.signing.secret }
+      ? {
+          provider: row.signing.provider,
+          header: row.signing.header,
+          hasSecret: !!row.signing.secret,
+        }
       : null,
     createdAt: row.createdAt.toISOString(),
     requestCount: row.requestCount,
@@ -71,7 +70,9 @@ export function redactConfig(row: IntegrationRow): Record<string, string> {
 
 /** Merge an update, keeping secrets the client sent back redacted. */
 export function mergeConfig(previous: Record<string, string>, next: Record<string, string>) {
-  return Object.fromEntries(Object.entries(next).map(([k, v]) => [k, v === REDACTED ? (previous[k] ?? "") : v]));
+  return Object.fromEntries(
+    Object.entries(next).map(([k, v]) => [k, v === REDACTED ? (previous[k] ?? "") : v]),
+  );
 }
 
 export async function findEndpointBySlug(db: DB, slug: string) {
@@ -105,7 +106,9 @@ const HOUR = 3_600_000;
 
 /** Integrations with 24h hourly delivery series and health. */
 export async function listIntegrations(db: DB): Promise<Integration[]> {
-  const rows = await db.query.integrations.findMany({ orderBy: asc(schema.integrations.createdAt) });
+  const rows = await db.query.integrations.findMany({
+    orderBy: asc(schema.integrations.createdAt),
+  });
   if (!rows.length) return [];
   const since = Date.now() - 24 * HOUR;
   const buckets = await db
@@ -144,7 +147,13 @@ export async function listIntegrations(db: DB): Promise<Integration[]> {
     const okRate = t && t.total ? t.ok / t.total : null;
     const recentRate = recentTotal ? recentOk / recentTotal : null;
     const health: Integration["health"] =
-      recentRate === null ? "idle" : recentRate >= 0.99 ? "ok" : recentRate >= 0.9 ? "degraded" : "failing";
+      recentRate === null
+        ? "idle"
+        : recentRate >= 0.99
+          ? "ok"
+          : recentRate >= 0.9
+            ? "degraded"
+            : "failing";
     return {
       id: row.id,
       kind: row.kind,
@@ -153,20 +162,31 @@ export async function listIntegrations(db: DB): Promise<Integration[]> {
       config: redactConfig(row),
       enabled: row.enabled,
       health,
-      stats: { delivered: t?.total ?? 0, okRate, lastDeliveryAt: t?.last ? new Date(t.last).toISOString() : null },
+      stats: {
+        delivered: t?.total ?? 0,
+        okRate,
+        lastDeliveryAt: t?.last ? new Date(t.last).toISOString() : null,
+      },
       series,
       createdAt: row.createdAt.toISOString(),
     };
   });
 }
 
-export async function recentDeliveries(db: DB, opts: { integrationId?: string; requestId?: string; limit: number }) {
+export async function recentDeliveries(
+  db: DB,
+  opts: { integrationId?: string; requestId?: string; limit: number },
+) {
   const where = opts.integrationId
     ? eq(schema.deliveries.integrationId, opts.integrationId)
     : opts.requestId
       ? eq(schema.deliveries.requestId, opts.requestId)
       : undefined;
-  return db.query.deliveries.findMany({ where, orderBy: desc(schema.deliveries.createdAt), limit: opts.limit });
+  return db.query.deliveries.findMany({
+    where,
+    orderBy: desc(schema.deliveries.createdAt),
+    limit: opts.limit,
+  });
 }
 
 export async function getSetting(db: DB, key: string): Promise<string | undefined> {

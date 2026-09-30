@@ -40,7 +40,11 @@ export function parseBody(raw: string, contentType: string | null | undefined): 
 }
 
 export function nowContext(date = new Date()): RequestContext["now"] {
-  return { iso8601: date.toISOString(), unix: Math.floor(date.getTime() / 1000), ms: date.getTime() };
+  return {
+    iso8601: date.toISOString(),
+    unix: Math.floor(date.getTime() / 1000),
+    ms: date.getTime(),
+  };
 }
 
 /**
@@ -60,9 +64,17 @@ export function resolvePath(ctx: RequestContext, path: string): unknown {
     if (cursor === null || typeof cursor !== "object") return undefined;
     if (cursor === ctx.request && seg === "headers" && i < segments.length - 1) {
       // header names are case-insensitive and may contain dots
-      return ctx.request.headers[segments.slice(i + 1).join(".").toLowerCase()];
+      return ctx.request.headers[
+        segments
+          .slice(i + 1)
+          .join(".")
+          .toLowerCase()
+      ];
     }
-    cursor = Array.isArray(cursor) && /^\d+$/.test(seg) ? cursor[Number(seg)] : (cursor as Record<string, unknown>)[seg];
+    cursor =
+      Array.isArray(cursor) && /^\d+$/.test(seg)
+        ? cursor[Number(seg)]
+        : (cursor as Record<string, unknown>)[seg];
   }
   return cursor;
 }

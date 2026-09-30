@@ -11,7 +11,8 @@ interface Stage {
   highlight: boolean;
 }
 
-const plural = (n: number, word: string) => `${n.toLocaleString("en-US")} ${word}${n === 1 ? "" : "s"}`;
+const plural = (n: number, word: string) =>
+  `${n.toLocaleString("en-US")} ${word}${n === 1 ? "" : "s"}`;
 
 /** Receive → Match → Transform → Respond → Deliver, as in the design's header card. */
 export function PipelineStrip() {
@@ -19,16 +20,36 @@ export function PipelineStrip() {
 
   const stages: Stage[] = data
     ? [
-        { icon: Download, title: "Receive", subtitle: `${data.receivedToday.toLocaleString("en-US")} today`, highlight: false },
-        { icon: SlidersHorizontal, title: "Match", subtitle: plural(data.rules, "rule"), highlight: true },
-        { icon: Sparkles, title: "Transform", subtitle: `${data.activeTransforms} active`, highlight: true },
+        {
+          icon: Download,
+          title: "Receive",
+          subtitle: `${data.receivedToday.toLocaleString("en-US")} today`,
+          highlight: false,
+        },
+        {
+          icon: SlidersHorizontal,
+          title: "Match",
+          subtitle: plural(data.rules, "rule"),
+          highlight: true,
+        },
+        {
+          icon: Sparkles,
+          title: "Transform",
+          subtitle: `${data.activeTransforms} active`,
+          highlight: true,
+        },
         {
           icon: Reply,
           title: "Respond",
           subtitle: `${data.customResponses > 0 ? "custom" : "default"}${data.avgResponseMs !== null ? ` · ${data.avgResponseMs} ms` : ""}`,
           highlight: false,
         },
-        { icon: Send, title: "Deliver", subtitle: plural(data.integrations, "integration"), highlight: false },
+        {
+          icon: Send,
+          title: "Deliver",
+          subtitle: plural(data.integrations, "integration"),
+          highlight: false,
+        },
       ]
     : [];
 
@@ -61,7 +82,9 @@ export function PipelineStrip() {
             <span
               className={cn(
                 "flex size-8 items-center justify-center rounded-full",
-                stage.highlight ? "bg-accent-soft text-accent" : "bg-background-secondary text-muted",
+                stage.highlight
+                  ? "bg-accent-soft text-accent"
+                  : "bg-background-secondary text-muted",
               )}
             >
               <stage.icon className="size-[15px]" />

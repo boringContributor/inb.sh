@@ -24,7 +24,14 @@ import { useSaveRule } from "../../lib/queries.ts";
 import { ActionRow } from "./action-row.tsx";
 import { ConditionFieldSuggestions, ConditionRow, compactField } from "./condition-row.tsx";
 import { DryRunPanel } from "./dry-run-panel.tsx";
-import { DEFAULT_TRANSFORM, type Draft, newAction, normaliseDraft, sameDraft, timeAgo } from "./rule-utils.ts";
+import {
+  DEFAULT_TRANSFORM,
+  type Draft,
+  newAction,
+  normaliseDraft,
+  sameDraft,
+  timeAgo,
+} from "./rule-utils.ts";
 import { TransformModal } from "./transform-modal.tsx";
 
 function SectionHead({
@@ -95,9 +102,11 @@ export function RuleEditor({
   const [transformOpen, setTransformOpen] = useState(false);
   const [transformError, setTransformError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [dryRun, setDryRun] = useState<{ result: DryRunResult | null; pending: boolean; error: string | null } | null>(
-    null,
-  );
+  const [dryRun, setDryRun] = useState<{
+    result: DryRunResult | null;
+    pending: boolean;
+    error: string | null;
+  } | null>(null);
   const [newActionIndex, setNewActionIndex] = useState<number | null>(null);
   const save = useSaveRule();
 
@@ -110,10 +119,17 @@ export function RuleEditor({
   const runDryRun = async () => {
     setDryRun({ result: null, pending: true, error: null });
     try {
-      const result = await api.dryRun({ rule: normaliseDraft(draft), endpointId: draft.endpointId ?? undefined });
+      const result = await api.dryRun({
+        rule: normaliseDraft(draft),
+        endpointId: draft.endpointId ?? undefined,
+      });
       setDryRun({ result, pending: false, error: null });
     } catch (err) {
-      setDryRun({ result: null, pending: false, error: err instanceof ApiError ? err.message : "Dry run failed" });
+      setDryRun({
+        result: null,
+        pending: false,
+        error: err instanceof ApiError ? err.message : "Dry run failed",
+      });
     }
   };
 
@@ -146,7 +162,8 @@ export function RuleEditor({
       setDraft(input);
       onSaved(saved);
     } catch (err) {
-      if (err instanceof ApiError && err.code === "invalid_transform") setTransformError(err.message);
+      if (err instanceof ApiError && err.code === "invalid_transform")
+        setTransformError(err.message);
       else setSaveError(err instanceof ApiError ? err.message : "Couldn't save the rule");
     }
   };
@@ -175,12 +192,21 @@ export function RuleEditor({
             aria-label={draft.enabled ? "Enabled — click to pause" : "Paused — click to enable"}
             className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
-            <TonePill tone={draft.enabled ? "success" : "default"} className="rounded-2xl px-2 text-xs">
+            <TonePill
+              tone={draft.enabled ? "success" : "default"}
+              className="rounded-2xl px-2 text-xs"
+            >
               {draft.enabled ? "Enabled" : "Paused"}
             </TonePill>
           </button>
           <Dropdown>
-            <Button isIconOnly variant="ghost" size="sm" aria-label="Rule actions" className="size-7 min-w-7 text-muted">
+            <Button
+              isIconOnly
+              variant="ghost"
+              size="sm"
+              aria-label="Rule actions"
+              className="size-7 min-w-7 text-muted"
+            >
               <Ellipsis className="size-[15px]" />
             </Button>
             <Dropdown.Popover placement="bottom end" className="min-w-48">
@@ -203,7 +229,11 @@ export function RuleEditor({
                   <RotateCcw className="size-4 text-muted" />
                   <Label>Discard changes</Label>
                 </Dropdown.Item>
-                <Dropdown.Item id="delete" textValue={rule ? "Delete" : "Discard draft"} variant="danger">
+                <Dropdown.Item
+                  id="delete"
+                  textValue={rule ? "Delete" : "Discard draft"}
+                  variant="danger"
+                >
                   <Trash className="size-4" />
                   <Label>{rule ? "Delete rule" : "Discard draft"}</Label>
                 </Dropdown.Item>
@@ -221,7 +251,12 @@ export function RuleEditor({
           onChange={(key) => update({ endpointId: key === "all" || !key ? null : String(key) })}
           className="mt-1 w-full"
         >
-          <Select.Trigger className={cn(compactField, "flex w-full items-center justify-between font-sans text-muted")}>
+          <Select.Trigger
+            className={cn(
+              compactField,
+              "flex w-full items-center justify-between font-sans text-muted",
+            )}
+          >
             <Select.Value />
             <Select.Indicator />
           </Select.Trigger>
@@ -249,10 +284,14 @@ export function RuleEditor({
             icon={GitBranch}
             title="WHEN"
             action="Add condition"
-            onAction={() => update({ conditions: [...draft.conditions, { field: "", op: "is", value: "" }] })}
+            onAction={() =>
+              update({ conditions: [...draft.conditions, { field: "", op: "is", value: "" }] })
+            }
           />
           {draft.conditions.length === 0 && (
-            <p className="text-[11.5px] text-tertiary">No conditions — the rule matches every request.</p>
+            <p className="text-[11.5px] text-tertiary">
+              No conditions — the rule matches every request.
+            </p>
           )}
           {draft.conditions.map((condition, i) => (
             <div key={i} className="flex flex-col gap-2">
@@ -265,7 +304,9 @@ export function RuleEditor({
                 condition={condition}
                 index={i}
                 result={conditionResults?.[i]}
-                onChange={(next) => update({ conditions: draft.conditions.map((c, j) => (j === i ? next : c)) })}
+                onChange={(next) =>
+                  update({ conditions: draft.conditions.map((c, j) => (j === i ? next : c)) })
+                }
                 onRemove={() => update({ conditions: draft.conditions.filter((_, j) => j !== i) })}
               />
             </div>
@@ -359,7 +400,9 @@ export function RuleEditor({
             }
           />
           {draft.actions.length === 0 && (
-            <p className="text-[11.5px] text-tertiary">No actions — matching requests are only counted.</p>
+            <p className="text-[11.5px] text-tertiary">
+              No actions — matching requests are only counted.
+            </p>
           )}
           {draft.actions.map((action, i) => (
             <ActionRow
@@ -368,7 +411,9 @@ export function RuleEditor({
               index={i}
               integrations={integrations}
               defaultOpen={i === newActionIndex}
-              onChange={(next) => update({ actions: draft.actions.map((a, j) => (j === i ? next : a)) })}
+              onChange={(next) =>
+                update({ actions: draft.actions.map((a, j) => (j === i ? next : a)) })
+              }
               onRemove={() => update({ actions: draft.actions.filter((_, j) => j !== i) })}
             />
           ))}
@@ -386,16 +431,38 @@ export function RuleEditor({
 
       <footer className="flex items-center justify-end gap-2 border-t border-separator px-4 py-3">
         <span
-          className={cn("min-w-0 flex-1 truncate text-[11px]", saveError ? "text-danger" : dirty ? "text-warning" : "text-tertiary")}
+          className={cn(
+            "min-w-0 flex-1 truncate text-[11px]",
+            saveError ? "text-danger" : dirty ? "text-warning" : "text-tertiary",
+          )}
           aria-live="polite"
         >
-          {saveError ?? (save.isPending ? "Saving…" : dirty ? (rule ? "Unsaved changes" : "Draft — not saved") : "All changes saved")}
+          {saveError ??
+            (save.isPending
+              ? "Saving…"
+              : dirty
+                ? rule
+                  ? "Unsaved changes"
+                  : "Draft — not saved"
+                : "All changes saved")}
         </span>
-        <Button variant="outline" size="sm" className="h-8" onPress={runDryRun} isPending={dryRun?.pending}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8"
+          onPress={runDryRun}
+          isPending={dryRun?.pending}
+        >
           <Play className="size-3.5" />
           Dry run
         </Button>
-        <Button size="sm" className="h-8" onPress={apply} isDisabled={!dirty} isPending={save.isPending}>
+        <Button
+          size="sm"
+          className="h-8"
+          onPress={apply}
+          isDisabled={!dirty}
+          isPending={save.isPending}
+        >
           Apply
         </Button>
       </footer>
