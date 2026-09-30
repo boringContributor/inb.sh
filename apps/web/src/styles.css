@@ -5,72 +5,111 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* syntax colors used by the code viewers (from the design file) */
-  --color-code-key: #7dd3fc;
-  --color-code-string: #6ee7b7;
-  --color-code-number: #fcd34d;
-  --color-code-keyword: #f0abfc;
-  --color-code-template: #c4b5fd;
-  --color-code-punct: #71717a;
-  --color-tertiary: #71717a;
+  /*
+   * Syntax colors reuse the product's semantic hues rather than a separate
+   * rainbow: strings read as 2xx-green, numbers as 4xx-amber, literals as the
+   * brand signal. Keys stay bone-white so the chrome/content split holds.
+   */
+  --color-code-key: #cfc9c1;
+  --color-code-string: #7bd9a5;
+  --color-code-number: #f0a93b;
+  --color-code-keyword: #ff74bc;
+  --color-code-template: #4fa9ff;
+  --color-code-punct: #5c554e;
+  --color-tertiary: #7a736c;
+
+  /*
+   * The signal. Deliberately the only decorative hue in the product — brand
+   * mark, live dot, caret, selection, new-request flash. Everything else that
+   * is colored is colored because of an HTTP status.
+   */
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+
+  /* Focus is the signal, not the (now monochrome) accent. */
+  --color-focus: var(--signal);
+
+  /*
+   * HeroUI bakes its roundness into `rounded-3xl`/`rounded-2xl` on buttons,
+   * modals, menus and tabs. Compressing the top of the scale retunes every
+   * HeroUI component at once, so the product reads as an instrument rather
+   * than a consumer app. Small steps are untouched.
+   */
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.625rem;
+  --radius-3xl: 0.625rem;
 }
 
 /*
  * Inbound is dark-first. These are the exact values from inb-sh.pen,
  * layered over HeroUI's dark theme so every HeroUI component picks them up.
+ *
+ * Two rules hold the palette together:
+ *   1. Color means HTTP status. Chrome is monochrome; primary actions are
+ *      bone-on-black, so `--accent` is a near-white, not a hue.
+ *   2. The neutrals are warm (a red/yellow lean), not Tailwind's cold zinc.
  */
 .dark,
 [data-theme="dark"] {
-  --background: #060607;
-  --foreground: #fcfcfc;
-  --background-secondary: #0c0c0e;
-  --background-tertiary: #131316;
+  --background: #0a0908;
+  --foreground: #f5f3f0;
+  --background-secondary: #0f0e0c;
+  --background-tertiary: #141210;
 
-  --surface: #18181b;
-  --surface-foreground: #fcfcfc;
-  --surface-secondary: #232325;
-  --surface-tertiary: #262728;
-  --surface-hover: #2a2a2d;
+  --surface: #141210;
+  --surface-foreground: #f5f3f0;
+  --surface-secondary: #1a1815;
+  --surface-tertiary: #201d1a;
+  --surface-hover: #25221e;
 
-  --overlay: #18181b;
-  --muted: #a1a1aa;
+  --overlay: #1a1815;
+  --muted: #a6a09a;
 
-  --default: #27272a;
-  --default-foreground: #fcfcfc;
-  --default-hover: #2e2e31;
+  --default: #201d1a;
+  --default-foreground: #f5f3f0;
+  --default-hover: #25221e;
 
-  --field-background: #18181b;
-  --field-foreground: #fcfcfc;
-  --field-placeholder: #a1a1aa;
-  --field-border-focus: #484858;
+  --field-background: #141210;
+  --field-foreground: #f5f3f0;
+  --field-placeholder: #7a736c;
+  --field-border-focus: #4a443d;
 
-  --accent: #0485f7;
-  --accent-foreground: #fcfcfc;
-  --accent-hover: #3592f9;
-  --accent-soft: #0485f726;
-  --accent-soft-foreground: #0485f7;
-  --accent-soft-hover: #0485f733;
+  /* monochrome primary — see rule 1 above */
+  --accent: #f5f3f0;
+  --accent-foreground: #0a0908;
+  --accent-hover: #ffffff;
+  --accent-soft: #f5f3f014;
+  --accent-soft-foreground: #f5f3f0;
+  --accent-soft-hover: #f5f3f01f;
 
-  --success: #17c964;
-  --success-foreground: #18181b;
-  --success-soft: #17c96426;
-  --success-soft-foreground: #17c964;
+  --signal: #ff2d9c;
+  --signal-soft: #ff2d9c1f;
 
-  --warning: #f7b750;
-  --warning-foreground: #18181b;
-  --warning-soft: #f7b75026;
-  --warning-soft-foreground: #f7b750;
+  --success: #3ecf8e;
+  --success-foreground: #0a0908;
+  --success-soft: #3ecf8e26;
+  --success-soft-foreground: #3ecf8e;
 
-  --danger: #db3b3e;
-  --danger-foreground: #fcfcfc;
-  --danger-soft: #db3b3e26;
-  --danger-soft-foreground: #db3b3e;
+  --warning: #f0a93b;
+  --warning-foreground: #0a0908;
+  --warning-soft: #f0a93b26;
+  --warning-soft-foreground: #f0a93b;
 
-  --border: #28282c;
-  --separator: #1a1a1d;
-  --separator-secondary: #353538;
-  --separator-tertiary: #3c3c3f;
-  --segment: #46464c;
+  --danger: #f2564d;
+  --danger-foreground: #0a0908;
+  --danger-soft: #f2564d26;
+  --danger-soft-foreground: #f2564d;
+
+  /* 3xx redirects — the only place blue survives */
+  --info: #4fa9ff;
+  --info-soft: #4fa9ff26;
+  --info-soft-foreground: #4fa9ff;
+
+  --border: #2a2622;
+  --separator: #1c1916;
+  --separator-secondary: #332f2a;
+  --separator-tertiary: #3a3630;
+  --segment: #332f2a;
 }
 
 html,
@@ -89,7 +128,7 @@ body {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 35%, transparent);
+  background: color-mix(in oklab, var(--signal) 30%, transparent);
 }
 
 /* CodeMirror inherits the app look */
@@ -111,12 +150,12 @@ body {
   background: color-mix(in oklab, var(--foreground) 4%, transparent) !important;
 }
 .cm-cursor {
-  border-left-color: var(--accent) !important;
+  border-left-color: var(--signal) !important;
 }
 
 @keyframes inb-flash {
   from {
-    background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+    background-color: color-mix(in oklab, var(--signal) 16%, transparent);
   }
   to {
     background-color: transparent;

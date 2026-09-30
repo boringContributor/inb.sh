@@ -37,7 +37,7 @@ export function PageBody({ children, className }: { children: ReactNode; classNa
 export function Panel({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <section
-      className={cn("overflow-hidden rounded-2xl border border-border bg-surface", className)}
+      className={cn("overflow-hidden rounded-lg border border-border bg-surface", className)}
     >
       {children}
     </section>

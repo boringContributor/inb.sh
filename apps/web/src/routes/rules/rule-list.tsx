@@ -20,7 +20,7 @@ export function RuleListSkeleton() {
       {Array.from({ length: 4 }, (_, i) => (
         <div
           key={i}
-          className="flex h-[92px] items-center gap-3 rounded-2xl border border-border bg-surface px-3.5"
+          className="flex h-[92px] items-center gap-3 rounded-lg border border-border bg-surface px-3.5"
         >
           <Skeleton className="size-[26px] rounded-full" />
           <div className="flex flex-1 flex-col gap-2">
@@ -102,7 +102,7 @@ export function RuleList({
               textValue={rule.name}
               className={({ isDragging, isFocusVisible }) =>
                 cn(
-                  "flex h-[92px] w-full shrink-0 cursor-pointer items-center gap-3 rounded-2xl border bg-surface px-3.5 outline-none transition-colors",
+                  "flex h-[92px] w-full shrink-0 cursor-pointer items-center gap-3 rounded-lg border bg-surface px-3.5 outline-none transition-colors",
                   selected ? "border-accent" : "border-border hover:border-separator-tertiary",
                   isFocusVisible && "ring-2 ring-focus",
                   isDragging && "opacity-50",
@@ -143,7 +143,7 @@ export function RuleList({
                         key={`${chip.label}-${i}`}
                         tone={chip.tone}
                         className={cn(
-                          "rounded-full",
+                          "rounded-sm",
                           chip.tone === "default" && "text-muted",
                           !rule.enabled && "opacity-70",
                         )}
@@ -206,7 +206,7 @@ export function RuleList({
       <button
         type="button"
         onClick={onAdd}
-        className="flex min-h-[64px] w-full flex-1 items-center justify-center gap-2 rounded-2xl border border-separator-tertiary text-tertiary outline-none transition-colors hover:border-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+        className="flex min-h-[64px] w-full flex-1 items-center justify-center gap-2 rounded-lg border border-separator-tertiary text-tertiary outline-none transition-colors hover:border-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
       >
         <Plus className="size-3.5" />
         <span className="text-[12.5px] font-medium">Add a rule</span>

@@ -28,7 +28,7 @@ export function DryRunPanel({
       <div className="flex items-center gap-2">
         <span className="text-[12px] font-semibold tracking-[0.3px] text-foreground">DRY RUN</span>
         {result && !pending && (
-          <TonePill tone={result.matched ? "success" : "warning"} className="rounded-full">
+          <TonePill tone={result.matched ? "success" : "warning"} className="rounded-sm">
             {result.requestId ? (result.matched ? "Matches" : "No match") : "No requests yet"}
           </TonePill>
         )}

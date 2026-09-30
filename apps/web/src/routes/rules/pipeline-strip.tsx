@@ -56,7 +56,7 @@ export function PipelineStrip() {
   return (
     <section
       aria-label="Request pipeline"
-      className="flex h-[88px] w-full shrink-0 items-center gap-3.5 rounded-2xl border border-border bg-surface px-[22px]"
+      className="flex h-[88px] w-full shrink-0 items-center gap-3.5 rounded-lg border border-border bg-surface px-[22px]"
     >
       {!data &&
         Array.from({ length: 5 }, (_, i) => (

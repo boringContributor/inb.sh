@@ -23,8 +23,8 @@ function LiveChip({ status, waiting }: { status: LiveStatus; waiting: boolean })
   const view = {
     live: {
       label: waiting ? "Listening" : "Live",
-      cls: "bg-success-soft text-success",
-      tone: "success" as const,
+      cls: "bg-signal-soft text-signal",
+      tone: "signal" as const,
     },
     connecting: {
       label: "Connecting",
@@ -38,7 +38,7 @@ function LiveChip({ status, waiting }: { status: LiveStatus; waiting: boolean })
       role="status"
       aria-live="polite"
       className={cn(
-        "inline-flex h-7 items-center gap-[7px] rounded-full px-2.5 text-xs font-semibold",
+        "inline-flex h-6 items-center gap-1.5 rounded-sm px-2 font-mono text-[10px] font-medium uppercase tracking-[0.9px]",
         view.cls,
       )}
     >
@@ -50,11 +50,11 @@ function LiveChip({ status, waiting }: { status: LiveStatus; waiting: boolean })
 
 function UrlPill({ url }: { url: string }) {
   return (
-    <div className="hidden h-[30px] min-w-0 items-center gap-2 rounded-full border border-border bg-surface pl-3 pr-1 md:flex">
+    <div className="hidden h-[30px] min-w-0 items-center gap-2 rounded-sm border border-border bg-surface pl-3 pr-1 md:flex">
       <span className="min-w-0 truncate font-mono text-xs text-muted" title={url}>
         {url}
       </span>
-      <CopyButton text={url} label="Copy endpoint URL" className="size-6 min-w-6 rounded-3xl" />
+      <CopyButton text={url} label="Copy endpoint URL" className="size-6 min-w-6 rounded-lg" />
     </div>
   );
 }
@@ -193,7 +193,7 @@ export function InboxPage() {
                   aria-label={paused ? "Resume live updates" : "Pause live updates"}
                   aria-pressed={paused}
                   onPress={() => setPaused((p) => !p)}
-                  className={cn("h-9 min-w-9 rounded-3xl text-muted", paused && "text-warning")}
+                  className={cn("h-9 min-w-9 rounded-lg text-muted", paused && "text-warning")}
                 >
                   {paused ? <Play className="size-4" /> : <Pause className="size-4" />}
                   {paused && live.buffered > 0 && (
@@ -207,7 +207,7 @@ export function InboxPage() {
             )}
             <Button
               variant="outline"
-              className="h-9 rounded-3xl"
+              className="h-9 rounded-lg"
               onPress={() =>
                 void navigate({ to: "/e/$endpointId/response", params: { endpointId } })
               }
@@ -222,7 +222,7 @@ export function InboxPage() {
                   variant="ghost"
                   aria-label="Copy link to this request"
                   onPress={shareLink}
-                  className="size-9 min-w-9 rounded-3xl text-muted"
+                  className="size-9 min-w-9 rounded-lg text-muted"
                 >
                   <Share2 className="size-4" />
                 </Button>

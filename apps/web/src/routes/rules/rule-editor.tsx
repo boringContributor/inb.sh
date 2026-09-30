@@ -173,7 +173,7 @@ export function RuleEditor({
   return (
     <section
       aria-label="Rule editor"
-      className="flex h-full w-[440px] shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+      className="flex h-full w-[440px] shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface"
     >
       <ConditionFieldSuggestions />
       <header className="flex flex-col gap-1.5 border-b border-separator px-4 py-3.5">
@@ -190,11 +190,11 @@ export function RuleEditor({
             onClick={() => update({ enabled: !draft.enabled })}
             aria-pressed={draft.enabled}
             aria-label={draft.enabled ? "Enabled — click to pause" : "Paused — click to enable"}
-            className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-focus"
+            className="rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-focus"
           >
             <TonePill
               tone={draft.enabled ? "success" : "default"}
-              className="rounded-2xl px-2 text-xs"
+              className="rounded-lg px-2 text-xs"
             >
               {draft.enabled ? "Enabled" : "Paused"}
             </TonePill>

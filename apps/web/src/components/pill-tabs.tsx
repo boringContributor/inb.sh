@@ -43,12 +43,12 @@ export function PillTabs<K extends string>({
               key={item.id}
               id={item.id}
               className={cn(
-                "whitespace-nowrap rounded-3xl px-4 font-medium",
+                "whitespace-nowrap rounded-lg px-4 font-medium",
                 size === "md" ? "h-7 text-sm" : "h-6 text-xs",
               )}
             >
               {item.label}
-              <Tabs.Indicator className="rounded-3xl" />
+              <Tabs.Indicator className="rounded-lg" />
             </Tabs.Tab>
           ))}
         </Tabs.List>

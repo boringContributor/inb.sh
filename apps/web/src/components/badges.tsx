@@ -50,7 +50,11 @@ export function StatusCode({ status, className }: { status: number; className?: 
   );
 }
 
-/** `200 OK` soft pill. */
+/**
+ * `200 OK` soft pill. The code is mono (it is data), the reason phrase is not
+ * (it is prose) — and the whole pill never wraps, or it blows out the headers
+ * it sits in.
+ */
 export function StatusPill({
   status,
   label,
@@ -60,18 +64,27 @@ export function StatusPill({
   label?: string;
   className?: string;
 }) {
+  const reason = STATUS_REASON.exec(statusLabel(status))?.[1] ?? "";
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-2xl px-2 py-0.5 text-xs font-medium",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-sm px-2 py-0.5 text-xs font-medium",
         SOFT[statusTone(status)],
         className,
       )}
     >
-      {label ?? statusLabel(status)}
+      {label ?? (
+        <>
+          <span className="font-mono font-semibold">{status}</span>
+          {reason ? <span className="truncate">{reason}</span> : null}
+        </>
+      )}
     </span>
   );
 }
+
+/** `statusLabel` returns `"<code> <reason>"`; this peels the reason back off. */
+const STATUS_REASON = /^\d+\s+(.*)$/;
 
 /** Generic soft tone pill (`Custom`, `Transform`, `Slack #payments`…). */
 export function TonePill({
@@ -88,7 +101,7 @@ export function TonePill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 whitespace-nowrap rounded-2xl px-2 py-0.5 text-[11px] font-medium",
+        "inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-2 py-0.5 text-[11px] font-medium",
         mono && "font-mono",
         SOFT[tone],
         className,
@@ -99,14 +112,18 @@ export function TonePill({
   );
 }
 
+/**
+ * Green is reserved for 2xx, so "we are listening" is the signal, not success.
+ */
 export function LiveDot({
-  tone = "success",
+  tone = "signal",
   pulse = true,
 }: {
-  tone?: "success" | "accent" | "warning" | "danger";
+  tone?: "signal" | "success" | "accent" | "warning" | "danger";
   pulse?: boolean;
 }) {
   const bg = {
+    signal: "bg-signal",
     success: "bg-success",
     accent: "bg-accent",
     warning: "bg-warning",

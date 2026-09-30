@@ -117,7 +117,7 @@ export function RulesPage() {
           <>
             <PageTitle>Rules</PageTitle>
             {rules && rules.length > 0 && (
-              <span className="rounded-2xl bg-default px-2 py-0.5 text-xs font-medium text-foreground">
+              <span className="rounded-lg bg-default px-2 py-0.5 text-xs font-medium text-foreground">
                 {active} active{paused ? ` · ${paused} paused` : ""}
               </span>
             )}
@@ -253,7 +253,7 @@ function EmptyRules({
             key={t.id}
             type="button"
             onClick={() => onTemplate(t.build(integrations))}
-            className="flex flex-col gap-1.5 rounded-2xl border border-border bg-surface p-4 text-left outline-none transition-colors hover:border-accent focus-visible:ring-2 focus-visible:ring-focus"
+            className="flex flex-col gap-1.5 rounded-lg border border-border bg-surface p-4 text-left outline-none transition-colors hover:border-accent focus-visible:ring-2 focus-visible:ring-focus"
           >
             <span className="text-[13.5px] font-semibold text-foreground">{t.title}</span>
             <span className="text-xs leading-relaxed text-tertiary">{t.description}</span>

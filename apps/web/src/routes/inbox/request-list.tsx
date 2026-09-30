@@ -60,7 +60,7 @@ export function ListToolbar({
           }
           isDisabled={disabled}
           onPress={onToggleOrder}
-          className={cn("size-9 min-w-9 rounded-3xl text-muted", order === "asc" && "text-accent")}
+          className={cn("size-9 min-w-9 rounded-lg text-muted", order === "asc" && "text-accent")}
         >
           <ArrowDownUp className="size-4" />
         </Button>
@@ -98,7 +98,7 @@ function FilterPills({
             title={counts ? `${counts[f.id].toLocaleString("en-US")} requests` : undefined}
             onClick={() => onChange(f.id)}
             className={cn(
-              "inline-flex h-6 shrink-0 items-center justify-center rounded-full px-2.5 text-[11.5px] font-medium outline-none transition-colors",
+              "inline-flex h-6 shrink-0 items-center justify-center rounded-sm px-2.5 text-[11.5px] font-medium outline-none transition-colors",
               "focus-visible:ring-2 focus-visible:ring-focus",
               active
                 ? "bg-default text-foreground"
@@ -161,7 +161,7 @@ function RequestRow({
               {request.summary}
             </span>
             {isNew && (
-              <span className="shrink-0 rounded-full bg-accent-soft px-1.5 py-px text-[9px] font-semibold tracking-[0.5px] text-accent">
+              <span className="shrink-0 rounded-sm bg-accent-soft px-1.5 py-px text-[9px] font-semibold tracking-[0.5px] text-accent">
                 NEW
               </span>
             )}

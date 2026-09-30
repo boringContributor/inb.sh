@@ -234,7 +234,7 @@ export function DefinitionPanel({
   return (
     <section
       aria-label="Response definition"
-      className="flex min-h-[520px] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+      className="flex min-h-[520px] min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface"
     >
       <header className="flex h-[46px] w-full shrink-0 items-center gap-2 border-b border-separator px-4">
         <Code className="size-[15px] text-muted" aria-hidden />

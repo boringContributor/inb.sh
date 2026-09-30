@@ -84,7 +84,7 @@ function ArchivedDetail({ id, onDeleted }: { id: string; onDeleted: () => void }
       <div className="flex flex-col gap-3 p-5">
         <Skeleton className="h-8 w-2/3 rounded-lg" />
         <Skeleton className="h-4 w-1/2 rounded-lg" />
-        <Skeleton className="mt-4 h-72 w-full rounded-2xl" />
+        <Skeleton className="mt-4 h-72 w-full rounded-lg" />
       </div>
     );
   }

@@ -120,7 +120,7 @@ function ConnectedCard({
   return (
     <article
       className={cn(
-        "flex min-w-0 flex-col gap-3 rounded-2xl border border-border bg-surface p-3.5",
+        "flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-surface p-3.5",
         !integration.enabled && "opacity-60",
       )}
     >
@@ -203,7 +203,7 @@ function ConnectedCard({
 function CatalogCard({ def, onConnect }: { def: IntegrationDefinition; onConnect: () => void }) {
   const soon = def.transport === "unsupported";
   return (
-    <article className="flex min-w-0 flex-col gap-2.5 rounded-2xl border border-border bg-surface p-3.5">
+    <article className="flex min-w-0 flex-col gap-2.5 rounded-lg border border-border bg-surface p-3.5">
       <LogoTile icon={def.icon} />
       <div className="flex flex-col gap-1">
         <h3 className="text-[13px] font-semibold text-foreground">{def.name}</h3>
@@ -214,7 +214,7 @@ function CatalogCard({ def, onConnect }: { def: IntegrationDefinition; onConnect
         <Button
           size="sm"
           variant="outline"
-          className="h-[26px] rounded-full px-[11px] text-[11.5px]"
+          className="h-[26px] rounded-sm px-[11px] text-[11.5px]"
           isDisabled={soon}
           onPress={onConnect}
         >
@@ -271,7 +271,7 @@ export function IntegrationsPage() {
               href={`https://github.com/${repo}#integrations`}
               target="_blank"
               rel="noreferrer"
-              className="flex h-9 items-center gap-2 rounded-3xl px-4 text-sm font-medium text-muted outline-none transition-colors hover:bg-default/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+              className="flex h-9 items-center gap-2 rounded-lg px-4 text-sm font-medium text-muted outline-none transition-colors hover:bg-default/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
             >
               <BookOpen className="size-4" />
               Docs
@@ -297,11 +297,11 @@ export function IntegrationsPage() {
           {isPending ? (
             <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 3 }, (_, i) => (
-                <Skeleton key={i} className="h-[142px] rounded-2xl" />
+                <Skeleton key={i} className="h-[142px] rounded-lg" />
               ))}
             </div>
           ) : connectedCount === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-8 text-center">
+            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-6 py-8 text-center">
               <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
                 <Plug className="size-4" />
               </span>
@@ -356,7 +356,7 @@ export function IntegrationsPage() {
                   aria-pressed={active}
                   onClick={() => setCategory(c)}
                   className={cn(
-                    "flex h-[26px] items-center rounded-full px-[11px] text-[11.5px] font-medium outline-none transition-colors",
+                    "flex h-[26px] items-center rounded-sm px-[11px] text-[11.5px] font-medium outline-none transition-colors",
                     "focus-visible:ring-2 focus-visible:ring-focus",
                     active
                       ? "bg-default text-foreground"

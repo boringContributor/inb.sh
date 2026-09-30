@@ -60,7 +60,7 @@ export function PipelineStrip({ events }: { events: RequestEvent[] }) {
   return (
     <ol
       aria-label="Request pipeline"
-      className="flex w-full items-center gap-2.5 rounded-2xl border border-border bg-surface px-[18px] py-3.5"
+      className="flex w-full items-center gap-2.5 rounded-lg border border-border bg-surface px-[18px] py-3.5"
     >
       {steps.map((e, i) => {
         const Icon = EVENT_ICON[e.type];
@@ -105,7 +105,7 @@ export function TimelineTab({
 
   return (
     <div className="flex flex-col gap-4">
-      <section className="rounded-2xl border border-border bg-surface">
+      <section className="rounded-lg border border-border bg-surface">
         <h3 className="flex h-11 items-center px-3.5 text-[13px] font-medium">Events</h3>
         <ol className="border-t border-separator bg-background px-3.5 py-3">
           {request.events.map((e, i) => {
@@ -147,7 +147,7 @@ export function TimelineTab({
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-border bg-surface">
+      <section className="rounded-lg border border-border bg-surface">
         <h3 className="flex h-11 items-center px-3.5 text-[13px] font-medium">Deliveries</h3>
         <div className="border-t border-separator bg-background">
           {deliveries.isPending ? (

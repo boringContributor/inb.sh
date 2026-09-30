@@ -165,7 +165,7 @@ function EndpointSettingsModal({
                 </Description>
               </Select>
 
-              <div className="flex flex-col gap-3 rounded-2xl border border-border p-3.5">
+              <div className="flex flex-col gap-3 rounded-lg border border-border p-3.5">
                 <Select
                   value={provider}
                   onChange={(k) => {
@@ -314,7 +314,7 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
           isIconOnly
           variant="ghost"
           aria-label="Endpoint actions"
-          className="size-9 min-w-9 rounded-3xl text-muted"
+          className="size-9 min-w-9 rounded-lg text-muted"
         >
           <Ellipsis className="size-4" />
         </Button>

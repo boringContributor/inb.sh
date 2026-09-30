@@ -32,7 +32,7 @@ export function PreviewPanel({
   return (
     <section
       aria-label="Live preview"
-      className="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+      className="flex w-full shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-surface"
     >
       <header className="flex h-[46px] w-full items-center gap-2 border-b border-separator pl-4 pr-2.5">
         <Eye className="size-[15px] text-muted" aria-hidden />
@@ -114,7 +114,7 @@ export function VariablesPanel({
   return (
     <section
       aria-label="Template variables"
-      className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+      className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface"
     >
       <header className="flex h-[46px] w-full shrink-0 items-center gap-2 border-b border-separator px-4">
         <Braces className="size-[15px] text-muted" aria-hidden />

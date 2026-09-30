@@ -66,7 +66,7 @@ function ToolButton({
         aria-pressed={active}
         onPress={onPress}
         className={cn(
-          "size-9 min-w-9 rounded-3xl",
+          "size-9 min-w-9 rounded-lg",
           active ? "bg-default text-foreground" : "text-muted",
         )}
       >
@@ -81,7 +81,7 @@ function Card({ children, className }: { children: React.ReactNode; className?: 
   return (
     <section
       className={cn(
-        "w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-surface",
+        "w-full shrink-0 overflow-hidden rounded-lg border border-border bg-surface",
         className,
       )}
     >
@@ -172,7 +172,7 @@ function BodyCard({
     <Card>
       <CardHeader icon={<Braces />} title="Request body">
         {request.contentType && (
-          <span className="truncate rounded-2xl bg-default px-2 py-0.5 font-mono text-[11px] font-medium text-foreground">
+          <span className="truncate rounded-lg bg-default px-2 py-0.5 font-mono text-[11px] font-medium text-foreground">
             {request.contentType.split(";")[0]}
           </span>
         )}
@@ -281,12 +281,12 @@ function InspectorSkeleton() {
       <div className="flex items-center gap-3">
         <Skeleton className="h-6 w-14 rounded-md" />
         <Skeleton className="h-5 w-40 rounded" />
-        <Skeleton className="h-5 w-16 rounded-2xl" />
+        <Skeleton className="h-5 w-16 rounded-lg" />
       </div>
       <Skeleton className="h-3 w-80 rounded" />
       <Skeleton className="h-9 w-[420px] rounded-[20px]" />
-      <Skeleton className="h-72 w-full rounded-2xl" />
-      <Skeleton className="h-24 w-full rounded-2xl" />
+      <Skeleton className="h-72 w-full rounded-lg" />
+      <Skeleton className="h-24 w-full rounded-lg" />
     </div>
   );
 }
@@ -357,14 +357,14 @@ export function Inspector({
           </h2>
           <StatusPill status={request.status} />
           <span className="flex-1" />
-          <Button onPress={() => setReplaying(true)} className="h-9 rounded-3xl">
+          <Button onPress={() => setReplaying(true)} className="h-9 rounded-lg">
             <RotateCcw className="size-4" />
             Replay
           </Button>
           <Button
             variant="outline"
             onPress={() => setTransforming(true)}
-            className="hidden h-9 rounded-3xl lg:inline-flex"
+            className="hidden h-9 rounded-lg lg:inline-flex"
           >
             <Sparkles className="size-4" />
             Transform &amp; replay
@@ -380,7 +380,7 @@ export function Inspector({
               isIconOnly
               variant="ghost"
               aria-label="More request actions"
-              className="size-9 min-w-9 rounded-3xl text-muted"
+              className="size-9 min-w-9 rounded-lg text-muted"
             >
               <Ellipsis className="size-4" />
             </Button>
@@ -446,12 +446,12 @@ export function Inspector({
           <span className="flex-1" />
           {request.signature &&
             (request.signature.verified ? (
-              <span className="inline-flex shrink-0 items-center gap-[5px] rounded-full bg-success-soft px-[9px] py-[3px] text-[11px] font-medium text-success">
+              <span className="inline-flex shrink-0 items-center gap-[5px] rounded-sm bg-success-soft px-[9px] py-[3px] text-[11px] font-medium text-success">
                 <ShieldCheck className="size-3" />
                 Signature verified
               </span>
             ) : (
-              <span className="inline-flex shrink-0 items-center gap-[5px] rounded-full bg-danger-soft px-[9px] py-[3px] text-[11px] font-medium text-danger">
+              <span className="inline-flex shrink-0 items-center gap-[5px] rounded-sm bg-danger-soft px-[9px] py-[3px] text-[11px] font-medium text-danger">
                 <ShieldAlert className="size-3" />
                 Signature invalid
               </span>

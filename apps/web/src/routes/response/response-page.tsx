@@ -131,7 +131,7 @@ export function ResponsePage() {
               to="/e/$endpointId"
               params={{ endpointId }}
               aria-label="Back to inbox"
-              className="flex size-9 shrink-0 items-center justify-center rounded-3xl text-muted outline-none transition-colors hover:bg-default/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-muted outline-none transition-colors hover:bg-default/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-focus"
             >
               <ArrowLeft className="size-4" />
             </RouterLink>
@@ -204,12 +204,12 @@ export function ResponsePage() {
           <>
             <div className="flex gap-3">
               {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-[74px] flex-1 rounded-2xl" />
+                <Skeleton key={i} className="h-[74px] flex-1 rounded-lg" />
               ))}
             </div>
             <div className="flex min-h-[520px] flex-1 gap-[18px] max-[1100px]:flex-col">
-              <Skeleton className="flex-1 rounded-2xl" />
-              <Skeleton className="w-[400px] rounded-2xl max-[1100px]:h-64 max-[1100px]:w-full" />
+              <Skeleton className="flex-1 rounded-lg" />
+              <Skeleton className="w-[400px] rounded-lg max-[1100px]:h-64 max-[1100px]:w-full" />
             </div>
           </>
         ) : (

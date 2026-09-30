@@ -6,7 +6,7 @@ const BOX = "M4.5 14.5v8.5a4.5 4.5 0 0 0 4.5 4.5h14a4.5 4.5 0 0 0 4.5-4.5v-8.5";
 
 /**
  * The inb.sh mark: the `//` of `http://` dropping into an inbox. The box
- * takes `currentColor`, the slashes the accent (pass `mono` to draw both in
+ * takes `currentColor`, the slashes the signal (pass `mono` to draw both in
  * currentColor). 32px grid; masters live in docs/brand/.
  */
 export function InbGlyph({ mono, ...props }: SVGProps<SVGSVGElement> & { mono?: boolean }) {
@@ -20,7 +20,7 @@ export function InbGlyph({ mono, ...props }: SVGProps<SVGSVGElement> & { mono?: 
       {...props}
     >
       <path d={BOX} stroke="currentColor" />
-      <path d={SLASHES} stroke={mono ? "currentColor" : "var(--accent)"} />
+      <path d={SLASHES} stroke={mono ? "currentColor" : "var(--signal)"} />
     </svg>
   );
 }
@@ -35,11 +35,11 @@ export function BrandMark({ size = 28, className }: { size?: number; className?:
   );
 }
 
-/** `inb.sh` — `.sh` in the accent, matching the `//` of the mark. */
+/** `inb.sh` — `.sh` in the signal, matching the `//` of the mark. */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-semibold tracking-[-0.01em] text-foreground", className)}>
-      inb<span className="text-accent">.sh</span>
+      inb<span className="text-signal">.sh</span>
     </span>
   );
 }

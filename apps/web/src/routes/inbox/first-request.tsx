@@ -115,20 +115,20 @@ export function FirstRequestStage({ endpointId, url }: { endpointId: string; url
           </p>
         </div>
 
-        <div className="flex h-12 w-full items-center gap-2.5 rounded-full border border-border bg-surface pl-[18px] pr-1.5">
+        <div className="flex h-12 w-full items-center gap-2.5 rounded-lg border border-border bg-surface pl-[18px] pr-1.5">
           <span className="min-w-0 flex-1 truncate font-mono text-sm text-foreground" title={url}>
             {url}
           </span>
           <Button
             onPress={() => copy(url, "Endpoint URL copied")}
-            className="h-9 shrink-0 rounded-3xl"
+            className="h-9 shrink-0 rounded-lg"
           >
             <Copy className="size-4" />
             Copy URL
           </Button>
         </div>
 
-        <section className="w-full overflow-hidden rounded-2xl border border-border bg-surface">
+        <section className="w-full overflow-hidden rounded-lg border border-border bg-surface">
           <div className="flex h-[46px] w-full items-center gap-2 border-b border-separator px-2.5">
             <PillTabs
               items={LANGS}

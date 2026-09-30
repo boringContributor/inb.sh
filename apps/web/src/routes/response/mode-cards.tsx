@@ -45,7 +45,7 @@ export function ModeCards({
           value={mode}
           className={({ isSelected, isFocusVisible, isHovered }) =>
             cn(
-              "flex flex-1 cursor-pointer flex-col gap-1.5 rounded-2xl border p-3.5 outline-none transition-colors",
+              "flex flex-1 cursor-pointer flex-col gap-1.5 rounded-lg border p-3.5 outline-none transition-colors",
               isSelected ? "border-accent bg-accent-soft" : "border-border bg-surface",
               !isSelected && isHovered && "border-separator-tertiary",
               isFocusVisible && "ring-2 ring-focus ring-offset-2 ring-offset-background",

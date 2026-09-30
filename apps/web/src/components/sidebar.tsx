@@ -38,7 +38,7 @@ function NavItem({
       to={to}
       params={params}
       className={cn(
-        "flex h-9 w-full shrink-0 items-center gap-3 rounded-2xl px-2 py-1.5 text-sm outline-none transition-colors",
+        "flex h-9 w-full shrink-0 items-center gap-3 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors",
         "focus-visible:ring-2 focus-visible:ring-focus",
         active
           ? "bg-default font-medium text-foreground"
@@ -52,7 +52,7 @@ function NavItem({
 }
 
 const SectionTitle = ({ children }: { children: string }) => (
-  <div className="flex w-full items-center px-2 py-1.5 text-xs font-medium tracking-wide text-muted">
+  <div className="flex w-full items-center px-2 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.9px] text-tertiary">
     {children}
   </div>
 );
@@ -90,7 +90,9 @@ export function Sidebar() {
         <BrandMark size={28} />
         <span className="flex min-w-0 flex-1 flex-col">
           <Wordmark className="text-[15px] leading-tight" />
-          <span className="text-[11px] leading-tight text-tertiary">inbox for HTTP</span>
+          <span className="font-mono text-[10px] uppercase leading-tight tracking-[0.9px] text-tertiary">
+            inbox for HTTP
+          </span>
         </span>
       </Link>
 
@@ -98,7 +100,7 @@ export function Sidebar() {
       <Button
         variant="outline"
         fullWidth
-        className="h-9 rounded-3xl"
+        className="h-9 rounded-lg"
         onPress={() => setCreating(true)}
       >
         <Plus className="size-4" />
@@ -111,7 +113,7 @@ export function Sidebar() {
         <div className="-mx-1 flex min-h-0 flex-col gap-1 overflow-y-auto px-1">
           {isPending &&
             Array.from({ length: 3 }, (_, i) => (
-              <Skeleton key={i} className="h-9 w-full shrink-0 rounded-2xl" />
+              <Skeleton key={i} className="h-9 w-full shrink-0 rounded-lg" />
             ))}
           {endpoints?.map((e) => (
             <NavItem
@@ -184,7 +186,7 @@ export function Sidebar() {
           variant="ghost"
           fullWidth
           aria-label="Account menu"
-          className="h-auto justify-start gap-2.5 rounded-2xl p-1 text-left"
+          className="h-auto justify-start gap-2.5 rounded-lg p-1 text-left"
         >
           <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-default text-xs font-medium text-foreground">
             {config?.user?.initials ?? "··"}
