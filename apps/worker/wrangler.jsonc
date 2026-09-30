@@ -1,0 +1,23 @@
+// Local development only (`pnpm dev`). Production is deployed by SST from
+// sst.config.ts — keep binding names in sync with src/env.ts.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "inbound-local",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    // no AdminPassword locally → login is skipped
+    "DEV": "true",
+    "GITHUB_REPO": "inb-sh/inbound"
+  },
+  "d1_databases": [{ "binding": "Database", "database_name": "inbound", "database_id": "local" }],
+  "r2_buckets": [{ "binding": "Archive", "bucket_name": "inbound-archive" }],
+  "durable_objects": { "bindings": [{ "name": "Hub", "class_name": "EndpointHub" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["EndpointHub"] }],
+  "queues": {
+    "producers": [{ "binding": "Deliveries", "queue": "inbound-deliveries" }],
+    "consumers": [{ "queue": "inbound-deliveries", "max_batch_size": 10, "max_batch_timeout": 1, "max_retries": 5 }]
+  },
+  "triggers": { "crons": ["17 * * * *"] }
+}

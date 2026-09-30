@@ -1,0 +1,30 @@
+{
+  "name": "inb-sh",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @inb/worker --filter @inb/web run dev",
+    "dev:reset": "rm -rf .wrangler/state",
+    "build": "vp run -r build",
+    "check": "vp check",
+    "test": "vp run -r test",
+    "ready": "vp check && vp run -r test && vp run -r build",
+    "deploy": "vp run ready && sst deploy --stage production"
+  },
+  "devDependencies": {
+    "sst": "4.17.1",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "10.33.4",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "packageManager": "pnpm@10.33.4"
+}

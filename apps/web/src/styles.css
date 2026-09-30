@@ -1,0 +1,147 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* syntax colors used by the code viewers (from the design file) */
+  --color-code-key: #7dd3fc;
+  --color-code-string: #6ee7b7;
+  --color-code-number: #fcd34d;
+  --color-code-keyword: #f0abfc;
+  --color-code-template: #c4b5fd;
+  --color-code-punct: #71717a;
+  --color-tertiary: #71717a;
+}
+
+/*
+ * Inbound is dark-first. These are the exact values from inb-sh.pen,
+ * layered over HeroUI's dark theme so every HeroUI component picks them up.
+ */
+.dark,
+[data-theme="dark"] {
+  --background: #060607;
+  --foreground: #fcfcfc;
+  --background-secondary: #0c0c0e;
+  --background-tertiary: #131316;
+
+  --surface: #18181b;
+  --surface-foreground: #fcfcfc;
+  --surface-secondary: #232325;
+  --surface-tertiary: #262728;
+  --surface-hover: #2a2a2d;
+
+  --overlay: #18181b;
+  --muted: #a1a1aa;
+
+  --default: #27272a;
+  --default-foreground: #fcfcfc;
+  --default-hover: #2e2e31;
+
+  --field-background: #18181b;
+  --field-foreground: #fcfcfc;
+  --field-placeholder: #a1a1aa;
+  --field-border-focus: #484858;
+
+  --accent: #0485f7;
+  --accent-foreground: #fcfcfc;
+  --accent-hover: #3592f9;
+  --accent-soft: #0485f726;
+  --accent-soft-foreground: #0485f7;
+  --accent-soft-hover: #0485f733;
+
+  --success: #17c964;
+  --success-foreground: #18181b;
+  --success-soft: #17c96426;
+  --success-soft-foreground: #17c964;
+
+  --warning: #f7b750;
+  --warning-foreground: #18181b;
+  --warning-soft: #f7b75026;
+  --warning-soft-foreground: #f7b750;
+
+  --danger: #db3b3e;
+  --danger-foreground: #fcfcfc;
+  --danger-soft: #db3b3e26;
+  --danger-soft-foreground: #db3b3e;
+
+  --border: #28282c;
+  --separator: #1a1a1d;
+  --separator-secondary: #353538;
+  --separator-tertiary: #3c3c3f;
+  --segment: #46464c;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01";
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 35%, transparent);
+}
+
+/* CodeMirror inherits the app look */
+.cm-editor {
+  background: transparent !important;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.cm-editor.cm-focused {
+  outline: none !important;
+}
+.cm-gutters {
+  background: transparent !important;
+  border: none !important;
+  color: var(--color-tertiary) !important;
+}
+.cm-activeLine,
+.cm-activeLineGutter {
+  background: color-mix(in oklab, var(--foreground) 4%, transparent) !important;
+}
+.cm-cursor {
+  border-left-color: var(--accent) !important;
+}
+
+@keyframes inb-flash {
+  from {
+    background-color: color-mix(in oklab, var(--accent) 14%, transparent);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+.animate-flash {
+  animation: inb-flash 1.6s ease-out;
+}
+
+@keyframes inb-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.animate-live {
+  animation: inb-pulse-dot 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-flash,
+  .animate-live {
+    animation: none;
+  }
+}

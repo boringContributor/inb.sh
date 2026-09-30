@@ -1,0 +1,23 @@
+{
+  "name": "@inb/cli",
+  "version": "0.1.0",
+  "description": "Tail an Inbound endpoint and forward requests to localhost.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "inbound": "./dist/index.mjs"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

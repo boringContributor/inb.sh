@@ -1,0 +1,26 @@
+{
+  "name": "@inb/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787 --persist-to ../../.wrangler/state",
+    "test": "vp test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@inb/shared": "workspace:*",
+    "drizzle-orm": "^0.45.3",
+    "hono": "^4.13.12",
+    "jsonata": "^2.2.2",
+    "nanoid": "^6.0.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "sst": "4.17.1",
+    "typescript": "catalog:",
+    "vite-plus": "catalog:",
+    "wrangler": "^4.145.0"
+  }
+}
