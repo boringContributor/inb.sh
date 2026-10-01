@@ -13,6 +13,7 @@ import { z } from "zod";
 import { api } from "./lib/api.ts";
 import { keys, queryClient } from "./lib/queries.ts";
 import { Sidebar } from "./components/sidebar.tsx";
+import { InbGlyph } from "./components/brand.tsx";
 import { LoginPage } from "./routes/login.tsx";
 import { HomePage } from "./routes/home.tsx";
 import { InboxPage } from "./routes/inbox/inbox-page.tsx";
@@ -53,12 +54,23 @@ function AppLayout() {
   );
 }
 
+function AppPending() {
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-background">
+      <InbGlyph className="size-8 animate-pulse text-foreground" />
+    </div>
+  );
+}
+
 /** Pathless layout: everything below needs a session. */
 const appRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "app",
   component: AppLayout,
   errorComponent: RouteError,
+  // shown while the session/config request is in flight instead of a blank page
+  pendingComponent: AppPending,
+  pendingMs: 300,
   beforeLoad: async ({ context, location }) => {
     const config = await context.queryClient.ensureQueryData({
       queryKey: keys.config,

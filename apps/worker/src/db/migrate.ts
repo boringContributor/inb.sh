@@ -120,29 +120,45 @@ const MIGRATIONS: { id: number; sql: string[] }[] = [
   },
 ];
 
-let applied: Promise<void> | null = null;
+/**
+ * Set once this isolate has seen every migration applied.
+ *
+ * Deliberately a boolean, not a shared promise: in Workers an I/O promise
+ * belongs to the request that created it. If that request is cancelled
+ * before it settles (a browser aborting a page load), the promise never
+ * settles, and every later request awaiting it would hang forever.
+ */
+let migrated = false;
 
-export function ensureMigrated(db: D1Database): Promise<void> {
-  applied ??= run(db).catch((err) => {
-    applied = null;
-    throw err;
-  });
-  return applied;
+export async function ensureMigrated(db: D1Database): Promise<void> {
+  if (migrated) return;
+  await run(db);
+  migrated = true;
+}
+
+async function appliedIds(db: D1Database): Promise<Set<number>> {
+  const { results } = await db.prepare(`SELECT id FROM _migrations`).all<{ id: number }>();
+  return new Set(results.map((r) => r.id));
 }
 
 async function run(db: D1Database) {
   await db.exec(
     `CREATE TABLE IF NOT EXISTS _migrations (id INTEGER PRIMARY KEY, applied_at INTEGER NOT NULL)`,
   );
-  const { results } = await db.prepare(`SELECT id FROM _migrations`).all<{ id: number }>();
-  const done = new Set(results.map((r) => r.id));
+  const done = await appliedIds(db);
   for (const migration of MIGRATIONS) {
     if (done.has(migration.id)) continue;
-    await db.batch([
-      ...migration.sql.map((sql) => db.prepare(sql)),
-      db
-        .prepare(`INSERT OR IGNORE INTO _migrations (id, applied_at) VALUES (?, ?)`)
-        .bind(migration.id, Date.now()),
-    ]);
+    try {
+      await db.batch([
+        ...migration.sql.map((sql) => db.prepare(sql)),
+        db
+          .prepare(`INSERT OR IGNORE INTO _migrations (id, applied_at) VALUES (?, ?)`)
+          .bind(migration.id, Date.now()),
+      ]);
+    } catch (err) {
+      // Another isolate may have applied it concurrently (e.g. a duplicate
+      // ALTER TABLE). The batch is atomic, so re-check before failing.
+      if (!(await appliedIds(db)).has(migration.id)) throw err;
+    }
   }
 }
