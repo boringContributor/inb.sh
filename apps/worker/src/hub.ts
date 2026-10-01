@@ -117,6 +117,14 @@ export class EndpointHub extends DurableObject<Env> {
     this.broadcast({ type: "cleared" });
   }
 
+  /** Endpoint deleted or expired: drop every byte and disconnect listeners. */
+  async destroy(): Promise<void> {
+    this.broadcast({ type: "cleared" });
+    for (const ws of this.ctx.getWebSockets()) ws.close(1000, "endpoint deleted");
+    await this.ctx.storage.deleteAlarm();
+    await this.ctx.storage.deleteAll();
+  }
+
   async setRetention(days: number): Promise<void> {
     await this.ctx.storage.put("retentionDays", days);
   }

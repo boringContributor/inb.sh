@@ -23,6 +23,7 @@ import {
   findEndpointBySlug,
   getDb,
   schema,
+  utcDay,
 } from "./db/repo.ts";
 import type { StoredRequest } from "./hub.ts";
 import { requestId as newRequestId } from "./lib/ids.ts";
@@ -30,6 +31,8 @@ import { verifySignature } from "./lib/signature.ts";
 import { runTransform } from "./lib/transform.ts";
 import { toBase64 } from "./lib/crypto.ts";
 import type { DeliveryContext, DeliveryJob, OutboundRequest } from "./deliver/job.ts";
+import { consumeOutbound, endpointExpiry, instanceMode, planOf } from "./lib/workspace.ts";
+import type { Plan } from "@inb/shared";
 import { encodeBody } from "./deliver/send.ts";
 
 /** Bodies above this are stored truncated; the full body is still forwarded. */
@@ -54,7 +57,7 @@ interface Reply {
   source: ResponseSource;
 }
 
-async function readBody(req: Request): Promise<Uint8Array> {
+async function readBody(req: Request, maxBytes: number): Promise<Uint8Array> {
   if (!req.body) return new Uint8Array();
   const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -63,7 +66,7 @@ async function readBody(req: Request): Promise<Uint8Array> {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.byteLength;
-    if (size > MAX_BODY) {
+    if (size > maxBytes) {
       await reader.cancel();
       throw new PayloadTooLarge();
     }
@@ -116,6 +119,27 @@ export async function handleCapture(
       { status: 404, headers: { "x-inbound": "unknown-endpoint" } },
     );
   }
+  if (endpoint.expiresAt && endpoint.expiresAt.getTime() <= started) {
+    return Response.json({ error: "endpoint expired", slug }, { status: 410 });
+  }
+  const mode = instanceMode(env);
+  const workspace = await db.query.workspaces.findFirst({
+    where: eq(schema.workspaces.id, endpoint.workspaceId),
+  });
+  const plan = planOf(workspace ?? null, mode);
+  const today = utcDay(receivedAt);
+  const countToday = endpoint.dayKey === today ? endpoint.dayCount : 0;
+  if (plan.dailyRequestsPerEndpoint !== null && countToday >= plan.dailyRequestsPerEndpoint) {
+    const midnight = Date.parse(`${today}T00:00:00Z`) + 86_400_000;
+    return Response.json(
+      { error: "daily request limit reached", limit: plan.dailyRequestsPerEndpoint },
+      { status: 429, headers: { "retry-after": String(Math.ceil((midnight - started) / 1000)) } },
+    );
+  }
+  const declared = Number(req.headers.get("content-length") ?? 0);
+  if (declared > Math.min(plan.maxBodyBytes, MAX_BODY)) {
+    return Response.json({ error: "payload too large" }, { status: 413 });
+  }
 
   if (req.method === "OPTIONS" && req.headers.get("access-control-request-method")) {
     return new Response(null, {
@@ -131,7 +155,7 @@ export async function handleCapture(
 
   let bytes: Uint8Array;
   try {
-    bytes = await readBody(req);
+    bytes = await readBody(req, Math.min(plan.maxBodyBytes, MAX_BODY));
   } catch (err) {
     if (err instanceof PayloadTooLarge)
       return Response.json({ error: "payload too large" }, { status: 413 });
@@ -175,7 +199,7 @@ export async function handleCapture(
     now: nowContext(receivedAt),
   };
 
-  const rules = await activeRules(db, endpoint.id);
+  const rules = await activeRules(db, endpoint.workspaceId, endpoint.id);
   const preRules = rules.filter((r) => !referencesResponse(r.conditions));
   const postRules = rules.filter((r) => referencesResponse(r.conditions));
   const matchedPre = preRules.filter((r) => evaluateConditions(ctx, r.conditions));
@@ -242,7 +266,7 @@ export async function handleCapture(
   ];
 
   exec.waitUntil(
-    afterReply(env, db, endpoint, stored, events, matched, ctx, dropped).catch((err) =>
+    afterReply(env, db, endpoint, plan, today, stored, events, matched, ctx, dropped).catch((err) =>
       console.error("post-capture pipeline failed", { requestId: id, err: String(err) }),
     ),
   );
@@ -252,6 +276,13 @@ export async function handleCapture(
     headers: reply.headers,
   });
   res.headers.set("x-inbound-id", id);
+  if (mode === "public") {
+    // The capture domain is shared: whatever a response contains, browsers
+    // must not run it or treat it as a page from inb.sh.
+    res.headers.set("content-security-policy", "sandbox; default-src 'none'");
+    res.headers.set("x-content-type-options", "nosniff");
+    res.headers.set("x-robots-tag", "noindex, nofollow");
+  }
   return res;
 }
 
@@ -322,6 +353,8 @@ async function afterReply(
   env: Env,
   db: DB,
   endpoint: EndpointRow,
+  plan: Plan,
+  today: string,
   stored: StoredRequest,
   events: RequestEvent[],
   matched: RuleRow[],
@@ -333,7 +366,16 @@ async function afterReply(
 
   const counters = db
     .update(schema.endpoints)
-    .set({ requestCount: sql`${schema.endpoints.requestCount} + 1`, lastRequestAt: now })
+    .set({
+      requestCount: sql`${schema.endpoints.requestCount} + 1`,
+      lastRequestAt: now,
+      dayKey: today,
+      dayCount: endpoint.dayKey === today ? sql`${schema.endpoints.dayCount} + 1` : 1,
+      // idle-expiring plans: every request extends the endpoint's life
+      ...(plan.endpointIdleTtlHours !== null && {
+        expiresAt: endpointExpiry(plan, endpoint.createdAt, now),
+      }),
+    })
     .where(eq(schema.endpoints.id, endpoint.id));
 
   if (dropped) {
@@ -343,6 +385,7 @@ async function afterReply(
   await hub.ingest(stored, events);
 
   const context: DeliveryContext = {
+    workspaceId: endpoint.workspaceId,
     requestId: stored.id,
     endpointId: endpoint.id,
     endpointName: endpoint.name,
@@ -392,7 +435,7 @@ async function afterReply(
         const integration = await db.query.integrations.findFirst({
           where: eq(schema.integrations.id, action.integrationId),
         });
-        if (!integration?.enabled) continue;
+        if (!integration?.enabled || integration.workspaceId !== endpoint.workspaceId) continue;
         if (integration.kind === "cli") continue;
         jobs.push({
           type: "integration",
@@ -429,6 +472,7 @@ async function afterReply(
             .insert(schema.archived)
             .values({
               id: stored.id,
+              workspaceId: endpoint.workspaceId,
               endpointId: endpoint.id,
               data: full,
               method: stored.method,
@@ -446,6 +490,15 @@ async function afterReply(
   }
 
   await db.batch([counters, ...statements]);
+  if (jobs.length && !(await consumeOutbound(db, endpoint.workspaceId, plan, jobs.length))) {
+    extraEvents.push({
+      type: "delivery_failed",
+      at: new Date().toISOString(),
+      label: "Deliveries skipped",
+      detail: "daily replay and delivery limit reached",
+    });
+    jobs.length = 0;
+  }
   if (jobs.length)
     await env.Deliveries.sendBatch(jobs.map((body) => ({ body, contentType: "json" })));
   if (extraEvents.length) await hub.addEvents(stored.id, extraEvents);

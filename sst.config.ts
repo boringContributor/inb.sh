@@ -49,6 +49,8 @@ export default $config({
       environment: {
         ...(domain && { CAPTURE_HOST: domain, APP_ORIGIN: `https://${appHost}` }),
         GITHUB_REPO: process.env.INBOUND_GITHUB_REPO ?? "boringContributor/inb.sh",
+        // public: anonymous workspaces with plan limits; private: one password-protected workspace
+        INBOUND_MODE: process.env.INBOUND_MODE ?? "public",
         DEV: "false",
       },
       compatibility: { date: "2026-09-01", flags: ["nodejs_compat"] },

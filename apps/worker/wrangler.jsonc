@@ -9,6 +9,8 @@
   "vars": {
     // no AdminPassword locally → login is skipped
     "DEV": "true",
+    // same as production: anonymous workspaces with plan limits
+    "INBOUND_MODE": "public",
     "GITHUB_REPO": "boringContributor/inb.sh",
   },
   "d1_databases": [{ "binding": "Database", "database_name": "inbound", "database_id": "local" }],

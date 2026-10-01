@@ -87,3 +87,14 @@ export function methodTone(method: string): Tone {
       return "default";
   }
 }
+
+/** "in 23h", "in 6d", "in 12m", or "now" for an ISO time in the future. */
+export function formatUntil(iso: string | null | undefined, now = Date.now()): string {
+  if (!iso) return "never";
+  const s = Math.round((new Date(iso).getTime() - now) / 1000);
+  if (s <= 0) return "now";
+  if (s < 3600) return `in ${Math.max(1, Math.floor(s / 60))}m`;
+  // hours up to two days, so a fresh 24h endpoint reads "in 23h", not "in 1d"
+  if (s < 2 * 86400) return `in ${Math.floor(s / 3600)}h`;
+  return `in ${Math.floor(s / 86400)}d`;
+}

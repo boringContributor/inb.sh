@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertDialog, Button, Dropdown, Label, Skeleton, Tooltip, toast } from "@heroui/react";
+import { useIntegrationLimit } from "../../lib/plan.ts";
 import { BookOpen, Ellipsis, Plug, Plus } from "lucide-react";
 import {
   INTEGRATION_CATEGORIES,
@@ -232,6 +233,14 @@ export function IntegrationsPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [target, setTarget] = useState<ConnectTarget | null>(null);
+  const integrationLimit = useIntegrationLimit();
+  const connect = (next: ConnectTarget) => {
+    if (integrationLimit.reached) {
+      toast(integrationLimit.reason);
+      return;
+    }
+    setTarget(next);
+  };
   const [logOpen, setLogOpen] = useState(false);
   const [deleting, setDeleting] = useState<Integration | null>(null);
 
@@ -276,7 +285,7 @@ export function IntegrationsPage() {
               <BookOpen className="size-4" />
               Docs
             </a>
-            <Button onPress={() => setTarget({ mode: "pick" })}>
+            <Button onPress={() => connect({ mode: "pick" })} isDisabled={integrationLimit.reached}>
               <Plus className="size-4" />
               Add integration
             </Button>
@@ -373,7 +382,7 @@ export function IntegrationsPage() {
               <CatalogCard
                 key={def.kind}
                 def={def}
-                onConnect={() => setTarget({ mode: "create", kind: def.kind })}
+                onConnect={() => connect({ mode: "create", kind: def.kind })}
               />
             ))}
           </div>

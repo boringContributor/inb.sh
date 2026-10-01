@@ -76,6 +76,39 @@ Captures are served on `https://inb.sh/<slug>`, the dashboard on `https://app.in
 `INBOUND_DOMAIN` everything is served from the worker's `workers.dev` URL with captures at `/h/<slug>`.
 CI only runs checks, tests and builds.
 
+## Public and private mode
+
+`INBOUND_MODE` decides who can use an instance.
+
+- **`public`** (what inb.sh runs, and the default): anyone can open the dashboard and get an endpoint
+  without signing up. The first endpoint creates an anonymous workspace, remembered by a signed
+  cookie, and every endpoint, rule, integration and archived request belongs to a workspace.
+- **`private`**: one workspace behind the `AdminPassword`, with no limits. Use it to run your own
+  instance for yourself or a team.
+
+Limits per plan live in [`packages/shared/src/plans.ts`](packages/shared/src/plans.ts) and are
+enforced by the worker:
+
+|                        | Guest              | Member (planned)       | Self-hosted  |
+| ---------------------- | ------------------ | ---------------------- | ------------ |
+| Endpoints              | 1                  | 5                      | unlimited    |
+| Endpoint lifetime      | 24h after creation | 7 days without traffic | forever      |
+| Request history        | 1 day              | 7 days                 | configurable |
+| Requests per endpoint  | 1,000 / day        | 10,000 / day           | unlimited    |
+| Replays + deliveries   | 100 / day          | 2,000 / day            | unlimited    |
+| HTML / proxy responses | no                 | proxy only             | yes          |
+
+A shared capture domain is easy to abuse, so public instances also:
+
+- serve every capture response with `Content-Security-Policy: sandbox`, so nothing on it can run
+  as an inb.sh page;
+- refuse HTML custom responses and open-relay proxying for guests;
+- cap new workspaces per IP and outbound calls per workspace;
+- delete expired endpoints and abandoned guest workspaces hourly.
+
+Accounts are next: a workspace already has an optional owner, so signing in (Better Auth with
+GitHub) will claim the guest workspace and upgrade it to Member without moving any data.
+
 ## Concepts
 
 **Endpoints** get an unguessable slug (`8f2a-9c41-7e3d`) or one you pick. Every method and sub-path is
@@ -130,13 +163,16 @@ not deliverable yet.
 
 ### CLI tunnel
 
+Forward everything an endpoint receives to a server on your machine:
+
 ```sh
-INBOUND_URL=https://app.inb.sh INBOUND_TOKEN='admin password' \
-  pnpm --filter @inb/cli exec inbound listen <endpoint-id> --to http://localhost:4000
+npx inb.sh listen <endpoint-id> --to http://localhost:3000 --token <token>
 ```
 
-Every captured request is forwarded to your local server, and rules with a "Replay to localhost"
-action are delivered through the tunnel.
+Copy the exact command, token included, from the dashboard (endpoint ⋯ menu → **Use from the CLI**).
+The token belongs to your workspace; on a private instance use the admin password and pass
+`--url https://your-dashboard`. Rules with a "Replay to localhost" action are delivered through the
+same tunnel.
 
 ## Development
 

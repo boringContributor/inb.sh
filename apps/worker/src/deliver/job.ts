@@ -9,6 +9,7 @@ export interface OutboundRequest {
 }
 
 export interface DeliveryContext {
+  workspaceId: string;
   requestId: string;
   endpointId: string;
   endpointName: string;

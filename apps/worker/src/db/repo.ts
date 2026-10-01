@@ -1,6 +1,12 @@
 import { and, asc, desc, eq, gte, isNull, sql } from "drizzle-orm";
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
-import { type Endpoint, type Integration, type Rule, integrationDefinition } from "@inb/shared";
+import {
+  type Endpoint,
+  type Integration,
+  type Plan,
+  type Rule,
+  integrationDefinition,
+} from "@inb/shared";
 import * as schema from "./schema.ts";
 import { ensureMigrated } from "./migrate.ts";
 
@@ -15,7 +21,9 @@ export type EndpointRow = typeof schema.endpoints.$inferSelect;
 export type RuleRow = typeof schema.rules.$inferSelect;
 export type IntegrationRow = typeof schema.integrations.$inferSelect;
 
-export function toEndpoint(row: EndpointRow): Endpoint {
+export const utcDay = (d = new Date()) => d.toISOString().slice(0, 10);
+
+export function toEndpoint(row: EndpointRow, plan?: Plan): Endpoint {
   return {
     id: row.id,
     slug: row.slug,
@@ -33,6 +41,11 @@ export function toEndpoint(row: EndpointRow): Endpoint {
     createdAt: row.createdAt.toISOString(),
     requestCount: row.requestCount,
     lastRequestAt: row.lastRequestAt?.toISOString() ?? null,
+    expiresAt: row.expiresAt?.toISOString() ?? null,
+    usage: {
+      today: row.dayKey === utcDay() ? row.dayCount : 0,
+      dailyLimit: plan?.dailyRequestsPerEndpoint ?? null,
+    },
   };
 }
 
@@ -81,22 +94,26 @@ export async function findEndpointBySlug(db: DB, slug: string) {
   });
 }
 
-export async function findEndpoint(db: DB, id: string) {
+export async function findEndpoint(db: DB, workspaceId: string, id: string) {
   return db.query.endpoints.findFirst({
-    where: and(eq(schema.endpoints.id, id), isNull(schema.endpoints.deletedAt)),
+    where: and(
+      eq(schema.endpoints.id, id),
+      eq(schema.endpoints.workspaceId, workspaceId),
+      isNull(schema.endpoints.deletedAt),
+    ),
   });
 }
 
-export async function listEndpoints(db: DB) {
+export async function listEndpoints(db: DB, workspaceId: string) {
   return db.query.endpoints.findMany({
-    where: isNull(schema.endpoints.deletedAt),
+    where: and(eq(schema.endpoints.workspaceId, workspaceId), isNull(schema.endpoints.deletedAt)),
     orderBy: asc(schema.endpoints.createdAt),
   });
 }
 
-export async function activeRules(db: DB, endpointId: string) {
+export async function activeRules(db: DB, workspaceId: string, endpointId: string) {
   const rows = await db.query.rules.findMany({
-    where: eq(schema.rules.enabled, true),
+    where: and(eq(schema.rules.workspaceId, workspaceId), eq(schema.rules.enabled, true)),
     orderBy: asc(schema.rules.position),
   });
   return rows.filter((r) => r.endpointId === null || r.endpointId === endpointId);
@@ -105,8 +122,9 @@ export async function activeRules(db: DB, endpointId: string) {
 const HOUR = 3_600_000;
 
 /** Integrations with 24h hourly delivery series and health. */
-export async function listIntegrations(db: DB): Promise<Integration[]> {
+export async function listIntegrations(db: DB, workspaceId: string): Promise<Integration[]> {
   const rows = await db.query.integrations.findMany({
+    where: eq(schema.integrations.workspaceId, workspaceId),
     orderBy: asc(schema.integrations.createdAt),
   });
   if (!rows.length) return [];
@@ -119,7 +137,12 @@ export async function listIntegrations(db: DB): Promise<Integration[]> {
       ok: sql<number>`sum(${schema.deliveries.ok})`,
     })
     .from(schema.deliveries)
-    .where(gte(schema.deliveries.createdAt, new Date(since)))
+    .where(
+      and(
+        eq(schema.deliveries.workspaceId, workspaceId),
+        gte(schema.deliveries.createdAt, new Date(since)),
+      ),
+    )
     .groupBy(schema.deliveries.integrationId, sql`bucket`);
   const totals = await db
     .select({
@@ -129,6 +152,7 @@ export async function listIntegrations(db: DB): Promise<Integration[]> {
       last: sql<number | null>`max(${schema.deliveries.createdAt})`,
     })
     .from(schema.deliveries)
+    .where(eq(schema.deliveries.workspaceId, workspaceId))
     .groupBy(schema.deliveries.integrationId);
 
   return rows.map((row) => {
@@ -175,15 +199,16 @@ export async function listIntegrations(db: DB): Promise<Integration[]> {
 
 export async function recentDeliveries(
   db: DB,
+  workspaceId: string,
   opts: { integrationId?: string; requestId?: string; limit: number },
 ) {
-  const where = opts.integrationId
+  const filter = opts.integrationId
     ? eq(schema.deliveries.integrationId, opts.integrationId)
     : opts.requestId
       ? eq(schema.deliveries.requestId, opts.requestId)
       : undefined;
   return db.query.deliveries.findMany({
-    where,
+    where: and(eq(schema.deliveries.workspaceId, workspaceId), filter),
     orderBy: desc(schema.deliveries.createdAt),
     limit: opts.limit,
   });

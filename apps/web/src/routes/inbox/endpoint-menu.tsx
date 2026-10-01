@@ -15,7 +15,8 @@ import {
   TextField,
   toast,
 } from "@heroui/react";
-import { Ellipsis, Eraser, Settings2, Trash } from "lucide-react";
+import { Ellipsis, Eraser, Settings2, Terminal, Trash } from "lucide-react";
+import { CliModal } from "./cli-modal.tsx";
 import {
   ENDPOINT_ICONS,
   type Endpoint,
@@ -279,7 +280,7 @@ function ConfirmDialog({
 }
 
 export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
-  const [dialog, setDialog] = useState<"settings" | "clear" | "delete" | null>(null);
+  const [dialog, setDialog] = useState<"settings" | "cli" | "clear" | "delete" | null>(null);
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -320,8 +321,12 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
         </Button>
         <Dropdown.Popover placement="bottom end" className="min-w-52">
           <Dropdown.Menu
-            onAction={(key) => setDialog(String(key) as "settings" | "clear" | "delete")}
+            onAction={(key) => setDialog(String(key) as "settings" | "cli" | "clear" | "delete")}
           >
+            <Dropdown.Item id="cli" textValue="Use from the CLI">
+              <Terminal className="size-4 text-muted" />
+              <Label>Use from the CLI</Label>
+            </Dropdown.Item>
             <Dropdown.Item id="settings" textValue="Endpoint settings">
               <Settings2 className="size-4 text-muted" />
               <Label>Endpoint settings</Label>
@@ -338,6 +343,11 @@ export function EndpointMenu({ endpoint }: { endpoint: Endpoint }) {
         </Dropdown.Popover>
       </Dropdown>
 
+      <CliModal
+        endpoint={endpoint}
+        isOpen={dialog === "cli"}
+        onOpenChange={(o) => !o && setDialog(null)}
+      />
       {dialog === "settings" && (
         <EndpointSettingsModal
           endpoint={endpoint}

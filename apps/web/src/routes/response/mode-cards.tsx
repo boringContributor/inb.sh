@@ -27,9 +27,12 @@ const MODES: { mode: ResponseMode; title: string; description: string; icon: Luc
 export function ModeCards({
   value,
   onChange,
+  disabled = {},
 }: {
   value: ResponseMode;
   onChange: (mode: ResponseMode) => void;
+  /** modes the plan doesn't allow, with the reason shown on the card */
+  disabled?: Partial<Record<ResponseMode, string>>;
 }) {
   return (
     <RadioGroup
@@ -43,9 +46,11 @@ export function ModeCards({
         <Radio
           key={mode}
           value={mode}
-          className={({ isSelected, isFocusVisible, isHovered }) =>
+          isDisabled={!!disabled[mode]}
+          className={({ isSelected, isFocusVisible, isHovered, isDisabled }) =>
             cn(
               "flex flex-1 cursor-pointer flex-col gap-1.5 rounded-lg border p-3.5 outline-none transition-colors",
+              isDisabled && "cursor-not-allowed opacity-55",
               isSelected ? "border-accent bg-accent-soft" : "border-border bg-surface",
               !isSelected && isHovered && "border-separator-tertiary",
               isFocusVisible && "ring-2 ring-focus ring-offset-2 ring-offset-background",
@@ -64,7 +69,9 @@ export function ModeCards({
                   <CircleCheck className="size-[15px] shrink-0 text-accent" aria-hidden />
                 )}
               </span>
-              <span className="text-[11.5px] leading-[17px] text-tertiary">{description}</span>
+              <span className="text-[11.5px] leading-[17px] text-tertiary">
+                {disabled[mode] ?? description}
+              </span>
             </>
           )}
         </Radio>

@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearch } from "@tanstack/react-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Button, Skeleton, Tooltip } from "@heroui/react";
-import { Code, Pause, Play, Share2 } from "lucide-react";
-import type { RequestFilter, RequestSummary } from "@inb/shared";
+import { Code, Hourglass, Pause, Play, Share2 } from "lucide-react";
+import { type Endpoint, type RequestFilter, type RequestSummary, formatUntil } from "@inb/shared";
 import { api } from "../../lib/api.ts";
 import { cn } from "../../lib/cn.ts";
 import { type LiveStatus, useLiveRequests } from "../../lib/live.ts";
@@ -184,6 +184,7 @@ export function InboxPage() {
         }
         right={
           <>
+            {endpoint && <ExpiryChip endpoint={endpoint} />}
             <LiveChip status={live.status} waiting={waiting} />
             {!waiting && (
               <Tooltip delay={400}>
@@ -286,5 +287,34 @@ export function InboxPage() {
         )}
       </div>
     </>
+  );
+}
+
+/** Guests: when the endpoint disappears, and how much of today's quota is used. */
+function ExpiryChip({ endpoint }: { endpoint: Endpoint }) {
+  const { today, dailyLimit } = endpoint.usage;
+  if (!endpoint.expiresAt && dailyLimit === null) return null;
+  const nearLimit = dailyLimit !== null && today >= dailyLimit * 0.9;
+  return (
+    <Tooltip delay={300}>
+      <span
+        tabIndex={0}
+        className={cn(
+          "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-focus",
+          nearLimit ? "bg-warning-soft text-warning" : "bg-default text-muted",
+        )}
+      >
+        <Hourglass className="size-3.5" />
+        {endpoint.expiresAt
+          ? `Expires ${formatUntil(endpoint.expiresAt)}`
+          : `${today}/${dailyLimit}`}
+      </span>
+      <Tooltip.Content className="max-w-64">
+        {endpoint.expiresAt &&
+          `This endpoint and its history are deleted ${formatUntil(endpoint.expiresAt)}. `}
+        {dailyLimit !== null &&
+          `${today.toLocaleString("en-US")} of ${dailyLimit.toLocaleString("en-US")} requests used today (resets at midnight UTC).`}
+      </Tooltip.Content>
+    </Tooltip>
   );
 }

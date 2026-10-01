@@ -10,3 +10,4 @@ export const ruleId = () => `rule_${alnum()}`;
 export const integrationId = () => `int_${alnum()}`;
 export const endpointId = () => `ep_${alnum()}`;
 export const deliveryId = () => `dlv_${alnum()}${alnum()}`;
+export const workspaceId = () => `ws_${alnum()}${alnum()}`;

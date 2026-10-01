@@ -54,6 +54,7 @@ export async function consumeDeliveries(batch: MessageBatch<DeliveryJob>, env: E
         writes.push(
           db.insert(schema.deliveries).values({
             id: deliveryId(),
+            workspaceId: job.context.workspaceId ?? "default",
             integrationId: job.integrationId,
             requestId: job.context.requestId,
             endpointId: job.context.endpointId,

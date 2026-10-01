@@ -1,8 +1,9 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Button, Dropdown, Label, Skeleton } from "@heroui/react";
+import { Button, Dropdown, Label, Skeleton, Tooltip } from "@heroui/react";
 import {
   Archive,
   ChevronsUpDown,
+  LogIn,
   LogOut,
   Plug,
   Plus,
@@ -15,6 +16,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { api } from "../lib/api.ts";
 import { cn } from "../lib/cn.ts";
 import { useConfig, useEndpoints } from "../lib/queries.ts";
+import { useEndpointLimit, usePlan } from "../lib/plan.ts";
+import { formatUntil } from "@inb/shared";
 import { ENDPOINT_ICON } from "./icons.tsx";
 import { GithubIcon } from "./brand-icons.tsx";
 import { BrandMark, Wordmark } from "./brand.tsx";
@@ -74,6 +77,20 @@ export function Sidebar() {
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { isPublic, plan } = usePlan();
+  const limit = useEndpointLimit();
+  // guests: show when their (single) endpoint disappears
+  const nextExpiry = endpoints
+    ?.map((e) => e.expiresAt)
+    .filter((x): x is string => !!x)
+    .sort()[0];
+  const planLine = isPublic
+    ? nextExpiry
+      ? `Endpoint expires ${formatUntil(nextExpiry)}`
+      : plan.id === "anonymous"
+        ? `No signup · ${plan.endpointTtlHours}h endpoints`
+        : plan.label
+    : (config?.user?.plan ?? "Self-hosted");
 
   const signOut = async () => {
     await api.logout();
@@ -97,15 +114,22 @@ export function Sidebar() {
       </Link>
 
       <div className="h-3 shrink-0" />
-      <Button
-        variant="outline"
-        fullWidth
-        className="h-9 rounded-lg"
-        onPress={() => setCreating(true)}
-      >
-        <Plus className="size-4" />
-        New endpoint
-      </Button>
+      <Tooltip delay={300} isDisabled={!limit.reached}>
+        {/* span keeps the tooltip working while the button is disabled */}
+        <span className="block w-full">
+          <Button
+            variant="outline"
+            fullWidth
+            className="h-9 rounded-lg"
+            isDisabled={limit.reached}
+            onPress={() => setCreating(true)}
+          >
+            <Plus className="size-4" />
+            New endpoint
+          </Button>
+        </span>
+        <Tooltip.Content className="max-w-56">{limit.reason}</Tooltip.Content>
+      </Tooltip>
       <div className="h-3 shrink-0" />
 
       <nav aria-label="Endpoints" className="flex min-h-0 flex-col gap-1">
@@ -195,14 +219,13 @@ export function Sidebar() {
             <span className="truncate text-[13px] font-medium text-foreground">
               {config?.user?.name ?? "—"}
             </span>
-            <span className="text-[11px] font-normal text-tertiary">
-              {config?.user?.plan ?? "Self-hosted"}
-            </span>
+            <span className="truncate text-[11px] font-normal text-tertiary">{planLine}</span>
           </span>
           <ChevronsUpDown className="size-3.5 text-muted" />
         </Button>
         <Dropdown.Popover placement="top start" className="min-w-52">
           <Dropdown.Menu
+            disabledKeys={["signin"]}
             onAction={(key) => {
               if (key === "settings") void navigate({ to: "/settings" });
               if (key === "logout") void signOut();
@@ -212,10 +235,20 @@ export function Sidebar() {
               <Settings className="size-4 text-muted" />
               <Label>Settings</Label>
             </Dropdown.Item>
-            <Dropdown.Item id="logout" textValue="Sign out" variant="danger">
-              <LogOut className="size-4" />
-              <Label>Sign out</Label>
-            </Dropdown.Item>
+            {isPublic ? (
+              <Dropdown.Item id="signin" textValue="Sign in">
+                <LogIn className="size-4 text-muted" />
+                <Label>Sign in</Label>
+                <span className="ml-auto rounded bg-default px-1.5 py-0.5 text-[10px] font-medium text-muted">
+                  soon
+                </span>
+              </Dropdown.Item>
+            ) : (
+              <Dropdown.Item id="logout" textValue="Sign out" variant="danger">
+                <LogOut className="size-4" />
+                <Label>Sign out</Label>
+              </Dropdown.Item>
+            )}
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>

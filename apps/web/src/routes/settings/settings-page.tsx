@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Input, Label, NumberField, Skeleton, TextField, toast } from "@heroui/react";
-import { KeyRound, LogOut, Server, Timer, UserRound } from "lucide-react";
-import type { Endpoint } from "@inb/shared";
+import { Gauge, KeyRound, LogOut, Server, Timer, UserRound } from "lucide-react";
+import { type Endpoint, type Plan, describeLimit, formatBytes } from "@inb/shared";
+import { usePlan } from "../../lib/plan.ts";
 import { api } from "../../lib/api.ts";
 import { keys, useConfig, useEndpoints, useSettings } from "../../lib/queries.ts";
 import { ENDPOINT_ICON } from "../../components/icons.tsx";
@@ -12,6 +13,7 @@ import { PageBody, PageTitle, Panel, PanelHeader, Topbar } from "../../component
 
 function WorkspacePanel() {
   const { data, isPending } = useSettings();
+  const { isPublic } = usePlan();
   const qc = useQueryClient();
   const [workspaceName, setWorkspaceName] = useState("");
   const [userName, setUserName] = useState("");
@@ -24,7 +26,10 @@ function WorkspacePanel() {
 
   const save = useMutation({
     mutationFn: () =>
-      api.updateSettings({ workspaceName: workspaceName.trim(), userName: userName.trim() }),
+      api.updateSettings({
+        workspaceName: workspaceName.trim(),
+        ...(!isPublic && { userName: userName.trim() }),
+      }),
     onSuccess: () => {
       toast.success("Settings saved");
       void qc.invalidateQueries({ queryKey: keys.settings });
@@ -32,7 +37,9 @@ function WorkspacePanel() {
     },
   });
   const dirty =
-    !!data && (workspaceName.trim() !== data.workspaceName || userName.trim() !== data.userName);
+    !!data &&
+    (workspaceName.trim() !== data.workspaceName ||
+      (!isPublic && userName.trim() !== data.userName));
 
   return (
     <Panel>
@@ -41,21 +48,27 @@ function WorkspacePanel() {
         className="flex flex-col gap-4 border-t border-separator p-4"
         onSubmit={(e) => {
           e.preventDefault();
-          if (dirty && workspaceName.trim() && userName.trim()) save.mutate();
+          if (dirty && workspaceName.trim() && (isPublic || userName.trim())) save.mutate();
         }}
       >
         {isPending ? (
           <Skeleton className="h-32 w-full rounded-xl" />
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div
+            className={
+              isPublic ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 gap-4 md:grid-cols-2"
+            }
+          >
             <TextField value={workspaceName} onChange={setWorkspaceName} isRequired>
               <Label>Workspace name</Label>
               <Input placeholder="inb.sh" />
             </TextField>
-            <TextField value={userName} onChange={setUserName} isRequired>
-              <Label>Your display name</Label>
-              <Input placeholder="Admin" />
-            </TextField>
+            {!isPublic && (
+              <TextField value={userName} onChange={setUserName} isRequired>
+                <Label>Your display name</Label>
+                <Input placeholder="Admin" />
+              </TextField>
+            )}
           </div>
         )}
         <div className="flex justify-end">
@@ -186,7 +199,56 @@ function RetentionPanel() {
   );
 }
 
+function planRows(plan: Plan): [string, string][] {
+  const life =
+    plan.endpointTtlHours !== null
+      ? `${plan.endpointTtlHours} hours after creation`
+      : plan.endpointIdleTtlHours !== null
+        ? `${plan.endpointIdleTtlHours / 24} days without traffic`
+        : "never";
+  return [
+    ["Endpoints", describeLimit(plan.maxEndpoints, "endpoint")],
+    ["Endpoints expire", life],
+    ["Request history", `${plan.retentionDays} day${plan.retentionDays === 1 ? "" : "s"}`],
+    ["Requests per endpoint", `${describeLimit(plan.dailyRequestsPerEndpoint, "request")} / day`],
+    ["Largest request body", formatBytes(plan.maxBodyBytes)],
+    ["Rules", describeLimit(plan.maxRules, "rule")],
+    ["Integrations", describeLimit(plan.maxIntegrations, "integration")],
+    ["Replays + deliveries", `${describeLimit(plan.dailyOutbound, "call")} / day`],
+    ["HTML responses", plan.allowHtmlResponses ? "allowed" : "not allowed (shared domain)"],
+    ["Proxy responses", plan.allowProxy ? "allowed" : "not allowed"],
+  ];
+}
+
+function PlanPanel() {
+  const { plan, config } = usePlan();
+  return (
+    <Panel>
+      <PanelHeader icon={<Gauge />} title={`${plan.label} plan`}>
+        <span className="ml-auto text-xs text-tertiary">
+          {config?.accounts ? "" : "Accounts with higher limits are coming soon"}
+        </span>
+      </PanelHeader>
+      <dl className="grid grid-cols-1 border-t border-separator sm:grid-cols-2">
+        {planRows(plan).map(([k, v]) => (
+          <div
+            key={k}
+            className="flex items-center justify-between gap-4 border-b border-separator px-4 py-2.5 sm:odd:border-r"
+          >
+            <dt className="text-[13px] text-muted">{k}</dt>
+            <dd className="font-mono text-[12px] text-foreground">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="px-4 py-3 text-xs leading-relaxed text-tertiary">
+        Your guest workspace is tied to this browser. Limits reset at midnight UTC.
+      </p>
+    </Panel>
+  );
+}
+
 export function SettingsPage() {
+  const { isPublic } = usePlan();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const signOut = useMutation({
@@ -202,17 +264,29 @@ export function SettingsPage() {
       <Topbar
         left={<PageTitle>Settings</PageTitle>}
         right={
-          <Button variant="outline" onPress={() => signOut.mutate()} isPending={signOut.isPending}>
-            <LogOut className="size-4" />
-            Sign out
-          </Button>
+          isPublic ? undefined : (
+            <Button
+              variant="outline"
+              onPress={() => signOut.mutate()}
+              isPending={signOut.isPending}
+            >
+              <LogOut className="size-4" />
+              Sign out
+            </Button>
+          )
         }
       />
       <PageBody className="px-6 py-5">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
           <WorkspacePanel />
-          <DeploymentPanel />
-          <RetentionPanel />
+          {isPublic ? (
+            <PlanPanel />
+          ) : (
+            <>
+              <DeploymentPanel />
+              <RetentionPanel />
+            </>
+          )}
         </div>
       </PageBody>
     </>

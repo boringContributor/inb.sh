@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button, Description, FieldError, Input, Label, Modal, TextField } from "@heroui/react";
-import { ENDPOINT_ICONS, type Endpoint, type EndpointIcon, slugSchema } from "@inb/shared";
+import {
+  ENDPOINT_ICONS,
+  type Endpoint,
+  type EndpointIcon,
+  describeLimit,
+  slugSchema,
+} from "@inb/shared";
+import { usePlan } from "../lib/plan.ts";
 import { ApiError, api } from "../lib/api.ts";
 import { cn } from "../lib/cn.ts";
 import { keys, useConfig } from "../lib/queries.ts";
@@ -21,6 +28,7 @@ export function NewEndpointModal({
   const [icon, setIcon] = useState<EndpointIcon>("webhook");
   const [slugError, setSlugError] = useState<string | null>(null);
   const { data: config } = useConfig();
+  const { plan } = usePlan();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -29,6 +37,8 @@ export function NewEndpointModal({
       api.createEndpoint({ name: name.trim(), icon, slug: slug.trim() || undefined }),
     onSuccess: (endpoint) => {
       qc.setQueryData<Endpoint[]>(keys.endpoints, (list) => [...(list ?? []), endpoint]);
+      // a guest's first endpoint also creates their workspace
+      void qc.invalidateQueries({ queryKey: keys.config });
       onOpenChange(false);
       setName("");
       setSlug("");
@@ -72,24 +82,32 @@ export function NewEndpointModal({
                 <Label>Name</Label>
                 <Input placeholder="Stripe webhooks" />
               </TextField>
-              <TextField
-                value={slug}
-                onChange={(v) => {
-                  setSlug(v.toLowerCase());
-                  setSlugError(null);
-                }}
-                isInvalid={!!slugError}
-              >
-                <Label>Path</Label>
-                <Input placeholder="random" className="font-mono" />
-                {slugError ? (
-                  <FieldError>{slugError}</FieldError>
-                ) : (
-                  <Description className="font-mono text-xs">
-                    {config?.captureBaseUrl ?? ""}/{slug || "xxxx-xxxx-xxxx"}
-                  </Description>
-                )}
-              </TextField>
+              {plan.customSlugs ? (
+                <TextField
+                  value={slug}
+                  onChange={(v) => {
+                    setSlug(v.toLowerCase());
+                    setSlugError(null);
+                  }}
+                  isInvalid={!!slugError}
+                >
+                  <Label>Path</Label>
+                  <Input placeholder="random" className="font-mono" />
+                  {slugError ? (
+                    <FieldError>{slugError}</FieldError>
+                  ) : (
+                    <Description className="font-mono text-xs">
+                      {config?.captureBaseUrl ?? ""}/{slug || "xxxx-xxxx-xxxx"}
+                    </Description>
+                  )}
+                </TextField>
+              ) : (
+                <p className="rounded-lg bg-background-secondary px-3 py-2.5 text-xs leading-relaxed text-muted">
+                  You get a random, unguessable URL.
+                  {plan.endpointTtlHours !== null &&
+                    ` It lives for ${plan.endpointTtlHours} hours and keeps ${describeLimit(plan.dailyRequestsPerEndpoint, "request")} a day.`}
+                </p>
+              )}
               <div className="flex flex-col gap-2">
                 <span className="text-sm font-medium">Icon</span>
                 <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Icon">

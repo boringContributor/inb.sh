@@ -1,8 +1,13 @@
 import type { EndpointHub } from "./hub.ts";
 import type { DeliveryJob } from "./deliver/job.ts";
+import type { InstanceMode, Plan } from "@inb/shared";
 import type { DB } from "./db/repo.ts";
+import type { WorkspaceRow } from "./lib/workspace.ts";
 
-export type HonoEnv = { Bindings: Env; Variables: { db: DB } };
+export type HonoEnv = {
+  Bindings: Env;
+  Variables: { db: DB; mode: InstanceMode; workspace: WorkspaceRow | null; plan: Plan };
+};
 export type WaitUntil = { waitUntil(promise: Promise<unknown>): void };
 
 /**
@@ -16,8 +21,6 @@ export interface Env {
   Deliveries: Queue<DeliveryJob>;
   Hub: DurableObjectNamespace<EndpointHub>;
   ASSETS?: Fetcher;
-  /** service binding back into the App worker (only on the delivery consumer) */
-  App?: Fetcher;
 
   SST_RESOURCE_AdminPassword?: string;
   SST_RESOURCE_SessionSecret?: string;
@@ -27,7 +30,9 @@ export interface Env {
   /** public origin of the dashboard, e.g. `https://app.inb.sh` */
   APP_ORIGIN?: string;
   GITHUB_REPO?: string;
-  /** set by `sst dev` so auth can be bypassed locally */
+  /** `public` (anonymous workspaces + plan limits) or `private` (password, default) */
+  INBOUND_MODE?: string;
+  /** set by `wrangler dev` so auth can be bypassed locally */
   DEV?: string;
 }
 

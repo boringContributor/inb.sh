@@ -1,3 +1,4 @@
+import { usePlan } from "../../lib/plan.ts";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useBlocker, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -30,6 +31,7 @@ export function ResponsePage() {
   const endpointQuery = useEndpoint(endpointId);
   const endpoint = endpointQuery.data;
   const { data: config } = useConfig();
+  const { plan } = usePlan();
   const update = useUpdateEndpoint(endpointId);
 
   const [draft, setDraft] = useState<ResponseConfig | null>(null);
@@ -214,7 +216,17 @@ export function ResponsePage() {
           </>
         ) : (
           <>
-            <ModeCards value={draft.mode} onChange={(mode) => patch({ mode })} />
+            <ModeCards
+              value={draft.mode}
+              onChange={(mode) => patch({ mode })}
+              disabled={
+                plan.allowProxy
+                  ? {}
+                  : {
+                      proxy: "Not available for guests — it would turn the URL into an open relay.",
+                    }
+              }
+            />
             <div className="flex min-h-[520px] w-full flex-1 gap-[18px] max-[1100px]:flex-col">
               <DefinitionPanel draft={draft} onChange={patch} bodyWarning={bodyWarning} />
               <div className="flex w-[400px] shrink-0 flex-col gap-[18px] max-[1100px]:w-full">

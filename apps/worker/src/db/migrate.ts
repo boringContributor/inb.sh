@@ -80,6 +80,44 @@ const MIGRATIONS: { id: number; sql: string[] }[] = [
       `CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)`,
     ],
   },
+  {
+    // multi-tenancy: everything belongs to a workspace; pre-existing data
+    // becomes the private instance's `default` workspace
+    id: 2,
+    sql: [
+      `CREATE TABLE IF NOT EXISTS workspaces (
+        id TEXT PRIMARY KEY,
+        plan TEXT NOT NULL,
+        name TEXT,
+        owner_user_id TEXT,
+        creator_ip_hash TEXT,
+        created_at INTEGER NOT NULL,
+        last_seen_at INTEGER NOT NULL
+      )`,
+      `CREATE INDEX IF NOT EXISTS workspaces_ip_idx ON workspaces (creator_ip_hash, created_at)`,
+      `INSERT OR IGNORE INTO workspaces (id, plan, created_at, last_seen_at) VALUES ('default', 'self-hosted', 0, 0)`,
+      `CREATE TABLE IF NOT EXISTS usage (
+        workspace_id TEXT NOT NULL,
+        day TEXT NOT NULL,
+        outbound INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (workspace_id, day)
+      )`,
+      `ALTER TABLE endpoints ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default'`,
+      `ALTER TABLE endpoints ADD COLUMN expires_at INTEGER`,
+      `ALTER TABLE endpoints ADD COLUMN day_key TEXT`,
+      `ALTER TABLE endpoints ADD COLUMN day_count INTEGER NOT NULL DEFAULT 0`,
+      `CREATE INDEX IF NOT EXISTS endpoints_workspace_idx ON endpoints (workspace_id)`,
+      `CREATE INDEX IF NOT EXISTS endpoints_expires_idx ON endpoints (expires_at)`,
+      `ALTER TABLE rules ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default'`,
+      `DROP INDEX IF EXISTS rules_position_idx`,
+      `CREATE INDEX IF NOT EXISTS rules_position_idx ON rules (workspace_id, position)`,
+      `ALTER TABLE integrations ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default'`,
+      `ALTER TABLE deliveries ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default'`,
+      `ALTER TABLE archived_requests ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default'`,
+      `DROP INDEX IF EXISTS archived_at_idx`,
+      `CREATE INDEX IF NOT EXISTS archived_at_idx ON archived_requests (workspace_id, archived_at)`,
+    ],
+  },
 ];
 
 let applied: Promise<void> | null = null;

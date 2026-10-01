@@ -17,6 +17,8 @@ import { STATUS_TEXT } from "@inb/shared";
 import { CodeEditor } from "../../components/code-editor.tsx";
 import { cn } from "../../lib/cn.ts";
 import { COMMON_STATUSES, CONTENT_TYPES } from "./preview.ts";
+import { usePlan } from "../../lib/plan.ts";
+import { isHtmlContentType } from "@inb/shared";
 
 const FIELD_LABEL = "text-xs font-medium text-muted";
 const CONTROL = "h-9 rounded-xl border border-border bg-surface font-mono text-[13px]";
@@ -88,7 +90,10 @@ function StatusField({ status, onChange }: { status: number; onChange: (s: numbe
 }
 
 function ContentTypeField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const options = CONTENT_TYPES.includes(value) ? CONTENT_TYPES : [value, ...CONTENT_TYPES];
+  const { plan } = usePlan();
+  // HTML can't be served from the shared capture domain on guest/member plans
+  const allowed = CONTENT_TYPES.filter((ct) => plan.allowHtmlResponses || !isHtmlContentType(ct));
+  const options = allowed.includes(value) ? allowed : [value, ...allowed];
   return (
     <Select
       className="min-w-0 flex-1"

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Plan } from "./plans.ts";
 
 export const HTTP_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"] as const;
 
@@ -83,6 +84,10 @@ export interface Endpoint {
   createdAt: string;
   requestCount: number;
   lastRequestAt: string | null;
+  /** when the endpoint (and its history) is deleted; null = never */
+  expiresAt: string | null;
+  /** requests captured today (UTC) and the plan's cap */
+  usage: { today: number; dailyLimit: number | null };
 }
 
 export const createEndpointSchema = z.object({
@@ -335,10 +340,20 @@ export interface Delivery {
 
 /* --------------------------------- Session -------------------------------- */
 
+export type InstanceMode = "public" | "private";
+
 export interface AppConfig {
+  /** `public`: anonymous workspaces with plan limits (inb.sh). `private`: one password-protected workspace. */
+  mode: InstanceMode;
   captureBaseUrl: string;
   workspaceName: string;
+  /** null in private mode until signed in; in public mode always a guest or member */
   user: { name: string; initials: string; plan: string } | null;
+  /** null for a first-time visitor in public mode — created with their first endpoint */
+  workspace: { id: string; createdAt: string } | null;
+  plan: Plan;
+  /** sign-in (accounts) is available on this instance */
+  accounts: boolean;
   githubRepo: string;
   githubStars: number | null;
 }

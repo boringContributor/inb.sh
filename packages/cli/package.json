@@ -1,15 +1,31 @@
 {
-  "name": "@inb/cli",
+  "name": "inb.sh",
   "version": "0.1.0",
-  "description": "Tail an Inbound endpoint and forward requests to localhost.",
+  "description": "Forward requests from an inb.sh endpoint to localhost.",
+  "keywords": [
+    "http",
+    "inspector",
+    "localhost",
+    "tunnel",
+    "webhook"
+  ],
+  "homepage": "https://inb.sh",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boringContributor/inb.sh.git",
+    "directory": "packages/cli"
+  },
   "bin": {
-    "inbound": "./dist/index.mjs"
+    "inb": "./dist/index.mjs"
   },
   "files": [
     "dist"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vp pack",
     "dev": "vp pack --watch"

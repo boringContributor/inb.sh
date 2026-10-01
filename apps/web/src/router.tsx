@@ -64,7 +64,9 @@ const appRoute = createRoute({
       queryKey: keys.config,
       queryFn: api.config,
     });
-    if (!config.user) throw redirect({ to: "/login", search: { next: location.pathname } });
+    // public instances have no login: guests get a workspace with their first endpoint
+    if (config.mode === "private" && !config.user)
+      throw redirect({ to: "/login", search: { next: location.pathname } });
   },
 });
 

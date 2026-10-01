@@ -1,8 +1,12 @@
 /**
- * inbound — tail an endpoint and forward every request to a local server.
+ * inb — tail an inb.sh endpoint and forward every request to a local server.
  *
- *   INBOUND_URL=https://app.inb.sh INBOUND_TOKEN=<admin password> \
- *     inbound listen <endpoint-id> --to http://localhost:4000
+ *   INBOUND_TOKEN=<token from the dashboard> \
+ *     npx inb.sh listen <endpoint-id> --to http://localhost:4000
+ *
+ * The token is shown in the dashboard (endpoint menu → "Use from the CLI").
+ * Self-hosted private instances use the admin password as the token and
+ * `--url` (or INBOUND_URL) for their dashboard origin.
  *
  * Opens two sockets to the endpoint's hub:
  *   ui      — every new request; with --to it's fetched and forwarded
@@ -54,11 +58,12 @@ const statusColor = (s: number | null) =>
   s === null ? c.red : s >= 500 ? c.red : s >= 400 ? c.yellow : c.green;
 
 function usage(code = 0): never {
-  console.log(`usage: inbound listen <endpoint-id> [--to http://localhost:4000] [--url https://app.inb.sh] [--token …]
+  console.log(`usage: inb listen <endpoint-id> [--to http://localhost:4000] [--url https://app.inb.sh] [--token …]
 
   --to      forward every captured request to this base URL
-  --url     dashboard origin (env INBOUND_URL)
-  --token   admin password (env INBOUND_TOKEN)
+  --url     dashboard origin (env INBOUND_URL, default https://app.inb.sh)
+  --token   workspace token from the dashboard, or the admin password on a
+            private instance (env INBOUND_TOKEN)
   --json    print one JSON line per request`);
   process.exit(code);
 }
@@ -67,7 +72,7 @@ const { values, positionals } = parseArgs({
   allowPositionals: true,
   options: {
     to: { type: "string" },
-    url: { type: "string", default: process.env.INBOUND_URL },
+    url: { type: "string", default: process.env.INBOUND_URL ?? "https://app.inb.sh" },
     token: { type: "string", default: process.env.INBOUND_TOKEN },
     json: { type: "boolean", default: false },
     help: { type: "boolean", short: "h" },
@@ -148,9 +153,26 @@ function socket(
         console.error(c.dim(`○ disconnected, retrying in ${Math.round(delay / 1000)}s`));
       setTimeout(connect, delay);
     });
-    ws.addEventListener("error", () => ws.close());
+    // "close" always follows "error" and handles the retry; closing here
+    // again would re-enter this handler forever
+    ws.addEventListener("error", () => {});
   };
   connect();
+}
+
+// Check endpoint + token over plain HTTP first: a failed WebSocket upgrade
+// carries no status, so this is where a useful error message comes from.
+try {
+  await api(`/endpoints/${endpointId}`);
+} catch (err) {
+  const msg = (err as Error).message;
+  console.error(
+    c.red("✕ ") +
+      (/→ 40[134]/.test(msg)
+        ? `Endpoint ${endpointId} not found for this token. Copy the command from the dashboard (endpoint menu → "Use from the CLI").`
+        : `Can't reach ${origin}: ${msg}`),
+  );
+  process.exit(1);
 }
 
 socket("ui", async (msg) => {

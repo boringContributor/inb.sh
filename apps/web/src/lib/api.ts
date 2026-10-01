@@ -135,6 +135,7 @@ export const api = {
   archived: (id: string) => get<CapturedRequest>(`/archive/${id}`),
   deleteArchived: (id: string) => del<{ ok: true }>(`/archive/${id}`),
 
+  cliToken: () => get<{ token: string | null }>("/cli-token"),
   settings: () => get<{ workspaceName: string; userName: string }>("/settings"),
   updateSettings: (input: { workspaceName?: string; userName?: string }) =>
     patch<{ ok: true }>("/settings", input),

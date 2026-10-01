@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, SearchField, Tooltip, toast } from "@heroui/react";
+import { useRuleLimit } from "../../lib/plan.ts";
 import { Play, Plus, Search, SlidersHorizontal } from "lucide-react";
 import type { Integration, Rule } from "@inb/shared";
 import { PageTitle, Topbar } from "../../components/page.tsx";
@@ -49,7 +50,14 @@ export function RulesPage() {
     void navigate({ to: "/rules", search: id ? { rule: id } : {}, replace: true });
   };
 
-  const startDraft = (value: Draft = emptyDraft()) => setDraft({ key: Date.now(), value });
+  const ruleLimit = useRuleLimit();
+  const startDraft = (value: Draft = emptyDraft()) => {
+    if (ruleLimit.reached) {
+      toast(ruleLimit.reason);
+      return;
+    }
+    setDraft({ key: Date.now(), value });
+  };
 
   const setCache = (updater: (list: Rule[]) => Rule[]) =>
     qc.setQueryData<Rule[]>(keys.rules, (list) => (list ? updater(list) : list));
@@ -163,7 +171,7 @@ export function RulesPage() {
               <Play className="size-4" />
               Test with last request
             </Button>
-            <Button onPress={() => startDraft()}>
+            <Button onPress={() => startDraft()} isDisabled={ruleLimit.reached}>
               <Plus className="size-4" />
               New rule
             </Button>
