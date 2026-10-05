@@ -140,6 +140,13 @@ Rules run in order on every request. Conditions (`method is POST`, `body.type st
 `response.*` run after the reply is decided. Actions: forward to an integration, respond (first match
 wins), replay to a URL (private addresses go through a CLI tunnel), archive, drop.
 
+To test a sender's retries, use `request.attempt`: `request.attempt less than 3` → respond `500`
+fails the first try and the first retry, then lets the second retry through. Identical deliveries
+are matched by the sender's delivery id (`webhook-id`, `svix-id`, `x-shopify-webhook-id`,
+`idempotency-key`) or else by method + path + body. A 2xx reply ends the sequence, so the next
+identical send starts at attempt 1. Counters also reset after 24 h without a retry, or when you
+clear the inbox. Attempts are only counted while a rule uses them.
+
 ### Transforms
 
 Transforms are [JSONata](https://jsonata.org) expressions over `{ method, path, query, headers, body }`.

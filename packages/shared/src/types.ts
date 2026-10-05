@@ -125,6 +125,8 @@ export interface RequestSummary {
   summary: string;
   receivedAt: string;
   replayCount: number;
+  /** set when a rule uses `request.attempt`: 1 for the first try, 2+ for retries */
+  attempt?: number;
 }
 
 export type RequestEventType =

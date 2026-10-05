@@ -22,11 +22,15 @@ type Row = {
   summary: string;
   received_at: number;
   replay_count: number;
+  attempt?: number | null;
   data: string;
 };
 
 const SUMMARY_COLUMNS = `id, endpoint_id, method, path, status, size, content_type, summary, received_at, replay_count`;
+const LIST_COLUMNS = `${SUMMARY_COLUMNS}, json_extract(data, '$.attempt') AS attempt`;
 const HOUR = 3_600_000;
+/** An identical delivery within this long of the previous one counts as a retry. */
+const ATTEMPT_TTL = 24 * HOUR;
 
 /**
  * One instance per endpoint. Owns the endpoint's request history in its own
@@ -64,6 +68,11 @@ export class EndpointHub extends DurableObject<Env> {
         detail TEXT NOT NULL
       )`);
       this.sql.exec(`CREATE INDEX IF NOT EXISTS events_request_idx ON events (request_id, at)`);
+      this.sql.exec(`CREATE TABLE IF NOT EXISTS attempts (
+        key TEXT PRIMARY KEY,
+        count INTEGER NOT NULL,
+        last_at INTEGER NOT NULL
+      )`);
     });
   }
 
@@ -105,15 +114,36 @@ export class EndpointHub extends DurableObject<Env> {
     stored.replayCount = row.replay_count;
     this.sql.exec(`UPDATE requests SET data = ? WHERE id = ?`, JSON.stringify(stored), requestId);
     this.insertEvent(requestId, event);
-    const summary = rowToSummary(row);
+    const summary = toSummary(stored);
     this.broadcast({ type: "request_updated", request: summary });
     this.broadcast({ type: "event", requestId, event });
     return summary;
   }
 
+  /** Count one delivery attempt for `key` and return its number (1 = first try). */
+  async countAttempt(key: string): Promise<number> {
+    const now = Date.now();
+    this.sql.exec(`DELETE FROM attempts WHERE key = ? AND last_at < ?`, key, now - ATTEMPT_TTL);
+    return this.sql
+      .exec<{ count: number }>(
+        `INSERT INTO attempts (key, count, last_at) VALUES (?, 1, ?)
+         ON CONFLICT (key) DO UPDATE SET count = count + 1, last_at = excluded.last_at
+         RETURNING count`,
+        key,
+        now,
+      )
+      .one().count;
+  }
+
+  /** The delivery was acknowledged: the next identical one starts at attempt 1 again. */
+  async settleAttempt(key: string): Promise<void> {
+    this.sql.exec(`DELETE FROM attempts WHERE key = ?`, key);
+  }
+
   async clear(): Promise<void> {
     this.sql.exec(`DELETE FROM requests`);
     this.sql.exec(`DELETE FROM events`);
+    this.sql.exec(`DELETE FROM attempts`);
     this.broadcast({ type: "cleared" });
   }
 
@@ -181,7 +211,7 @@ export class EndpointHub extends DurableObject<Env> {
     const dir = opts.order === "desc" ? "DESC" : "ASC";
     const rows = this.sql
       .exec<Row>(
-        `SELECT ${SUMMARY_COLUMNS} FROM requests ${clause} ORDER BY received_at ${dir}, id ${dir} LIMIT ?`,
+        `SELECT ${LIST_COLUMNS} FROM requests ${clause} ORDER BY received_at ${dir}, id ${dir} LIMIT ?`,
         ...params,
         opts.limit + 1,
       )
@@ -315,6 +345,7 @@ export class EndpointHub extends DurableObject<Env> {
       );
       this.sql.exec(`DELETE FROM requests WHERE received_at < ?`, cutoff);
     }
+    this.sql.exec(`DELETE FROM attempts WHERE last_at < ?`, Date.now() - ATTEMPT_TTL);
     const remaining = this.sql.exec<{ n: number }>(`SELECT COUNT(*) AS n FROM requests`).one().n;
     if (remaining > 0) await this.ctx.storage.setAlarm(Date.now() + HOUR);
   }
@@ -368,6 +399,7 @@ function rowToSummary(row: Omit<Row, "data">): RequestSummary {
     summary: row.summary,
     receivedAt: new Date(row.received_at).toISOString(),
     replayCount: row.replay_count,
+    ...(row.attempt != null && { attempt: row.attempt }),
   };
 }
 
@@ -383,5 +415,6 @@ export function toSummary(r: StoredRequest): RequestSummary {
     summary: r.summary,
     receivedAt: r.receivedAt,
     replayCount: r.replayCount,
+    ...(r.attempt !== undefined && { attempt: r.attempt }),
   };
 }

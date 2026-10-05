@@ -22,6 +22,7 @@ export const CONDITION_FIELDS = [
   "header content-type",
   "query",
   "response.status",
+  "request.attempt",
   "ip",
   "country",
 ] as const;
@@ -32,6 +33,14 @@ export function opLabel(op: ConditionOp): string {
 
 export function referencesResponse(conditions: Condition[]): boolean {
   return conditions.some((c) => c.field.trim().startsWith("response."));
+}
+
+/** `request.attempt` costs a lookup per request, so it's only counted when a rule needs it. */
+export function referencesAttempt(rule: { conditions: Condition[]; actions: unknown[] }): boolean {
+  return (
+    rule.conditions.some((c) => /^(request\.)?attempt$/.test(c.field.trim())) ||
+    /request\.attempt\b/.test(JSON.stringify(rule.actions))
+  );
 }
 
 function asText(value: unknown): string {

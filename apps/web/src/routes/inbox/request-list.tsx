@@ -171,6 +171,12 @@ function RequestRow({
             <span className="min-w-0 truncate font-mono">{request.path}</span>
             <span aria-hidden>·</span>
             <span className="shrink-0 font-mono">{formatBytes(request.size)}</span>
+            {request.attempt !== undefined && request.attempt > 1 && (
+              <>
+                <span aria-hidden>·</span>
+                <span className="shrink-0">attempt {request.attempt}</span>
+              </>
+            )}
             {request.replayCount > 0 && (
               <>
                 <span aria-hidden>·</span>

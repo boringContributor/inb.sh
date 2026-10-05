@@ -432,6 +432,17 @@ export function Inspector({
           <span className="whitespace-nowrap font-mono">{request.response.durationMs} ms</span>
           <span aria-hidden>·</span>
           <span className="whitespace-nowrap font-mono">{formatBytes(request.size)}</span>
+          {request.attempt !== undefined && (
+            <>
+              <span aria-hidden>·</span>
+              <span
+                className="whitespace-nowrap"
+                title="Identical deliveries seen, this one included"
+              >
+                attempt {request.attempt}
+              </span>
+            </>
+          )}
           {request.ip && (
             <>
               <span aria-hidden>·</span>

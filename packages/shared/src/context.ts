@@ -17,6 +17,8 @@ export interface RequestContext {
     ip: string | null;
     country: string | null;
     signature?: { provider: string; verified: boolean } | null;
+    /** nth identical delivery (1 = first try); only counted when a rule uses it */
+    attempt?: number;
   };
   response?: { status: number };
   endpoint: { id: string; slug: string; name: string };
@@ -109,6 +111,7 @@ export function contextFromCaptured(
     ip: string | null;
     country: string | null;
     signature?: { provider: string; verified: boolean } | null;
+    attempt?: number;
     status?: number;
   },
   endpoint: { id: string; slug: string; name: string },
@@ -128,6 +131,7 @@ export function contextFromCaptured(
       ip: req.ip,
       country: req.country,
       signature: req.signature ?? null,
+      attempt: req.attempt,
     },
     response: req.status ? { status: req.status } : undefined,
     endpoint,

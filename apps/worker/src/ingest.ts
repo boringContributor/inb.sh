@@ -7,6 +7,7 @@ import {
   evaluateConditions,
   nowContext,
   parseBody,
+  referencesAttempt,
   referencesResponse,
   renderConfiguredReply,
   renderTemplate,
@@ -29,7 +30,7 @@ import type { StoredRequest } from "./hub.ts";
 import { requestId as newRequestId } from "./lib/ids.ts";
 import { verifySignature } from "./lib/signature.ts";
 import { runTransform } from "./lib/transform.ts";
-import { toBase64 } from "./lib/crypto.ts";
+import { toBase64, toHex } from "./lib/crypto.ts";
 import type { DeliveryContext, DeliveryJob, OutboundRequest } from "./deliver/job.ts";
 import { consumeOutbound, endpointExpiry, instanceMode, planOf } from "./lib/workspace.ts";
 import type { Plan } from "@inb/shared";
@@ -38,6 +39,34 @@ import { encodeBody } from "./deliver/send.ts";
 /** Bodies above this are stored truncated; the full body is still forwarded. */
 const MAX_STORED_BODY = 1024 * 1024;
 const MAX_BODY = 10 * 1024 * 1024;
+
+/** Headers senders keep identical across retries of one delivery. */
+const DELIVERY_ID_HEADERS = [
+  "webhook-id",
+  "svix-id",
+  "x-shopify-webhook-id",
+  "idempotency-key",
+  "x-idempotency-key",
+];
+
+/**
+ * What makes two requests "the same delivery" for `request.attempt`: the
+ * sender's delivery id when it sends one, else method + path + raw body.
+ */
+async function deliveryKey(
+  method: string,
+  path: string,
+  headers: Record<string, string>,
+  bytes: Uint8Array,
+): Promise<string> {
+  const id = DELIVERY_ID_HEADERS.map((h) => headers[h]).find(Boolean);
+  if (id) return `id:${id}`;
+  const prefix = new TextEncoder().encode(`${method} ${path}\n`);
+  const data = new Uint8Array(prefix.byteLength + bytes.byteLength);
+  data.set(prefix);
+  data.set(bytes, prefix.byteLength);
+  return `body:${toHex(new Uint8Array(await crypto.subtle.digest("SHA-256", data)))}`;
+}
 
 const PRIVATE_HOST =
   /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[::1\])/;
@@ -181,6 +210,13 @@ export async function handleCapture(
       }
     : null;
 
+  const rules = await activeRules(db, endpoint.workspaceId, endpoint.id);
+  const hub = env.Hub.get(env.Hub.idFromName(endpoint.id));
+  const attemptKey = rules.some(referencesAttempt)
+    ? await deliveryKey(req.method, path, headerMap, bytes)
+    : null;
+  const attempt = attemptKey ? await hub.countAttempt(attemptKey) : undefined;
+
   const ctx: RequestContext = {
     request: {
       id,
@@ -194,12 +230,12 @@ export async function handleCapture(
       ip,
       country,
       signature,
+      attempt,
     },
     endpoint: { id: endpoint.id, slug: endpoint.slug, name: endpoint.name },
     now: nowContext(receivedAt),
   };
 
-  const rules = await activeRules(db, endpoint.workspaceId, endpoint.id);
   const preRules = rules.filter((r) => !referencesResponse(r.conditions));
   const postRules = rules.filter((r) => referencesResponse(r.conditions));
   const matchedPre = preRules.filter((r) => evaluateConditions(ctx, r.conditions));
@@ -228,6 +264,7 @@ export async function handleCapture(
         : summary,
     receivedAt: receivedAt.toISOString(),
     replayCount: 0,
+    ...(attempt !== undefined && { attempt }),
     query,
     headers,
     body: storedBody.length > MAX_STORED_BODY ? storedBody.slice(0, MAX_STORED_BODY) : storedBody,
@@ -247,7 +284,7 @@ export async function handleCapture(
       type: "received",
       at: iso,
       label: "Received",
-      detail: new Date(iso).toISOString().slice(11, 23),
+      detail: new Date(iso).toISOString().slice(11, 23) + (attempt ? ` · attempt ${attempt}` : ""),
     },
     {
       type: "matched",
@@ -266,7 +303,19 @@ export async function handleCapture(
   ];
 
   exec.waitUntil(
-    afterReply(env, db, endpoint, plan, today, stored, events, matched, ctx, dropped).catch((err) =>
+    afterReply(
+      env,
+      db,
+      endpoint,
+      plan,
+      today,
+      stored,
+      events,
+      matched,
+      ctx,
+      dropped,
+      attemptKey,
+    ).catch((err) =>
       console.error("post-capture pipeline failed", { requestId: id, err: String(err) }),
     ),
   );
@@ -360,9 +409,12 @@ async function afterReply(
   matched: RuleRow[],
   ctx: RequestContext,
   dropped: boolean,
+  attemptKey: string | null,
 ) {
   const hub = env.Hub.get(env.Hub.idFromName(endpoint.id));
   const now = new Date();
+  if (attemptKey && stored.status >= 200 && stored.status < 300)
+    await hub.settleAttempt(attemptKey);
 
   const counters = db
     .update(schema.endpoints)
