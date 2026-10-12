@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /** Re-render every `intervalMs` so relative timestamps ("2s ago") stay fresh. */
 export function useNow(intervalMs = 5000): number {
@@ -8,6 +8,35 @@ export function useNow(intervalMs = 5000): number {
     return () => clearInterval(id);
   }, [intervalMs]);
   return now;
+}
+
+const UNSEEN_PREFIX = /^\(\d+\+?\) /;
+
+/**
+ * Prefix the tab title with the number of requests that arrived while the tab
+ * was in the background — "(3) inb.sh" — and clear it once the tab is viewed.
+ * Returns the callback to invoke for each new request.
+ */
+export function useUnseenTitle(): () => void {
+  const [unseen, setUnseen] = useState(0);
+
+  useEffect(() => {
+    const onVisibility = () => !document.hidden && setUnseen(0);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      document.title = document.title.replace(UNSEEN_PREFIX, "");
+    };
+  }, []);
+
+  useEffect(() => {
+    const base = document.title.replace(UNSEEN_PREFIX, "");
+    document.title = unseen ? `(${unseen > 99 ? "99+" : unseen}) ${base}` : base;
+  }, [unseen]);
+
+  return useCallback(() => {
+    if (document.hidden) setUnseen((n) => n + 1);
+  }, []);
 }
 
 export function useDebounced<T>(value: T, delayMs = 250): T {

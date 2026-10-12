@@ -15,7 +15,7 @@ import { EndpointMenu } from "./endpoint-menu.tsx";
 import { FirstRequestStage, WaitingList } from "./first-request.tsx";
 import { Inspector } from "./inspector.tsx";
 import { RequestList, RowSkeletons } from "./request-list.tsx";
-import { isTypingTarget, useDebounced } from "./hooks.ts";
+import { isTypingTarget, useDebounced, useUnseenTitle } from "./hooks.ts";
 
 const PAGE_SIZE = 50;
 
@@ -88,9 +88,14 @@ export function InboxPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q]);
 
-  const onLiveRequest = useCallback((r: RequestSummary) => {
-    setNewIds((prev) => new Set(prev).add(r.id));
-  }, []);
+  const markUnseen = useUnseenTitle();
+  const onLiveRequest = useCallback(
+    (r: RequestSummary) => {
+      setNewIds((prev) => new Set(prev).add(r.id));
+      markUnseen();
+    },
+    [markUnseen],
+  );
   const live = useLiveRequests(endpointId, { paused, onRequest: onLiveRequest });
 
   const requests = useInfiniteQuery({
